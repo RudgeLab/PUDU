@@ -1,13 +1,46 @@
 from opentrons import protocol_api
 
 class Protocol_from_sbol():
-    """Creates a protocol for the automated assembly of a SBOL Composite.
-    The protocols as by the following modules in default positions:
-    Thermocycler module = nest_96_wellplate_100ul_pcr_full_skirt: Slots 7, 8, 10, 11
-    Temperature Module = opentrons_24_aluminumblock_nest_1.5ml_snapcap: Slot 1
-    Tiprack = opentrons_96_tiprack_20ul: Slot 9
-    Pipette = p20_single_gen2: left
-    """
+    '''
+    Creates a protocol for the automated assembly of a SBOL Composite.
+
+    Attributes
+    ----------
+    assembly_plan : sbol3.Component
+        The SBOL Composite to be assembled.
+    volume_total_reaction : float
+        The total volume of the reaction mix in microliters. By default, 20 microliters.
+    volume_part : float
+        The volume of each part in microliters. By default, 2 microliters.
+    volume_bsai : float
+        The volume of BsaI in microliters. By default, 2 microliters.
+    volume_t4_dna_ligase : float
+        The volume of T4 DNA Ligase in microliters. By default, 4 microliters.
+    volume_t4_dna_ligase_buffer : float
+        The volume of T4 DNA Ligase Buffer in microliters. By default, 2 microliters.
+    replicates : int    
+        The number of replicates of the assembly reaction. By default, 2.
+    aspiration_rate : float
+        The rate of aspiration in microliters per second. By default, 0.5 microliters per second.
+    thermocycler_starting_well : int    
+        The starting well of the thermocycler module. By default, 0.
+    thermocycler_labware : str
+        The labware type of the thermocycler module. By default, 'nest_96_wellplate_100ul_pcr_full_skirt'.
+    thermocycler_slots : list
+        The slots of the thermocycler module. By default, [7, 8, 10, 11].
+    temperature_module_labware : str
+        The labware type of the temperature module. By default, 'opentrons_24_aluminumblock_nest_1.5ml_snapcap'.
+    temperature_module_slot : int
+        The slot of the temperature module. By default, 1.
+    tiprack_labware : str
+        The labware type of the tiprack. By default, 'opentrons_96_tiprack_20ul'.
+    tiprack_slot : int
+        The slot of the tiprack. By default, 9.
+    pipette_type : str
+        The type of pipette. By default, 'p20_single_gen2'.
+    pipette_mount : str
+        The mount of the pipette. By default, 'left'.
+    '''
     def __init__(self, assembly_plan:sbol3.Component,
                  volume_total_reaction:float = 20,
                  volume_part:float = 2,
@@ -17,7 +50,6 @@ class Protocol_from_sbol():
                  replicates:int=2,
                  aspiration_rate:float=0.5,
                  thermocycler_starting_well:int = 0,
-
                  thermocycler_labware:str = 'nest_96_wellplate_100ul_pcr_full_skirt',
                  temperature_module_labware:str = 'opentrons_24_aluminumblock_nest_1.5ml_snapcap',
                  temperature_module_position:int = 1,
@@ -36,7 +68,6 @@ class Protocol_from_sbol():
         self.replicates = replicates
         self.aspiration_rate = aspiration_rate
         self.thermocycler_starting_well = thermocycler_starting_well
-
         self.thermocycler_labware = thermocycler_labware
         self.temperature_module_labware = temperature_module_labware
         self.temperature_module_position = temperature_module_position
@@ -45,10 +76,6 @@ class Protocol_from_sbol():
         self.pipette = pipette
         self.pipette_position = pipette_position
     
-        number_of_parts = len(self.assembly_plan.parts_in_backbone) +len(self.assembly_plan.acceptor_backbone)
-        if number_of_parts > 20:
-            raise ValueError('Number of parts in the assembly plan is greater than 20. This protocol only supports assemblies with up to 20 parts')
-        
         metadata = {
         'protocolName': 'Automated Golden Gate from SBOL',
         'author': 'Gonzalo Vidal <gsvidal@uc.cl>, Carlos Vidal-Céspedes <carlos.vidal.c@ug.uchile.cl>',
@@ -126,6 +153,9 @@ class Protocol_from_sbol():
         dict_of_parts_in_temp_mod_position = {}
         temp_wells_counter = 4
         #Pair a part with its ubication in the temperature module
+        for part in self.assembly_plan.parts:
+            dict_of_parts_in_temp_mod_position[part] = tem_mod_block[temp_wells[temp_wells_counter]]
+            temp_wells_counter += 1
         for part_in_backbone in self.assembly_plan.parts_in_backbone:
             dict_of_parts_in_temp_mod_position[part_in_backbone] = tem_mod_block[temp_wells[temp_wells_counter]]
             temp_wells_counter += 1
@@ -135,6 +165,7 @@ class Protocol_from_sbol():
             temp_wells_counter += 1
 
         assemblies = []
+        assemblies_compoent_set = set()
         for composite in self.assembly_plan.composites:
             volume_parts = len(composite.features) * volume_part
             volume_dd_h2o = volume_total - (volume_reagents + volume_parts)
@@ -144,12 +175,19 @@ class Protocol_from_sbol():
             for part_extract_sc in composite.features:
                 #get parts
                 part = find_top_level(part_extract_sc.instance_of)
+                assemblies_compoent_set.add(part)
                 #get part's ubication
                 part_ubication = dict_of_parts_in_temp_mod_position[part]
                 #append parts_in_bb and acceptor_backbone
                 composite_parts.append(part_ubication)
             assemblies.append(composite_parts)
-                
+
+        if len(assemblies_compoent_set) > 20:
+            raise ValueError('Number of parts in the assembly plan is greater than 20. This protocol only supports assemblies with up to 20 parts')
+        for part_component in assemblies_compoent_set:
+            dict_of_parts_in_temp_mod_position[part_component] = tem_mod_block[temp_wells[temp_wells_counter]]
+            temp_wells_counter += 1
+
         '''
         previous version
         #lists of ubications
@@ -212,10 +250,12 @@ class Protocol_from_sbol():
                     left_pipette.blow_out()
                     left_pipette.drop_tip()
                     i+=1
-        for composite in assemblies:
-            
+
+        for composite in self.assembly_plan.composites:
             for _ in range(replicates):
-                for part in tu:
+                #create assembled_dna Implementation that points to the composite
+                #create dictionary of implementations in thermocycler position
+                for part in composite:
                     composite_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
                     left_pipette.pick_up_tip()
                     left_pipette.aspirate(volume_part, part, rate=asp_rate)
@@ -251,13 +291,3 @@ class Protocol_from_sbol():
         #The thermocycler's lid is opened and the block temperature is set to 4°C
         #thermocycler_mod.open_lid() #The operator can open the lid manually when the experiment is finished
         thermocycler_mod.set_block_temperature(4)
-
-
-class Domestication():
-  pass
-
-class Loop_assembly_odd():
-  pass
-
-class Loop_assembly_even():
-  pass
