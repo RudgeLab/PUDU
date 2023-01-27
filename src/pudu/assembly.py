@@ -152,17 +152,6 @@ class Protocol_from_sbol():
 
         dict_of_parts_in_temp_mod_position = {}
         temp_wells_counter = 4
-        #Pair a part with its ubication in the temperature module
-        for part in self.assembly_plan.parts:
-            dict_of_parts_in_temp_mod_position[part] = tem_mod_block[temp_wells[temp_wells_counter]]
-            temp_wells_counter += 1
-        for part_in_backbone in self.assembly_plan.parts_in_backbone:
-            dict_of_parts_in_temp_mod_position[part_in_backbone] = tem_mod_block[temp_wells[temp_wells_counter]]
-            temp_wells_counter += 1
-
-        for acceptor_backbone in self.assembly_plan.acceptor_backbone:
-            dict_of_parts_in_temp_mod_position[acceptor_backbone] = tem_mod_block[temp_wells[temp_wells_counter]]
-            temp_wells_counter += 1
 
         assemblies = []
         assemblies_compoent_set = set()
