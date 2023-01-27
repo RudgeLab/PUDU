@@ -228,18 +228,7 @@ class Protocol_from_sbol():
             left_pipette.drop_tip()
 
         #for well in wells:
-        i = starting_well
-        for _ in range(replicates):
-            for tu in assemblies:
-                for part in tu:
-                    composite_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
-                    left_pipette.pick_up_tip()
-                    left_pipette.aspirate(volume_part, part, rate=asp_rate)
-                    left_pipette.dispense(volume_part, composite_ubication_in_thermocyler) #Define place in the thermocycler
-                    left_pipette.blow_out()
-                    left_pipette.drop_tip()
-                    i+=1
-
+        i = self.thermocycler_starting_well
         for composite in self.assembly_plan.composites:
             for _ in range(replicates):
                 #create assembled_dna Implementation that points to the composite
