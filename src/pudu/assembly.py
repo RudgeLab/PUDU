@@ -280,3 +280,13 @@ class Protocol_from_sbol():
         #The thermocycler's lid is opened and the block temperature is set to 4°C
         #thermocycler_mod.open_lid() #The operator can open the lid manually when the experiment is finished
         thermocycler_mod.set_block_temperature(4)
+        
+
+class Domestication():
+  pass
+
+class Loop_assembly_odd():
+  pass
+
+class Loop_assembly_even():
+  pass
