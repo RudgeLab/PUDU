@@ -1,5 +1,5 @@
 from opentrons import protocol_api
-import sbol3
+from sbol3 import Implementation
 from sbol-utilities import find_top_level
 from utils import thermo_wells, temp_wells
 
@@ -78,6 +78,7 @@ class Protocol_from_sbol():
         self.tiprack_position = tiprack_position
         self.pipette = pipette
         self.pipette_position = pipette_position
+        self.sbol_output = []
     
         metadata = {
         'protocolName': 'Automated Golden Gate from SBOL',
@@ -215,9 +216,11 @@ class Protocol_from_sbol():
         #for well in wells:
         i = self.thermocycler_starting_well
         for composite in self.assembly_plan.composites:
-            for _ in range(replicates):
+            for r in range(replicates):
                 #create assembled_dna Implementation that points to the composite
-                #create dictionary of implementations in thermocycler position
+                assembled_dna = sbol3.Implementation(f'assembled_dna_{r}', composite, description=f'Thermocycler well {thermo_wells[i]}')
+                self.sbol_output.append(assembled_dna)
+                #create virtual plate
                 for part in composite:
                     composite_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
                     left_pipette.pick_up_tip()
@@ -257,10 +260,19 @@ class Protocol_from_sbol():
         
 
 class Domestication():
-  pass
+    '''
+    Creates a protocol for the automated assembly of a SBOL Composite.
+
+    '''
 
 class Loop_assembly_odd():
-  pass
+    '''
+    Creates a protocol for the automated assembly of a SBOL Composite.
+
+    '''
 
 class Loop_assembly_even():
-  pass
+    '''
+    Creates a protocol for the automated assembly of a SBOL Composite.
+
+    '''

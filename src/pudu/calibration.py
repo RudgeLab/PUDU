@@ -1,7 +1,7 @@
 from opentrons import protocol_api
 from utils import plate_96_wells, temp_wells
 
-class igem_gfp_od():
+class iGEM_gfp_od():
     '''
     Creates a ptopocol to calibrate GFP using fluorescein (MEFL) and OD600 using nanoparticles.
     Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
@@ -194,7 +194,7 @@ class igem_gfp_od():
 
         #END
 
-class igem_rgb_od():
+class iGEM_rgb_od():
     '''
     Creates a ptopocol to calibrate GFP using fluorescein (MEFL), sulforhodamine 101, cascade blue and OD600 using nanoparticles.
     Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
