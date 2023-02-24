@@ -1,8 +1,8 @@
 from opentrons import protocol_api
 import sbol3
 from sbol_utilities.helper_functions import find_top_level
-from utils import thermo_wells, temp_wells, liquid_transfer
-from typing import List, Dict
+from .utils import thermo_wells, temp_wells, liquid_transfer
+from typing import List, Dict, Union
 
 class DNA_assembly():
     '''
@@ -180,7 +180,7 @@ class Protocol_from_sbol(DNA_assembly):
         assemblies_compoent_set = set()
         for composite in self.assembly_plan.composites:
             volume_parts = len(composite.features) * self.volume_part
-            volume_dd_h2o = self.volume_total - (volume_reagents + volume_parts)
+            volume_dd_h2o = self.volume_total_reaction - (volume_reagents + volume_parts)
             if volume_dd_h2o < 1 and volume_dd_h2o!=0 :
                 raise ValueError('The volume of dd_h2o is not enough to perform the experiment')
             composite_parts = []
@@ -251,28 +251,14 @@ class Domestication(DNA_assembly):
     Creates a protocol for automated domestication, assembly of parts into universal acceptor backbone.
 
     '''
-    def __init__(self, parts:Union[List,Dict], acceptor_backbone:Union[str, sbol3.Component]):
-        super().__init__(
-        volume_total_reaction,
-        volume_part,
-        volume_restriction_enzyme,
-        volume_t4_dna_ligase,
-        volume_t4_dna_ligase_buffer,
-        replicates,
-        thermocycler_starting_well,
-        thermocycler_labware,
-        temperature_module_labware,
-        temperature_module_position,
-        tiprack_labware,
-        tiprack_position,
-        pipette,
-        pipette_position,
-        aspiration_rate,
-        dispense_rate,)
+    def __init__(self, parts:Union[List,Dict], acceptor_backbone:Union[str, sbol3.Component],
+        *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
         self.parts = parts
         self.acceptor_backbone = acceptor_backbone
         self.dict_of_parts_in_temp_mod_position = {}
+        self.dict_of_parts_in_thermocycler = {}
         self.sbol_output = []
 
         if len(parts) > 19:
@@ -299,7 +285,7 @@ class Domestication(DNA_assembly):
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
         #Fixed volumes
         volume_reagents = self.volume_restriction_enzyme + self.volume_t4_dna_ligase + self.volume_t4_dna_ligase_buffer
-        volume_dd_h2o = self.volume_total - (volume_reagents + self.volume_parts*2)
+        volume_dd_h2o = self.volume_total_reaction - (volume_reagents + self.volume_part*2)
         #Load the reagents
         restriction_enzyme = tem_mod_block['A1']
         t4_dna_ligase = tem_mod_block['A2'] 
@@ -318,27 +304,30 @@ class Domestication(DNA_assembly):
         #can be done with multichannel pipette
         for well in wells:
             liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate)
-            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=volume_t4_dna_ligase_buffer)
-            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=volume_restriction_enzyme)
-            liquid_transfer(pipette, self.volume_part, backbone, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=volume_part)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
+            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+            liquid_transfer(pipette, self.volume_part, backbone, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
         #for well in wells:
         i = self.thermocycler_starting_well
-        for part in parts:  
-            for r in range(replicates):
-                #Add sbol type
-                if type(part) == str:
+        #TODO map parts to wells
+        for part in self.parts:
+            if type(part) == str:
                     part_name=part
-                elif type(part) == sbol3.Component:
-                    part_name=part.name     
+            elif type(part) == sbol3.Component:
+                part_name=part.name     
+            else: raise ValueError(f'Part {part} is not a string or an sbol3.Component')  
+            self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[temp_wells_counter]
+            for r in range(self.replicates):
+                #Add sbol implementation
+                if type(part) == sbol3.Component: 
                     #create assembled_dna Implementation that points to the part
                     assembled_dna = sbol3.Implementation(f'assembled_dna_{part_name}_{r}', part, description=f'Thermocycler well {thermo_wells[i]}')
                     self.sbol_output.append(assembled_dna)
-                else: raise ValueError(f'Part {part} is not a string or an sbol3.Component')
-                #create virtual plate
                 part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
-                liquid_transfer(pipette, volume_part, part, part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=volume_restriction_enzyme)
-                self.dict_of_parts_in_temp_mod_position[temp_wells[i]] = part_name
+                liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+                self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[i]
                 i+=1
+            temp_wells_counter += 1
         
         protocol.comment('Take out the reagents since the temperature module will be turn off')
         #We close the thermocycler lid and wait for the temperature to reach 42°C
