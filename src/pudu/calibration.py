@@ -1,10 +1,12 @@
 from opentrons import protocol_api
-from utils import plate_96_wells, temp_wells, liquid_transfer
+from .utils import plate_96_wells, temp_wells, liquid_transfer
 
 class Calibration():
-    '''
+    """
     Creates a ptopocol to calibrate GFP using fluorescein (MEFL) and OD600 using nanoparticles.
     Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
+
+    ...
 
     Attributes
     ----------   
@@ -36,7 +38,7 @@ class Calibration():
         Labware to use as falcon tube rack. By default opentrons_6_tuberack_falcon_50ml_conical.
     falcon_tube_rack_position: int
         Deck position for falcon tube rack. By default 2.
-    '''
+    """
     def __init__(self, 
         aspiration_rate:float=0.5,
         dispense_rate:float=1,
@@ -52,8 +54,8 @@ class Calibration():
         use_falcon_tubes:bool=False,
         falcon_tube_rack_labware:str='opentrons_6_tuberack_falcon_50ml_conical',
         falcon_tube_rack_position:int=2,
-
         ):
+
         self.aspiration_rate = aspiration_rate
         self.dispense_rate = dispense_rate
         self.tiprack_labware = tiprack_labware
@@ -71,7 +73,7 @@ class Calibration():
 
 
 class iGEM_gfp_od(Calibration):
-    '''
+    """
     Creates a ptopocol to calibrate GFP using fluorescein (MEFL) and OD600 using nanoparticles.
     Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
 
@@ -105,12 +107,13 @@ class iGEM_gfp_od(Calibration):
         Labware to use as falcon tube rack. By default opentrons_6_tuberack_falcon_50ml_conical.
     falcon_tube_rack_position: int
         Deck position for falcon tube rack. By default 2.
-    '''
-    def __init__(self):
-        super().__init__(aspiration_rate, dispense_rate, tiprack_labware, tiprack_position, 
-            pipette, pipette_position, calibration_plate_labware, calibration_plate_position,
-            use_temperature_module, tube_rack_labware, tube_rack_position, 
-            use_falcon_tubes, falcon_tube_rack_labware, falcon_tube_rack_position)
+    """
+    def __init__(self, protocol,
+            *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.protocol = protocol
+        self.sbol_output = []
 
         metadata = {
         'protocolName': 'iGEM GFP OD600 calibration',
@@ -118,8 +121,9 @@ class iGEM_gfp_od(Calibration):
         'description': 'Protocol to perform serial dilutions of fluorescein and nanoparticles for calibration',
         'apiLevel': '2.13'}
 
-    def run(self, protocol: protocol_api.ProtocolContext):
-
+    def run(self):
+        #Set deck
+        protocol= self.protocol
         #Labware
         tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
@@ -132,7 +136,6 @@ class iGEM_gfp_od(Calibration):
         if self.use_falcon_tubes:
             falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
         #Protocol
-        #set deck
         #add calibrants
         fluorescein_1x = tube_rack['A1']
         microspheres_1x = tube_rack['A2']
@@ -141,11 +144,12 @@ class iGEM_gfp_od(Calibration):
         pbs_2 = tube_rack['A4']
         water_1 = tube_rack['A5']
         water_2 = tube_rack['A6']
-        #add dilution buffers in falcon tube rack
-        pbs_falcon = falcon_tube_rack['A1']
-        water_falcon = falcon_tube_rack['A2']
         #if using falcon, remap pbs and water
         if self.use_falcon_tubes:
+            #add dilution buffers in falcon tube rack
+            pbs_falcon = falcon_tube_rack['A1']
+            water_falcon = falcon_tube_rack['A2']
+            #remap pbs and water
             pbs_1 = pbs_falcon
             pbs_2 = pbs_falcon
             water_1 = water_falcon
@@ -179,7 +183,7 @@ class iGEM_gfp_od(Calibration):
         #END
 
 class iGEM_rgb_od(Calibration):
-    '''
+    """
     Creates a ptopocol to calibrate GFP using fluorescein (MEFL), sulforhodamine 101, cascade blue and OD600 using nanoparticles.
     Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
 
@@ -213,7 +217,7 @@ class iGEM_rgb_od(Calibration):
         Labware to use as falcon tube rack. By default opentrons_6_tuberack_falcon_50ml_conical.
     falcon_tube_rack_position: int
         Deck position for falcon tube rack. By default 2.
-    '''
+    """
     def __init__(self):
         super().__init__(aspiration_rate, dispense_rate, tiprack_labware, tiprack_position, 
             pipette, pipette_position, calibration_plate_labware, calibration_plate_position,
