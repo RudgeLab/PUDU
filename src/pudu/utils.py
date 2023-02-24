@@ -32,11 +32,11 @@ plate_96_wells = [
 def liquid_transfer(pipette, volume, source, destination, asp_rate:float=0.5, disp_rate:float=1.0, blow_out:bool=True, touch_tip:bool=False, mix_before:float=0.0, mix_after:float=0.0, mix_reps:int=3):
     pipette.pick_up_tip()
     if mix_before > 0:
-        pipette.mix(mix_reps, mix_before)
+        pipette.mix(mix_reps, mix_before, source)
     pipette.aspirate(volume, source, rate=asp_rate)
     pipette.dispense(volume, destination, rate=disp_rate)
     if mix_after > 0:
-        pipette.mix(mix_reps, mix_after)
+        pipette.mix(mix_reps, mix_after, destination)
     if blow_out: 
         pipette.blow_out()
     if touch_tip:

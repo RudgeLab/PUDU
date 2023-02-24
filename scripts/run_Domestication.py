@@ -1,4 +1,4 @@
-from pudu.calibration import iGEM_gfp_od
+from pudu.assembly import Domestication
 from opentrons import protocol_api
 
 # metadata
@@ -10,5 +10,5 @@ metadata = {
 
 def run(protocol= protocol_api.ProtocolContext):
 
-    pudu_calibration = iGEM_gfp_od(protocol)
-    pudu_calibration.run()
+    pudu_calibration = Domestication(parts=['pro', 'rbs','cds', 'ter'], acceptor_backbone='UA')
+    pudu_calibration.run(protocol)
