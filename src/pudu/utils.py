@@ -29,8 +29,9 @@ plate_96_wells = [
 'H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','H11','H12'
 ]
 
-def liquid_transfer(pipette, volume, source, destination, asp_rate:float=0.5, disp_rate:float=1.0, blow_out:bool=True, touch_tip:bool=False, mix_before:float=0.0, mix_after:float=0.0, mix_reps:int=3):
-    pipette.pick_up_tip()
+def liquid_transfer(pipette, volume, source, destination, asp_rate:float=0.5, disp_rate:float=1.0, blow_out:bool=True, touch_tip:bool=False, mix_before:float=0.0, mix_after:float=0.0, mix_reps:int=3, new_tip:bool=True, drop_tip:bool=True):
+    if new_tip:
+        pipette.pick_up_tip()
     if mix_before > 0:
         pipette.mix(mix_reps, mix_before, source)
     pipette.aspirate(volume, source, rate=asp_rate)
@@ -41,4 +42,5 @@ def liquid_transfer(pipette, volume, source, destination, asp_rate:float=0.5, di
         pipette.blow_out()
     if touch_tip:
         pipette.touch_tip()
-    pipette.drop_tip() 
+    if drop_tip:
+        pipette.drop_tip() 
