@@ -121,26 +121,13 @@ class Protocol_from_sbol(DNA_assembly):
     pipette_mount : str
         The mount of the pipette. By default, 'left'.
     '''
-    def __init__(self, assembly_plan:sbol3.Component):
-        super().__init__(
-        volume_total_reaction,
-        volume_part,
-        volume_restriction_enzyme,
-        volume_t4_dna_ligase,
-        volume_t4_dna_ligase_buffer,
-        replicates,
-        thermocycler_starting_well,
-        thermocycler_labware,
-        temperature_module_labware,
-        temperature_module_position,
-        tiprack_labware,
-        tiprack_position,
-        pipette,
-        pipette_position,
-        aspiration_rate,
-        dispense_rate,)
+    def __init__(self, assembly_plan:sbol3.Component,
+       *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
         self.assembly_plan = assembly_plan
+        self.dict_of_parts_in_temp_mod_position = {}
+        self.dict_of_parts_in_thermocycler = {}
         self.sbol_output = []
     
         metadata = {
