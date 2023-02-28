@@ -10,5 +10,5 @@ metadata = {
 
 def run(protocol= protocol_api.ProtocolContext):
 
-    pudu_calibration = iGEM_gfp_od(protocol)
-    pudu_calibration.run()
+    pudu_calibration = iGEM_gfp_od()
+    pudu_calibration.run(protocol)

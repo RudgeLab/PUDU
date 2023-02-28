@@ -108,11 +108,10 @@ class iGEM_gfp_od(Calibration):
     falcon_tube_rack_position: int
         Deck position for falcon tube rack. By default 2.
     """
-    def __init__(self, protocol,
+    def __init__(self,
             *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.protocol = protocol
         self.sbol_output = []
 
         metadata = {
@@ -121,9 +120,8 @@ class iGEM_gfp_od(Calibration):
         'description': 'Protocol to perform serial dilutions of fluorescein and nanoparticles for calibration',
         'apiLevel': '2.13'}
 
-    def run(self):
+    def run(self,protocol):
         #Set deck
-        protocol= self.protocol
         #Labware
         tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
@@ -172,14 +170,14 @@ class iGEM_gfp_od(Calibration):
         liquid_transfer(pipette, 200, microspheres_1x, plate['D1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
         #fluorescein serial dilutions
         for i in range(0,11):
-            liquid_transfer(pipette, 100, plate_96_wells[i], plate_96_wells[i+1], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
         for i in range(12,23):
-            liquid_transfer(pipette, 100, plate_96_wells[i], plate_96_wells[i+1], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
         #nanoparticles serial dilutions
         for i in range(24,35):
-            liquid_transfer(pipette, 100, plate_96_wells[i], plate_96_wells[i+1], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
         for i in range(36,47):
-            liquid_transfer(pipette, 100, plate_96_wells[i], plate_96_wells[i+1], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
         #END
 
 class iGEM_rgb_od(Calibration):
