@@ -3,6 +3,9 @@ import sbol3
 from sbol_utilities.helper_functions import find_top_level
 from .utils import thermo_wells, temp_wells, liquid_transfer
 from typing import List, Dict, Union
+from fnmatch import fnmatch
+from itertools import product
+
 
 class DNA_assembly():
     '''
@@ -292,6 +295,7 @@ class Domestication(DNA_assembly):
         for well in wells:
             liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate)
             liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase, t4_dna_ligase, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase)
             liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
             liquid_transfer(pipette, self.volume_part, backbone, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
         #for well in wells:
@@ -311,6 +315,7 @@ class Domestication(DNA_assembly):
                     assembled_dna = sbol3.Implementation(f'assembled_dna_{part_name}_{r}', part, description=f'Thermocycler well {thermo_wells[i]}')
                     self.sbol_output.append(assembled_dna)
                 part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
+                self.dict_of_parts_in_thermocycler[part_name] = thermo_wells[i]
                 liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
                 self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[i]
                 i+=1
@@ -335,70 +340,185 @@ class Domestication(DNA_assembly):
         thermocycler_mod.set_block_temperature(4)
         #END
 
-class Loop_assembly_odd(DNA_assembly):
+class Loop_assembly(DNA_assembly):
     '''
-    Creates a protocol for the automated Odd level Loop assembly.
+    Creates a protocol for the automated Odd and/or Even level Loop assembly.
 
     '''
-    def __init__(self, assembly:Dict):
-        super().__init__(
-        volume_total_reaction,
-        volume_part,
-        volume_restriction_enzyme,
-        volume_t4_dna_ligase,
-        volume_t4_dna_ligase_buffer,
-        replicates,
-        aspiration_rate,
-        thermocycler_starting_well,
-        thermocycler_labware,
-        temperature_module_labware,
-        temperature_module_position,
-        tiprack_labware,
-        tiprack_position,
-        pipette,
-        pipette_position)
+    def __init__(self, assemblies:List[Dict],
+        *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        self.assembly_plan = assembly_plan
+        self.assemblies = assemblies
+        self.dict_of_parts_in_temp_mod_position = {}
+        self.dict_of_parts_in_thermocycler = {}
+        self.assembly_plan = None
         self.sbol_output = []
+        self.pattern_odd = 'Odd*'
+        self.pattern_even = 'Even*'
+        self.parts_set = set()
+        self.has_odd = False
+        self.has_even = False
+        self.odd_combinations = []
+        self.even_combinations = []
+            
+        # add parts to a set
+        for assembly in self.assemblies:
+            list_of_list_of_parts_per_role = []
+            if fnmatch(assembly['receiver'], self.pattern_odd):
+                self.has_odd = True
+                for role in assembly:
+                    parts = assembly[role]
+                    if type(parts) is str:
+                        parts_per_role = [parts]
+                    elif type(parts) is list:
+                        for part in parts:
+                            self.parts_set.add(part)
+                    list_of_list_of_parts_per_role.append(parts_per_role)
+                list_of_combinations_per_assembly = list(product(*list_of_list_of_parts_per_role))
+                for combination in list_of_combinations_per_assembly:
+                    self.odd_combinations.append(combination)
+            if fnmatch(assembly['receiver'], self.pattern_even):
+                self.has_even = True   
+                for role in assembly:
+                    parts = assembly[role]
+                    if type(parts) is str:
+                        parts_per_role = [parts]
+                    elif type(parts) is list:
+                        for part in parts:
+                            self.parts_set.add(part)
+                    list_of_list_of_parts_per_role.append(parts_per_role)
+                list_of_combinations_per_assembly = list(product(*list_of_list_of_parts_per_role))
+                for combination in list_of_combinations_per_assembly:
+                    self.even_combinations.append(combination)
+
+        if self.has_odd and self.has_even:
+            max_parts = 18
+        elif self.has_odd or self.has_even:
+            max_parts = 19
+        else:
+            raise ValueError('Assembly does not have any Even or Odd receiver')
+        if len(self.parts_set) > max_parts:
+            raise ValueError(f'This protocol only supports assemblies with up to {max_parts} parts. Number of parts in the protocol is {len(self.parts_set)}')
+                        
+
+        for assembly in self.assemblies:
+            list_of_list_of_parts_per_role = []
+            for role in assembly:
+                parts = assembly[role]
+                if type(parts) is str:
+                    parts_per_role = [parts]
+                elif type(parts) is list:
+                    parts_per_role = parts
+                list_of_list_of_parts_per_role.append(parts_per_role)
+            list_of_combinations = list(product(*list_of_list_of_parts_per_role))
     
         metadata = {
-        'protocolName': 'Automated Odd level Loop assembly',
+        'protocolName': 'Automated Loop assembly',
         'author': 'Gonzalo Vidal <gsvidal@uc.cl>',
-        'description': 'Protocol to perform Odd level Loop assembly',
+        'description': 'Protocol to perform Loop assembly',
         'apiLevel': '2.13'}
 
-class Loop_assembly_even(DNA_assembly):
-    '''
-    Creates a protocol for the automated Even level Loop assembly.
+    def run(self, protocol: protocol_api.ProtocolContext):
+        #Labware
+        #Load temperature module
+        tem_mod = protocol.load_module('temperature module', f'{self.temperature_module_position}') #CV: Previously was '3', but the cord was not long enough
+        tem_mod_block = tem_mod.load_labware(self.temperature_module_labware)
+        #Load the thermocycler module, its default location is on slots 7, 8, 10 and 11
+        thermocycler_mod = protocol.load_module('thermocycler module')
+        thermocycler_mod_plate = thermocycler_mod.load_labware(self.thermocycler_labware)
+        #Load the tiprack
+        tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
+        #Load the pipette
+        pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
+        #Fixed volumes
+        volume_reagents = self.volume_restriction_enzyme + self.volume_t4_dna_ligase + self.volume_t4_dna_ligase_buffer
+        #Load the reagents
+        dd_h2o = tem_mod_block['A1']
+        t4_dna_ligase = tem_mod_block['A2'] 
+        t4_dna_ligase_buffer = tem_mod_block['A3'] 
+        temp_wells_counter = 3 
+        if self.has_odd:
+            restriction_enzyme_bsai = tem_mod_block[temp_wells[temp_wells_counter]]
+            temp_wells_counter += 1
+        if self.has_even:
+            restriction_enzyme_even = tem_mod_block[temp_wells[temp_wells_counter]]
+            temp_wells_counter += 1 
+        #Setup
+        #Set the temperature of the temperature module and the thermocycler to 4°C
+        tem_mod.set_temperature(4)
+        thermocycler_mod.open_lid()
+        thermocycler_mod.set_block_temperature(4)
+        #Commands for the mastermix
+        ending_well = self.thermocycler_starting_well + len(self.assemblies)*self.replicates 
+        wells = thermo_wells[self.thermocycler_starting_well:ending_well] #wells = ['D6', 'D7']
+        #can be done with multichannel pipette?
+        for assembly in self.assemblies:
+            list_of_list_of_parts_per_role = []
+            for role in assembly:
+                parts = assembly[role]
+                if type(parts) is str:
+                    parts_per_role = [parts]
+                elif type(parts) is list:
+                    parts_per_role = parts
+                list_of_list_of_parts_per_role.append(parts_per_role)
+            list_of_combinations = list(product(*list_of_list_of_parts_per_role))
 
-    '''
-    def __init__(self, parts:Dict, assemblies:Dict):
-        super().__init__(
-        volume_total_reaction,
-        volume_part,
-        volume_restriction_enzyme,
-        volume_t4_dna_ligase,
-        volume_t4_dna_ligase_buffer,
-        replicates,
-        aspiration_rate,
-        thermocycler_starting_well,
-        thermocycler_labware,
-        temperature_module_labware,
-        temperature_module_position,
-        tiprack_labware,
-        tiprack_position,
-        pipette,
-        pipette_position)
+                    for part in parts:
+                        self.parts_set.add(part)
+        # calculate the volume of water needed
+        volume_dd_h2o = self.volume_total_reaction - (volume_reagents + self.volume_part*2)
+        for well in wells:
+            liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase, t4_dna_ligase, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase)
+            
+            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+            liquid_transfer(pipette, self.volume_part, backbone, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
+        #for well in wells:
+        i = self.thermocycler_starting_well
+        #TODO map parts to wells
+        for part in self.parts:
+            if type(part) == str:
+                    part_name=part
+            elif type(part) == sbol3.Component:
+                part_name=part.name     
+            else: raise ValueError(f'Part {part} is not a string or an sbol3.Component')  
+            self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[temp_wells_counter]
+            for r in range(self.replicates):
+                #Add sbol implementation
+                if type(part) == sbol3.Component: 
+                    #create assembled_dna Implementation that points to the part
+                    assembled_dna = sbol3.Implementation(f'assembled_dna_{part_name}_{r}', part, description=f'Thermocycler well {thermo_wells[i]}')
+                    self.sbol_output.append(assembled_dna)
+                part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
+                self.dict_of_parts_in_thermocycler[part_name] = thermo_wells[i]
+                liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+                self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[i]
+                i+=1
+            temp_wells_counter += 1
         
-        self.assembly_plan = assembly_plan
-        self.sbol_output = []
-    
-        metadata = {
-        'protocolName': 'Automated Even level Loop assembly',
-        'author': 'Gonzalo Vidal <gsvidal@uc.cl>',
-        'description': 'Protocol to perform automated Even level Loop assembly',
-        'apiLevel': '2.13'}
+        protocol.comment('Take out the reagents since the temperature module will be turn off')
+        #We close the thermocycler lid and wait for the temperature to reach 42°C
+        thermocycler_mod.close_lid()
+        #The thermocycler's lid temperature is set with the following command
+        thermocycler_mod.set_lid_temperature(42)
+        tem_mod.deactivate()
+        #Cycles were made following https://pubs.acs.org/doi/10.1021/sb500366v
+        profile = [
+            {'temperature': 42, 'hold_time_minutes': 2},
+            {'temperature': 16, 'hold_time_minutes': 5}]
+        thermocycler_mod.execute_profile(steps=profile, repetitions=25, block_max_volume=30)
+
+        denaturation = [
+            {'temperature': 60, 'hold_time_minutes': 10},
+            {'temperature': 80, 'hold_time_minutes': 10}]
+        thermocycler_mod.execute_profile(steps=denaturation, repetitions=1, block_max_volume=30)
+        thermocycler_mod.set_block_temperature(4)
+        #END
 
 
 
-{"promoter":["j23101", "j23100"], "BBa_K1342001":"rbs", "BBa_K1342002":"cds", "BBa_K1342003":"terminator", }
+assembly_Odd_1 = {"promoter":["j23101", "j23100"], "rbs":"B0034", "cds":"GFP", "terminator":"B0015", "receiver":"Odd_1"}
+assembly_Even_2 = {"promoter":["j23101", "j23100"], "rbs":"B0034", "cds":"GFP", "terminator":"B0015", "receiver":"Even_2"}
+assemblies = [assembly_Odd_1, assembly_Even_2]
