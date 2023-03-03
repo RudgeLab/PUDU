@@ -7,4 +7,4 @@ Welcome to the PUDU (Protocol Unified Design Unit) repository, our Python packag
 
 ## *The art of automated liquid handling*
 
-As you may have noticed, our logo features a beautiful pudu _[(Pudu puda)](https://en.wikipedia.org/wiki/Pudu)_; a deer native to Chilean and Argentinaian patagonia known for being the smallest deer of the world[.](https://youtu.be/xRQnJyP77tY)
+As you may have noticed, our logo features a beautiful pudu _[(Pudu puda)](https://en.wikipedia.org/wiki/Pudu)_; a deer native to Chilean and Argentinian patagonia known for being the smallest deer of the world[.](https://youtu.be/xRQnJyP77tY)
