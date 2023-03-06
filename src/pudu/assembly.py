@@ -1,6 +1,5 @@
 from opentrons import protocol_api
 import sbol3
-from sbol_utilities.helper_functions import find_top_level
 from .utils import thermo_wells, temp_wells, liquid_transfer
 from typing import List, Dict, Union
 from fnmatch import fnmatch
@@ -176,7 +175,9 @@ class Protocol_from_sbol(DNA_assembly):
             composite_parts = []
             for part_extract_sc in composite.features:
                 #get parts
-                part = find_top_level(part_extract_sc.instance_of)
+                part = part_extract_sc.instance_of.lookup()
+                if not part:
+                    raise ValueError(f'Part in backbone not found from part extract {part_extract_sc.identity}')
                 assemblies_compoent_set.add(part)
                 #get part's ubication
                 part_ubication = dict_of_parts_in_temp_mod_position[part]
@@ -400,18 +401,10 @@ class Loop_assembly(DNA_assembly):
             raise ValueError('Assembly does not have any Even or Odd receiver')
         if len(self.parts_set) > max_parts:
             raise ValueError(f'This protocol only supports assemblies with up to {max_parts} parts. Number of parts in the protocol is {len(self.parts_set)}')
-                        
-
-        for assembly in self.assemblies:
-            list_of_list_of_parts_per_role = []
-            for role in assembly:
-                parts = assembly[role]
-                if type(parts) is str:
-                    parts_per_role = [parts]
-                elif type(parts) is list:
-                    parts_per_role = parts
-                list_of_list_of_parts_per_role.append(parts_per_role)
-            list_of_combinations = list(product(*list_of_list_of_parts_per_role))
+        thermocyler_available_wells = 96 - self.thermocycler_starting_well 
+        thermocycler_wells_needed = (len(self.odd_combinations) + len(self.even_combinations))*self.replicates
+        if thermocycler_wells_needed > thermocyler_available_wells:
+            raise ValueError(f'According to your setup this protocol only supports assemblies with up to {thermocyler_available_wells} combinations. Number of combinations in the protocol is {thermocycler_wells_needed}')                
     
         metadata = {
         'protocolName': 'Automated Loop assembly',
@@ -442,8 +435,12 @@ class Loop_assembly(DNA_assembly):
             restriction_enzyme_bsai = tem_mod_block[temp_wells[temp_wells_counter]]
             temp_wells_counter += 1
         if self.has_even:
-            restriction_enzyme_even = tem_mod_block[temp_wells[temp_wells_counter]]
+            restriction_enzyme_sapi = tem_mod_block[temp_wells[temp_wells_counter]]
             temp_wells_counter += 1 
+        #Load the parts
+        for part in self.parts_set:
+            self.dict_of_parts_in_temp_mod_position[part] = temp_wells[temp_wells_counter]
+            temp_wells_counter += 1
         #Setup
         #Set the temperature of the temperature module and the thermocycler to 4°C
         tem_mod.set_temperature(4)
@@ -452,20 +449,35 @@ class Loop_assembly(DNA_assembly):
         #Commands for the mastermix
         ending_well = self.thermocycler_starting_well + len(self.assemblies)*self.replicates 
         wells = thermo_wells[self.thermocycler_starting_well:ending_well] #wells = ['D6', 'D7']
-        #can be done with multichannel pipette?
-        for assembly in self.assemblies:
-            list_of_list_of_parts_per_role = []
-            for role in assembly:
-                parts = assembly[role]
-                if type(parts) is str:
-                    parts_per_role = [parts]
-                elif type(parts) is list:
-                    parts_per_role = parts
-                list_of_list_of_parts_per_role.append(parts_per_role)
-            list_of_combinations = list(product(*list_of_list_of_parts_per_role))
 
-                    for part in parts:
-                        self.parts_set.add(part)
+        #can be done with multichannel pipette?
+        #build combinations
+        for odd_combination in self.odd_combinations:
+            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme_bsai, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+            volume_dd_h2o = self.volume_total_reaction - (volume_reagents + self.volume_part*len(odd_combination))
+            liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate)
+            for part in odd_combination:
+                if type(part) == str:
+                    part_name=part
+                elif type(part) == sbol3.Component:
+                    part_name=part.name     
+                else: raise ValueError(f'Part {part} is not a string nor sbol3.Component')  
+                self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[temp_wells_counter]
+                for r in range(self.replicates):
+                    #Add sbol implementation
+                    if type(part) == sbol3.Component: 
+                        #create assembled_dna Implementation that points to the part
+                        assembled_dna = sbol3.Implementation(f'assembled_dna_{part_name}_{r}', part, description=f'Thermocycler well {thermo_wells[i]}')
+                        self.sbol_output.append(assembled_dna)
+                    part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[i]]
+                    self.dict_of_parts_in_thermocycler[part_name] = thermo_wells[i]
+                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+                    self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[i]
+                    i+=1
+                temp_wells_counter += 1
+                liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
+
+
         # calculate the volume of water needed
         volume_dd_h2o = self.volume_total_reaction - (volume_reagents + self.volume_part*2)
         for well in wells:
