@@ -27,6 +27,7 @@ classifiers = [
 dependencies = [
   'opentrons',
   'sbol3',
+  'xlsxwriter',
 ]
 
 [project.optional-dependencies]
