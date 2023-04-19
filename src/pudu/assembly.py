@@ -257,7 +257,7 @@ class Protocol_from_sbol(DNA_assembly):
         row_num += 2
         for key, value in self.dict_of_parts_in_thermocycler.items():
             if type(key)==sbol3.Component:
-                key=key.name
+                key=key.identity
             worksheet.write(row_num, col_num, key)
             worksheet.write_column(row_num+1, col_num, value)
             col_num += 1
