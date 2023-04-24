@@ -8,3 +8,34 @@ Welcome to the PUDU (Protocol Unified Design Unit) repository, our Python packag
 ## *The art of automated liquid handling*
 
 As you may have noticed, our logo features a beautiful pudu _[(Pudu puda)](https://en.wikipedia.org/wiki/Pudu)_; a deer native to the southern forests of Chile and Argentina known for being the smallest deer of the world[.](https://youtu.be/xRQnJyP77tY)
+
+
+## Installation
+
+Installing PUDU is way easier than pronuncing it! 
+
+Do:
+
+`pip install pudupy`
+
+For more details please refer to our Wiki (TODO) for installation instructions and developer guides.
+
+This counts with a libre version (does not require any package installation)
+
+## PUDU facilitates the creation of OT2 liquid handling robot protocols to automate:
+
+- DNA assembly using SBOL as input [script]()
+- Protocol metadata capture and storage in SBOL
+- Domestication of gBlocks into plasmids from lists of parts
+- Loop DNA assembly using dictionaries of parts per role
+- Chemical transformation
+- [Multicolor fluorescence per particle calibration protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) plate setup. 
+- Design Of Experiments 96 well plate test setup with supplement gradients
+
+## Documentation
+
+ Please visit our documentation with API reference at Read the Docs (TODO)
+
+## Tutorials
+
+TODO
