@@ -33,7 +33,8 @@ def liquid_transfer(pipette, volume, source, destination, asp_rate:float=0.5, di
 
 class Calibration():
     """
-    Creates a ptopocol template for calibration with default values.
+    Creates a ptopocol to calibrate GFP using fluorescein (MEFL) and OD600 using nanoparticles.
+    Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
 
     ...
 
@@ -77,7 +78,6 @@ class Calibration():
         pipette_position:str='left',
         calibration_plate_labware:str='corning_96_wellplate_360ul_flat',
         calibration_plate_position:int=7,
-        use_temperature_module:bool=True,
         tube_rack_labware:str='opentrons_24_aluminumblock_nest_1.5ml_snapcap',
         tube_rack_position:int=1,
         use_falcon_tubes:bool=False,
@@ -93,12 +93,12 @@ class Calibration():
         self.pipette_position = pipette_position
         self.calibration_plate_labware = calibration_plate_labware
         self.calibration_plate_position = calibration_plate_position
-        self.use_temperature_module = use_temperature_module
         self.tube_rack_labware = tube_rack_labware
         self.tube_rack_position = tube_rack_position
         self.use_falcon_tubes = use_falcon_tubes
         self.falcon_tube_rack_labware = falcon_tube_rack_labware
         self.falcon_tube_rack_position = falcon_tube_rack_position
+
 
 class iGEM_rgb_od(Calibration):
     """
@@ -139,6 +139,14 @@ class iGEM_rgb_od(Calibration):
     def __init__(self,
         *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.sbol_output = []
+
+        metadata = {
+        'protocolName': 'iGEM RGB OD600 calibration',
+        'author': 'Gonzalo Vidal <gsvidal@uc.cl>',
+        'description': 'Protocol to perform serial dilutions of fluorescein, sulforhodamine 101, cascade blue and nanoparticles for calibration',
+        'apiLevel': '2.13'}
 
     def run(self, protocol: protocol_api.ProtocolContext):
 
@@ -146,11 +154,7 @@ class iGEM_rgb_od(Calibration):
         tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
         plate = protocol.load_labware(self.calibration_plate_labware, self.calibration_plate_position)
-        if self.use_temperature_module:
-            temperature_module = protocol.load_module('Temperature Module', self.tube_rack_position)
-            tube_rack = temperature_module.load_labware(self.tube_rack_labware)
-        else:
-            tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
+        tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
         if self.use_falcon_tubes:
             falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
         #Protocol
@@ -253,7 +257,6 @@ class iGEM_rgb_od(Calibration):
             liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         #END
-
 
 # metadata
 

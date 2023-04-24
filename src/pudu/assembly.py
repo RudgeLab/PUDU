@@ -433,7 +433,9 @@ class Loop_assembly(DNA_assembly):
                     parts = assembly[role]
                     if type(parts) is str:
                         parts_per_role = [parts]
-                    for part in parts:
+                    else: 
+                        parts_per_role = parts
+                    for part in parts_per_role:
                         self.parts_set.add(part)
                     list_of_list_of_parts_per_role.append(parts_per_role)
                 list_of_combinations_per_assembly = list(product(*list_of_list_of_parts_per_role))
@@ -445,7 +447,9 @@ class Loop_assembly(DNA_assembly):
                     parts = assembly[role]
                     if type(parts) is str:
                         parts_per_role = [parts]
-                    for part in parts:
+                    else: 
+                        parts_per_role = parts
+                    for part in parts_per_role:
                         self.parts_set.add(part)
                     list_of_list_of_parts_per_role.append(parts_per_role)
                 list_of_combinations_per_assembly = list(product(*list_of_list_of_parts_per_role))
@@ -459,11 +463,11 @@ class Loop_assembly(DNA_assembly):
         else:
             raise ValueError('Assembly does not have any Even or Odd receiver, check assembly dictionaries and patterns for Odd and Even receivers')
         if len(self.parts_set) > max_parts:
-            raise ValueError(f'This protocol only supports assemblies with up to {max_parts} parts. Number of parts in the protocol is {len(self.parts_set)}')
+            raise ValueError(f'This protocol only supports assemblies with up to {max_parts} parts. Number of parts in the protocol is {len(self.parts_set)}. Printing parts set:{self.parts_set}')
         thermocyler_available_wells = 96 - self.thermocycler_starting_well 
         thermocycler_wells_needed = (len(self.odd_combinations) + len(self.even_combinations))*self.replicates
         if thermocycler_wells_needed > thermocyler_available_wells:
-            raise ValueError(f'According to your setup this protocol only supports assemblies with up to {thermocyler_available_wells} combinations. Number of combinations in the protocol is {thermocycler_wells_needed}')                
+            raise ValueError(f'According to your setup this protocol only supports assemblies with up to {thermocyler_available_wells} combinations. Number of combinations in the protocol is {thermocycler_wells_needed}.')                
     
         metadata = {
         'protocolName': 'Automated Loop assembly',
@@ -505,20 +509,16 @@ class Loop_assembly(DNA_assembly):
         tem_mod.set_temperature(4)
         thermocycler_mod.open_lid()
         thermocycler_mod.set_block_temperature(4)
-        #Commands for the mastermix
-        ending_well = self.thermocycler_starting_well + len(self.assemblies)*self.replicates 
-        wells = thermo_wells[self.thermocycler_starting_well:ending_well] #wells = ['D6', 'D7']
-
         #can be done with multichannel pipette?
         current_thermocycler_well = self.thermocycler_starting_well
         #build combinations
         for odd_combination in self.odd_combinations:
             #pippeting reagents
             volume_dd_h2o = self.volume_total_reaction - (volume_reagents + self.volume_part*len(odd_combination))
-            liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate)
-            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
-            liquid_transfer(pipette, self.volume_t4_dna_ligase, t4_dna_ligase, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase)
-            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme_bsai, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+            liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase, t4_dna_ligase, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase)
+            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme_bsai, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
             #pippeting parts
             for part in odd_combination:
                 if type(part) == str:
@@ -526,27 +526,24 @@ class Loop_assembly(DNA_assembly):
                 elif type(part) == sbol3.Component:
                     part_name=part.name     
                 else: raise ValueError(f'Part {part} is not a string nor sbol3.Component')  
-                self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[temp_wells_counter]
                 for r in range(self.replicates):
                     #Add sbol implementation
                     if type(part) == sbol3.Component: 
                         #create assembled_dna Implementation that points to the part
                         assembled_dna = sbol3.Implementation(f'assembled_dna_{part_name}_{r}', part, description=f'Thermocycler well {thermo_wells[current_thermocycler_well]}')
                         self.sbol_output.append(assembled_dna)
-                    part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well]]
-                    self.dict_of_parts_in_thermocycler[part_name] = thermo_wells[current_thermocycler_well]
-                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
-                    self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[temp_wells_counter]
+                    #part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well]]
+                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
                     current_thermocycler_well+=1
                 temp_wells_counter += 1
 
         for even_combination in self.even_combinations:
             #pippeting reagents
             volume_dd_h2o = self.volume_total_reaction - (volume_reagents + self.volume_part*len(even_combination))
-            liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate)
-            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
-            liquid_transfer(pipette, self.volume_t4_dna_ligase, t4_dna_ligase, thermocycler_mod_plate[current_thermocycler_well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase)
-            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme_sapi, thermocycler_mod_plate[well], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+            liquid_transfer(pipette, volume_dd_h2o, dd_h2o, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase_buffer, t4_dna_ligase_buffer, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase_buffer)
+            liquid_transfer(pipette, self.volume_t4_dna_ligase, t4_dna_ligase, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_t4_dna_ligase)
+            liquid_transfer(pipette, self.volume_restriction_enzyme, restriction_enzyme_sapi, thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
             #pippeting parts
             for part in even_combination:
                 if type(part) == str:
@@ -554,16 +551,13 @@ class Loop_assembly(DNA_assembly):
                 elif type(part) == sbol3.Component:
                     part_name=part.name     
                 else: raise ValueError(f'Part {part} is not a string nor sbol3.Component')  
-                self.dict_of_parts_in_temp_mod_position[part_name] = temp_wells[temp_wells_counter]
                 for r in range(self.replicates):
                     #Add sbol implementation
                     if type(part) == sbol3.Component: 
                         #create assembled_dna Implementation that points to the part
                         assembled_dna = sbol3.Implementation(f'assembled_dna_{part_name}_{r}', part, description=f'Thermocycler well {thermo_wells[current_thermocycler_well]}')
                         self.sbol_output.append(assembled_dna)
-                    part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well]]
-                    self.dict_of_parts_in_thermocycler[part_name] = thermo_wells[current_thermocycler_well]
-                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
+                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_name]], thermocycler_mod_plate[thermo_wells[current_thermocycler_well]], self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
                     current_thermocycler_well+=1
                 temp_wells_counter += 1
         
@@ -586,7 +580,29 @@ class Loop_assembly(DNA_assembly):
         thermocycler_mod.set_block_temperature(4)
         #END
 
-
+    def get_xlsx_output(self, name:str):
+        workbook = xlsxwriter.Workbook(f'{name}.xlsx')
+        worksheet = workbook.add_worksheet()
+        row_num = 0
+        col_num = 0
+        worksheet.write(row_num, col_num, 'Parts in temp_module')
+        row_num += 2
+        for key, value in self.dict_of_parts_in_temp_mod_position.items():
+            worksheet.write(row_num, col_num, key)
+            worksheet.write(row_num+1, col_num, value)
+            col_num += 1
+        col_num = 0
+        row_num += 4
+        worksheet.write(row_num, col_num, 'Parts in thermocycler_module')
+        row_num += 2
+        for key, value in self.dict_of_parts_in_thermocycler.items():
+            worksheet.write(row_num, col_num, key)
+            worksheet.write_column(row_num+1, col_num, value)
+            col_num += 1
+        workbook.close()
+        self.xlsx_output = workbook
+        return self.xlsx_output
+        #END
 
 assembly_Odd_1 = {"promoter":["j23101", "j23100"], "rbs":"B0034", "cds":"GFP", "terminator":"B0015", "receiver":"Odd_1"}
 assembly_Even_2 = {"promoter":["j23101", "j23100"], "rbs":"B0034", "cds":"GFP", "terminator":"B0015", "receiver":"Even_2"}

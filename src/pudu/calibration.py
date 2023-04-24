@@ -48,7 +48,6 @@ class Calibration():
         pipette_position:str='left',
         calibration_plate_labware:str='corning_96_wellplate_360ul_flat',
         calibration_plate_position:int=7,
-        use_temperature_module:bool=True,
         tube_rack_labware:str='opentrons_24_aluminumblock_nest_1.5ml_snapcap',
         tube_rack_position:int=1,
         use_falcon_tubes:bool=False,
@@ -64,7 +63,6 @@ class Calibration():
         self.pipette_position = pipette_position
         self.calibration_plate_labware = calibration_plate_labware
         self.calibration_plate_position = calibration_plate_position
-        self.use_temperature_module = use_temperature_module
         self.tube_rack_labware = tube_rack_labware
         self.tube_rack_position = tube_rack_position
         self.use_falcon_tubes = use_falcon_tubes
@@ -126,11 +124,7 @@ class iGEM_gfp_od(Calibration):
         tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
         plate = protocol.load_labware(self.calibration_plate_labware, self.calibration_plate_position)
-        if self.use_temperature_module:
-            temperature_module = protocol.load_module('Temperature Module', self.tube_rack_position)
-            tube_rack = temperature_module.load_labware(self.tube_rack_labware)
-        else:
-            tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
+        tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
         if self.use_falcon_tubes:
             falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
         #Protocol
@@ -246,11 +240,7 @@ class iGEM_rgb_od(Calibration):
         tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
         plate = protocol.load_labware(self.calibration_plate_labware, self.calibration_plate_position)
-        if self.use_temperature_module:
-            temperature_module = protocol.load_module('Temperature Module', self.tube_rack_position)
-            tube_rack = temperature_module.load_labware(self.tube_rack_labware)
-        else:
-            tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
+        tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
         if self.use_falcon_tubes:
             falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
         #Protocol
