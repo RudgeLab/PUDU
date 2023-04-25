@@ -22,6 +22,12 @@ For more details please refer to our Wiki (TODO) for installation instructions a
 
 This counts with a libre version (does not require any package installation)
 
+To install it on an OT2 you first need to SSH into it.
+
+Only the first time you need to set the SSH connection [[instructions](https://support.opentrons.com/s/article/Setting-up-SSH-access-to-your-OT-2)]
+
+Afterwards you can just SSH into the OT2 [[instructions](https://support.opentrons.com/s/article/Connecting-to-your-OT-2-with-SSH)]
+
 ## PUDU facilitates the creation of OT2 liquid handling robot protocols to automate:
 
 - DNA assembly using SBOL as input [script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Loop_assembly.py)
