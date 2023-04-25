@@ -32,6 +32,18 @@ This counts with a libre version (does not require any package installation)
 - [Multicolor fluorescence per particle calibration protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) plate setup [script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_iGEM2022_rgb_od_libre.py)
 - Design Of Experiments 96 well plate test setup with supplement gradients
 
+## Recommended workflow
+
+- Install PUDU in your computer
+- Install PUDU in the OT2 that will perform the automation
+- Develop protocols in your computer
+- To simulate your protocols you can open the PUDU folder in your terminal and run `opentrons_simulate ./scripts/run_Loop_assembly.py ` for example
+- Transfer the script file (.py) to the computer used to run the protocol on the OT2 (if its the same, omit)
+- Load the script file (.py) on the Opentrons App
+- Follow Oppentrons App instruction
+- Set the OT2 deck with the information provided by the Opentrons App and PUDU human readable output (.xlsx)
+- Run your protocol and enjoy automation (Now you have more time to design your next experiment! :wink: )
+
 ## Documentation
 
  Please visit our documentation with API reference at Read the Docs (TODO)
