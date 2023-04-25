@@ -30,12 +30,12 @@ Afterwards you can just SSH into the OT2 [[instructions](https://support.opentro
 
 ## PUDU facilitates the creation of OT2 liquid handling robot protocols to automate:
 
-- DNA assembly using SBOL as input [script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Loop_assembly.py)
+- DNA assembly using SBOL as input [[script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Loop_assembly.py)]
 - Protocol metadata capture and storage in SBOL
-- Domestication of gBlocks into plasmids from lists of parts [script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Domestication.py)
-- Loop DNA assembly using dictionaries of parts per role [script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Loop_assembly.py)
+- Domestication of gBlocks into plasmids from lists of parts [[script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Domestication.py)]
+- Loop DNA assembly using dictionaries of parts per role [[script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_Loop_assembly.py)]
 - Chemical transformation
-- [Multicolor fluorescence per particle calibration protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) plate setup [script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_iGEM2022_rgb_od_libre.py)
+- [Multicolor fluorescence per particle calibration protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) plate setup [[script](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_iGEM2022_rgb_od_libre.py)]
 - Design Of Experiments 96 well plate test setup with supplement gradients
 
 ## Recommended workflow
