@@ -15,7 +15,7 @@ As you may have noticed, our logo features a beautiful pudu _[(Pudu puda)](https
 
 [Robot protocol](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_iGEM2022_rgb_od_libre.py) (Python script to run the OT2)
 
-[Original protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) (2022 iGEM InterLab study)
+Reference [Original protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) (2022 iGEM InterLab study)
 
 ## Installation
 
