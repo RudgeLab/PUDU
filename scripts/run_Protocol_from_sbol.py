@@ -81,48 +81,6 @@ def backbone(identity: str, sequence: str, dropout_location: List[int], fusion_s
     backbone_component.constraints.append(backbone_dropout_meets)
     return backbone_component, backbone_seq
 
-def part_in_backbone2(identity: str,  sequence: str, part_location: List[int], part_roles:List[str], fusion_site_length:int, linear:bool, **kwargs) -> Tuple[sbol3.Component, sbol3.Sequence]:
-    """Creates a Backbone Component and its Sequence.
-
-    :param identity: The identity of the Component. The identity of Sequence is also identity with the suffix '_seq'.
-    :param sequence: The DNA sequence of the Component encoded in IUPAC.
-    :param dropout_location: List of 2 integers that indicates the start and the end of the dropout sequence including overhangs. Note that the index of the first location is 1, as is typical practice in biology, rather than 0, as is typical practice in computer science.
-    :param fusion_site_length: Integer of the lenght of the fusion sites (eg. BsaI fusion site lenght is 4, SapI fusion site lenght is 3)
-    :param linear: Boolean than indicates if the backbone is linear, by default it is seted to Flase which means that it has a circular topology.
-    :param kwargs: Keyword arguments of any other Component attribute.
-    :return: A tuple of Component and Sequence.
-    """
-    if len(part_location) != 2:
-        raise ValueError('The part_location only accepts 2 int values in a list.')
-    part_in_backbone_component, part_in_backbone_seq = dna_component_with_sequence(identity, sequence, **kwargs)
-    part_in_backbone_component.roles.append(sbol3.SO_DOUBLE_STRANDED)
-    for part_role in part_roles:  
-        part_in_backbone_component.roles.append(part_role)  
-    part_location_comp = sbol3.Range(sequence=part_in_backbone_seq, start=part_location[0], end=part_location[1])
-    insertion_site_location1 = sbol3.Range(sequence=part_in_backbone_seq, start=part_location[0], end=part_location[0]+fusion_site_length, order=1)
-    insertion_site_location2 = sbol3.Range(sequence=part_in_backbone_seq, start=part_location[1]-fusion_site_length, end=part_location[1], order=3)
-    part_sequence_feature = sbol3.SequenceFeature(locations=[part_location_comp], roles=part_roles)
-    part_sequence_feature.roles.append(tyto.SO.engineered_insert)
-    insertion_sites_feature = sbol3.SequenceFeature(locations=[insertion_site_location1, insertion_site_location2], roles=[tyto.SO.insertion_site])
-    if linear:
-        part_in_backbone_component.types.append(sbol3.SO_LINEAR)
-        part_in_backbone_component.roles.append(sbol3.SO_ENGINEERED_REGION)
-        open_backbone_location1 = sbol3.Range(sequence=part_in_backbone_seq, start=1, end=part_location[0]+fusion_site_length-1, order=1)
-        open_backbone_location2 = sbol3.Range(sequence=part_in_backbone_seq, start=part_location[1]-fusion_site_length, end=len(sequence), order=3)
-        open_backbone_feature = sbol3.SequenceFeature(locations=[open_backbone_location1, open_backbone_location2])
-    else: 
-        part_in_backbone_component.types.append(sbol3.SO_CIRCULAR)
-        part_in_backbone_component.roles.append(tyto.SO.plasmid_vector)
-        open_backbone_location1 = sbol3.Range(sequence=part_in_backbone_seq, start=1, end=part_location[0]+fusion_site_length-1, order=2)
-        open_backbone_location2 = sbol3.Range(sequence=part_in_backbone_seq, start=part_location[1]-fusion_site_length, end=len(sequence), order=1)
-        open_backbone_feature = sbol3.SequenceFeature(locations=[open_backbone_location1, open_backbone_location2])
-    part_in_backbone_component.features.append(part_sequence_feature)
-    part_in_backbone_component.features.append(insertion_sites_feature)
-    part_in_backbone_component.features.append(open_backbone_feature)
-    backbone_dropout_meets = sbol3.Constraint(restriction='http://sbols.org/v3#meets', subject=part_sequence_feature, object=open_backbone_feature)
-    part_in_backbone_component.constraints.append(backbone_dropout_meets)
-    return part_in_backbone_component, part_in_backbone_seq
-
 def part_in_backbone(identity: str, part: sbol3.Component, backbone: sbol3.Component, linear:bool=False, **kwargs) -> Tuple[sbol3.Component, sbol3.Sequence]:
     """Creates a Part in Backbone Component and its Sequence.
 
@@ -506,6 +464,8 @@ def part_in_backbone_from_sbol(identity: str,  sbol3_comp: sbol3.Component, part
     #TODO: Add a branch to create a component without overwriting the WHOLE input component
     return part_in_backbone_component, part_in_backbone_seq
 
+
+
 # Docsument start
 doc = sbol3.Document()
 sbol3.set_namespace('https://github.com/Gonza10V')
@@ -525,6 +485,7 @@ sfgfp_ce_in_bb, sfgfp_ce_in_bb_seq = part_in_backbone_from_sbol('sfgfp_ce_in_bb'
 doc.add([sfgfp_ce_in_bb, sfgfp_ce_in_bb_seq])
 b0015_ef_in_bb, b0015_ef_in_bb_seq = part_in_backbone_from_sbol('b0015_ef_in_bb', b0015_ef, [518,646], [sbol3.SO_TERMINATOR], 4, False, name='b0015_ef_in_bb')
 doc.add([b0015_ef_in_bb, b0015_ef_in_bb_seq])
+
 assembly_plan_automation = Assembly_plan_composite_in_backbone_single_enzyme( 
                             name='constitutive_gfp_tu',
                             parts_in_backbone=[j23100_b0034_ac_in_bb, sfgfp_ce_in_bb, b0015_ef_in_bb], 
@@ -540,8 +501,6 @@ metadata = {
 'author': 'Gonzalo Vidal <gsvidal@uc.cl>',
 'description': 'Automated DNA assembly protocol',
 'apiLevel': '2.13'}
-
-
 
 def run(protocol= protocol_api.ProtocolContext):
 
