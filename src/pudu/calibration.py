@@ -1,5 +1,6 @@
 from opentrons import protocol_api
 from .utils import plate_96_wells, temp_wells, liquid_transfer
+import xlsxwriter
 
 class Calibration():
     """
@@ -209,8 +210,6 @@ class iGEM_rgb_od(Calibration):
         Labware to use as calibration plate. By default corning_96_wellplate_360ul_flat.
     calibration_plate_position: int
         Deck position for calibration plate. By default 7.
-    use_temperature_module: bool    
-        Whether to use temperature module or not. By default True.
     tube_rack_labware: str
         Labware to use as tube rack. By default opentrons_24_aluminumblock_nest_1.5ml_snapcap.
     tube_rack_position: int
@@ -225,8 +224,8 @@ class iGEM_rgb_od(Calibration):
     def __init__(self,
         *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        self.sbol_output = []
+    
+        #Does a SBOL component of this make sense?
 
         metadata = {
         'protocolName': 'iGEM RGB OD600 calibration',
