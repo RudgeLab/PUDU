@@ -9,6 +9,12 @@ Welcome to the PUDU (Protocol Unified Design Unit) repository, our Python packag
 
 As you may have noticed, our logo features a beautiful pudu _[(Pudu puda)](https://en.wikipedia.org/wiki/Pudu)_; a deer native to the southern forests of Chile and Argentina known for being the smallest deer of the world[.](https://youtu.be/xRQnJyP77tY)
 
+## Multicolor fluorescence per particle calibration automated protocol iGEM
+
+[Human protocol](https://github.com/RudgeLab/PUDU/blob/main/protocols/Multicolor_fluorescence_per_particle_calibration_protocol_igem/Automated_protocol_user_instructions.xlsx) (Excel to set the OT2 deck)
+[Robot protocol](https://github.com/RudgeLab/PUDU/blob/main/scripts/run_iGEM2022_rgb_od_libre.py) (Python script to run the OT2)
+
+[Original protocol](https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf) (2022 iGEM InterLab study)
 
 ## Installation
 
