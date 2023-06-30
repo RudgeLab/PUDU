@@ -56,7 +56,6 @@ class Single_supplement_test(Test_setup):
                  inducer_final_concentration:float = 0.0,
                  number_of_inducer_step:int = 0,
                  number_of_replicates:int = 3,
-                 
                  media_labware:str = '96 well plate',
                  media_position:int = 20,
                  inducer_labware:str = '96 well plate',
@@ -106,11 +105,16 @@ class Single_supplement_test(Test_setup):
         if self.use_falcon_tubes:
             falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
         #Protocol
-        #set deck
+
+        #Load media
+
+        #Load supplement
+
+        #Load cells
 
 
 
-class Double_supplement_test(Test_setup):
+class Doe_test(Test_setup):
     '''
     Creates a protocol for the automated setting of a 96 well plate with a gradient of inducer.
 
