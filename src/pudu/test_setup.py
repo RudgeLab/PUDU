@@ -51,12 +51,13 @@ class Single_supplement_test(Test_setup):
     Creates a protocol for the automated setting of a 96 well plate with a gradient of inducer.
 
     '''
-    def __init__(self,inducer:sbol3.Component,
+    def __init__(self,samples:List,
+                 sample_volume:float = 2,
+                 inducer:str = None,
                  inducer_initial_concentration:float = 0.0,
                  inducer_final_concentration:float = 0.0,
                  number_of_inducer_step:int = 0,
                  number_of_replicates:int = 3,
-                 
                  media_labware:str = '96 well plate',
                  media_position:int = 20,
                  inducer_labware:str = '96 well plate',
@@ -68,6 +69,8 @@ class Single_supplement_test(Test_setup):
                  pipette:str='p300_single_gen2',
                  pipette_position:str='left'):
         
+        self.samples = samples
+        self.sample_volume = sample_volume
         self.inducer = inducer
         self.inducer_initial_concentration = inducer_initial_concentration
         self.inducer_final_concentration = inducer_final_concentration
@@ -106,11 +109,16 @@ class Single_supplement_test(Test_setup):
         if self.use_falcon_tubes:
             falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
         #Protocol
-        #set deck
+
+        #Load media
+
+        #Load supplement
+
+        #Load cells
 
 
 
-class Double_supplement_test(Test_setup):
+class Doe_test(Test_setup):
     '''
     Creates a protocol for the automated setting of a 96 well plate with a gradient of inducer.
 

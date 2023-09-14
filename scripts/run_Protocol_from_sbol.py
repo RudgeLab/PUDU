@@ -495,7 +495,6 @@ assembly_plan_automation = Assembly_plan_composite_in_backbone_single_enzyme(
 assembly_plan_automation.run()
 
 #OT2 protocol
-# metadata
 metadata = {
 'protocolName': 'PUDU SBOL assembly',
 'author': 'Gonzalo Vidal <gsvidal@uc.cl>',

@@ -212,7 +212,7 @@ class Protocol_from_sbol(DNA_assembly):
                     assembled_dna = sbol3.Implementation(identity=f'assembled_dna_{part_name}_{r}', built=part, description=f'Thermocycler well {thermo_wells[current_thermocycler_well]}')
                     self.sbol_output.append(assembled_dna)
                     part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well]]
-                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_component]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_restriction_enzyme)
+                    liquid_transfer(pipette, self.volume_part, tem_mod_block[self.dict_of_parts_in_temp_mod_position[part_component]], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_part)
                 if r == 0:
                     self.dict_of_parts_in_thermocycler[composite_component] = [thermo_wells[current_thermocycler_well]]   
                 else:
