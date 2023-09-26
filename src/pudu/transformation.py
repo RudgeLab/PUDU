@@ -169,16 +169,11 @@ class Chemical_transformation(Transformation):
         #Load the reagents
         #Check number of compenent cells and DNAs
         total_transformations = len(self.list_of_dnas)*self.replicates
-        print(total_transformations)
         transformations_per_tube = int(self.volume_competent_cell_per_tube//self.volume_competent_cell_to_add)
-        print(transformations_per_tube)
         number_of_tubes_with_competent_cells_needed = int(total_transformations//transformations_per_tube+1) #TODO: make an int, maybe use sail
-        print(number_of_tubes_with_competent_cells_needed)
         #Check number of tubes with media
         transformations_per_media_tube = int(self.volume_recovery_media_per_tube//self.volume_recovery_media)
-        print(transformations_per_media_tube)
         number_of_tubes_with_media_needed = int(total_transformations//transformations_per_media_tube+1) #TODO: make an int, maybe use sail
-        print(number_of_tubes_with_media_needed)
         if len(self.list_of_dnas)+number_of_tubes_with_competent_cells_needed+number_of_tubes_with_media_needed > 24:
              raise ValueError(f'The number of reagents is more than 24. There are {len(self.list_of_dnas)} DNAs, {number_of_tubes_with_competent_cells_needed} tubes with competent cells and {number_of_tubes_with_media_needed} tubes with media. Please change the protocol and try again.')
         temp_wells_counter = 0
