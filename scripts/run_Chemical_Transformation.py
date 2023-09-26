@@ -18,6 +18,6 @@ def run(protocol= protocol_api.ProtocolContext):
     #doc.add(pudu_transformation.sbol_output)
     #doc.write('pudu_domestication.nt', sbol3.SORTED_NTRIPLES)
     #save xlsx
-    #pudu_transformation.get_xlsx_output('write_dict_pudu_test_method')
+    pudu_transformation.get_xlsx_output('user_information_for_transformation.xlsx')
 
 

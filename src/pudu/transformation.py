@@ -50,8 +50,11 @@ class Transformation():
         thermocycler_labware:str = 'nest_96_wellplate_100ul_pcr_full_skirt',
         temperature_module_labware:str = 'opentrons_24_aluminumblock_nest_1.5ml_snapcap',
         temperature_module_position:int = 1,
-        tiprack_labware:str = 'opentrons_96_tiprack_20ul',
-        tiprack_position:int = 9,
+
+        tiprack_p20_labware:str = 'opentrons_96_tiprack_20ul',
+        tiprack_p20_osition:int = 9,
+        tiprack_p300_labware:str = 'opentrons_96_tiprack_300ul',
+        tiprack_p300_osition:int = 6,
         pipette_p20:str = 'p20_single_gen2',
         pipette_p300:str = 'p300_single_gen2',
         pipette_p20_position:str = 'left',
@@ -66,8 +69,10 @@ class Transformation():
         self.thermocycler_labware = thermocycler_labware
         self.temperature_module_labware = temperature_module_labware
         self.temperature_module_position = temperature_module_position
-        self.tiprack_labware = tiprack_labware
-        self.tiprack_position = tiprack_position
+        self.tiprack_p20_labware = tiprack_p20_labware
+        self.tiprack_p20_position = tiprack_p20_osition
+        self.tiprack_p300_labware = tiprack_p300_labware
+        self.tiprack_p300_position = tiprack_p300_osition
         self.pipette_p20 = pipette_p20
         self.pipette_p300 = pipette_p300
         self.pipette_p20_position = pipette_p20_position
@@ -117,7 +122,7 @@ class Chemical_transformation(Transformation):
                 volume_competent_cell_to_add:float = 20,
                 volume_competent_cell_per_tube:float =100,
                 volume_recovery_media_to_add:float = 60,
-                volume_recovery_media_per_tube:float = 1500, 
+                volume_recovery_media_per_tube:float = 1200, #add a bit more to pick it properly
                 cold_incubation1:Dict = {'temperature': 4, 'hold_time_minutes': 30}, 
                 heat_shock:Dict = {'temperature': 42, 'hold_time_minutes': 1}, 
                 cold_incubation2:Dict = {'temperature': 4, 'hold_time_minutes': 2}, 
@@ -137,6 +142,7 @@ class Chemical_transformation(Transformation):
         self.dict_of_parts_in_temp_mod_position = {}
         self.dict_of_parts_in_thermocycler = {}
         self.sbol_output = []
+        self.xlsx_output = None
 
         metadata = {
         'protocolName': 'PUDU Transformation',
@@ -154,18 +160,27 @@ class Chemical_transformation(Transformation):
         thermocycler_mod = protocol.load_module('thermocycler module')
         thermocycler_mod_plate = thermocycler_mod.load_labware(self.thermocycler_labware)
         #Load the tiprack
-        tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
+        tiprack_p20 = protocol.load_labware(self.tiprack_p20_labware, f'{self.tiprack_p20_position}')
+        tiprack_p300 = protocol.load_labware(self.tiprack_p300_labware, f'{self.tiprack_p300_position}')
         #Load the pipette
-        pipette_p20 = protocol.load_instrument(self.pipette_p20, self.pipette_p20_position, tip_racks=[tiprack])
-        pipette_p300 = protocol.load_instrument(self.pipette_p300, self.pipette_p300_position, tip_racks=[tiprack])
+        pipette_p20 = protocol.load_instrument(self.pipette_p20, self.pipette_p20_position, tip_racks=[tiprack_p20])
+        pipette_p300 = protocol.load_instrument(self.pipette_p300, self.pipette_p300_position, tip_racks=[tiprack_p300])
         
         #Load the reagents
         #Check number of compenent cells and DNAs
         total_transformations = len(self.list_of_dnas)*self.replicates
-        transformations_per_tube = int(self.volume_competent_cell_per_tube//self.volume_competent_cell_to_add+1)
+        print(total_transformations)
+        transformations_per_tube = int(self.volume_competent_cell_per_tube//self.volume_competent_cell_to_add)
+        print(transformations_per_tube)
         number_of_tubes_with_competent_cells_needed = int(total_transformations//transformations_per_tube+1) #TODO: make an int, maybe use sail
-        if len(self.list_of_dnas)+number_of_tubes_with_competent_cells_needed > 24:
-             raise ValueError(f'The number of reagents is more than 24. There are {len(self.list_of_dnas)} DNAs and {number_of_tubes_with_competent_cells_needed} tubes with competent cells. Please change the protocol and try again.')
+        print(number_of_tubes_with_competent_cells_needed)
+        #Check number of tubes with media
+        transformations_per_media_tube = int(self.volume_recovery_media_per_tube//self.volume_recovery_media)
+        print(transformations_per_media_tube)
+        number_of_tubes_with_media_needed = int(total_transformations//transformations_per_media_tube+1) #TODO: make an int, maybe use sail
+        print(number_of_tubes_with_media_needed)
+        if len(self.list_of_dnas)+number_of_tubes_with_competent_cells_needed+number_of_tubes_with_media_needed > 24:
+             raise ValueError(f'The number of reagents is more than 24. There are {len(self.list_of_dnas)} DNAs, {number_of_tubes_with_competent_cells_needed} tubes with competent cells and {number_of_tubes_with_media_needed} tubes with media. Please change the protocol and try again.')
         temp_wells_counter = 0
         for dna in self.list_of_dnas:
             self.dict_of_parts_in_temp_mod_position[dna] = temp_wells[temp_wells_counter]
@@ -173,7 +188,9 @@ class Chemical_transformation(Transformation):
         for i in range(number_of_tubes_with_competent_cells_needed):
             self.dict_of_parts_in_temp_mod_position[f'Competent_cells_tube_{i}'] = temp_wells[temp_wells_counter]
             temp_wells_counter += 1
-        
+        for i in range(number_of_tubes_with_media_needed):
+            self.dict_of_parts_in_temp_mod_position[f'Media_tube_{i}'] = temp_wells[temp_wells_counter]
+            temp_wells_counter += 1
         #Set Temperature and Thermocycler module to 4
         tem_mod.set_temperature(4)
         thermocycler_mod.open_lid()
@@ -184,16 +201,20 @@ class Chemical_transformation(Transformation):
         else:
             pipette = pipette_p20
         current_thermocycler_well_comp = self.thermocycler_starting_well 
-        for r in range(self.replicates):
-            for i in range(number_of_tubes_with_competent_cells_needed):
-                for j in range(transformations_per_tube):
-                    part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well_comp]]
-                    liquid_transfer(pipette, self.volume_competent_cell_to_add, tem_mod_block[self.dict_of_parts_in_temp_mod_position[f'Competent_cells_tube_{i}']], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_competent_cell_to_add -5)
-                    if r == 0:
-                        self.dict_of_parts_in_thermocycler[f'Competent_cells_tube_{i}'] = [thermo_wells[current_thermocycler_well_comp]]   
-                    else:
-                        self.dict_of_parts_in_thermocycler[f'Competent_cells_tube_{i}'].append(thermo_wells[current_thermocycler_well_comp]) 
-                    current_thermocycler_well_comp+=1
+        transformation_well = 1
+        #for r in range(self.replicates):
+        for i in range(number_of_tubes_with_competent_cells_needed):
+            for j in range(transformations_per_tube):
+                part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well_comp]]
+                liquid_transfer(pipette, self.volume_competent_cell_to_add, tem_mod_block[self.dict_of_parts_in_temp_mod_position[f'Competent_cells_tube_{i}']], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_before=self.volume_competent_cell_to_add -5)
+                if j == 0:
+                    self.dict_of_parts_in_thermocycler[f'Competent_cells_tube_{i}'] = [thermo_wells[current_thermocycler_well_comp]]   
+                else:
+                    self.dict_of_parts_in_thermocycler[f'Competent_cells_tube_{i}'].append(thermo_wells[current_thermocycler_well_comp]) 
+                current_thermocycler_well_comp+=1
+                if transformation_well == total_transformations:
+                    break
+                transformation_well+=1
             
         #Load DNA into the thermocycler and mix
         if self.volume_dna > 20:
@@ -210,6 +231,7 @@ class Chemical_transformation(Transformation):
                 else:
                     self.dict_of_parts_in_thermocycler[dna].append(thermo_wells[current_thermocycler_well_dna]) 
                 current_thermocycler_well_dna+=1
+
         #Cold incubation
         thermocycler_mod.close_lid()
         profile = [
@@ -217,23 +239,54 @@ class Chemical_transformation(Transformation):
             self.heat_shock, #Heatshock
             self.cold_incubation2] #2nd cold incubation (short)
         thermocycler_mod.execute_profile(steps=profile, repetitions=1, block_max_volume=30)
-        #Add LB and recovery incubation
+        #Load LB and recovery incubation
         thermocycler_mod.open_lid()
-        print(self.volume_recovery_media)
+        #TODO: check if there is the need for more than one tube
         if self.volume_recovery_media > 20:
             pipette = pipette_p300
         else:
             pipette = pipette_p20
         current_thermocycler_well_media = self.thermocycler_starting_well 
-        position_recovery_media = temp_wells[0] #TODO: review if there is the need for more than one tube
-        for i in range(self.replicates*len(self.list_of_dnas)):
-            liquid_transfer(pipette, self.volume_recovery_media, tem_mod_block[position_recovery_media], thermocycler_mod_plate[thermo_wells[current_thermocycler_well_media]], self.aspiration_rate, self.dispense_rate, mix_after=self.volume_recovery_media)
-            current_thermocycler_well_media+=1
+        transformation_well = 1
+        for i in range(number_of_tubes_with_media_needed):
+            for j in range(transformations_per_media_tube):
+                part_ubication_in_thermocyler = thermocycler_mod_plate[thermo_wells[current_thermocycler_well_media]]
+                liquid_transfer(pipette, self.volume_recovery_media, tem_mod_block[self.dict_of_parts_in_temp_mod_position[f'Media_tube_{i}']], part_ubication_in_thermocyler, self.aspiration_rate, self.dispense_rate, mix_after=self.volume_recovery_media -5)
+                if j == 0:
+                    self.dict_of_parts_in_thermocycler[f'Media_tube_{i}'] = [thermo_wells[current_thermocycler_well_media]]   
+                else:
+                    self.dict_of_parts_in_thermocycler[f'Media_tube_{i}'].append(thermo_wells[current_thermocycler_well_media]) 
+                current_thermocycler_well_media+=1
+                if transformation_well == total_transformations:
+                    break
+                transformation_well+=1
         thermocycler_mod.close_lid()
         recovery = [
             self.recovery_incubation]
         thermocycler_mod.execute_profile(steps=recovery, repetitions=1, block_max_volume=30)
         #Optionally plate
+        #END
 
-
-
+    def get_xlsx_output(self, name:str):
+        workbook = xlsxwriter.Workbook(f'{name}.xlsx')
+        worksheet = workbook.add_worksheet()
+        row_num =0
+        col_num =0
+        worksheet.write(row_num, col_num, 'Reagents in temp_module')
+        row_num +=2
+        for key, value in self.dict_of_parts_in_temp_mod_position.items():
+            worksheet.write(row_num, col_num, key)
+            worksheet.write(row_num, col_num+1, value)
+            row_num +=1
+        col_num = 0
+        row_num += 4
+        worksheet.write(row_num, col_num, 'GMOs in thermocycler_module')
+        row_num += 2
+        for key, value in self.dict_of_parts_in_thermocycler.items():
+            worksheet.write(row_num, col_num, key)
+            worksheet.write_column(row_num+1, col_num, value)
+            col_num += 1
+        workbook.close()
+        self.xlsx_output = workbook
+        return self.xlsx_output
+        #END
