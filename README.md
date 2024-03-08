@@ -10,7 +10,7 @@ Welcome to the PUDU (Protocol Unified Design Unit) repository, our Python packag
 As you may have noticed, our logo features a beautiful pudu _[(Pudu puda)](https://en.wikipedia.org/wiki/Pudu)_; a deer native to the southern forests of Chile and Argentina known for being the smallest deer of the world[.](https://youtu.be/xRQnJyP77tY)
 This package intends to make the code to program liquid handling robots as small and simple as possible.
 
-## No Installation required
+## No Installation required protocols
 
 Some scripts have "libre" in their name, this means that users can modify these scripts and use them to run protocols whithout the need to install PUDU.
 
