@@ -9,19 +9,11 @@ assemblies = [assembly_Odd_1, assembly_Even_2]
 # metadata
 metadata = {
 'protocolName': 'PUDU Loop assembly',
-'author': 'Gonzalo Vidal <gsvidal@uc.cl>',
+'author': 'Gonzalo Vidal <g.a.vidal-pena2@ncl.ac.uk>',
 'description': 'Automated DNA assembly Loop protocol',
 'apiLevel': '2.13'}
 
 def run(protocol= protocol_api.ProtocolContext):
 
-    pudu_loop_assembly = Loop_assembly(assemblies=assemblies)
+    pudu_loop_assembly = Loop_assembly(assemblies=assemblies,)
     pudu_loop_assembly.run(protocol)
-    #chained actions
-    #save sbol
-    doc = sbol3.Document()
-    doc.add(pudu_loop_assembly.sbol_output)
-    doc.write('pudu_loop_assembly.nt', sbol3.SORTED_NTRIPLES)
-    #save xlsx
-    pudu_loop_assembly.get_xlsx_output('pudu_loop_assembly')
-

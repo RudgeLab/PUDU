@@ -1,8 +1,6 @@
-import sbol3
 from opentrons import protocol_api
 from typing import List, Union
-from pudu.utils import thermo_wells, temp_wells, liquid_transfer
-import xlsxwriter
+from pudu.utils import thermo_wells, temp_wells, liquid_transfer, slots, rows, row_letter_to_number
 
 class Test_setup():
     '''
@@ -20,9 +18,9 @@ class Test_setup():
         self.aspiration_rate = aspiration_rate
         self.dispense_rate = dispense_rate
 
-class Plate_setup(Test_setup):
+class Plate_samples(Test_setup):
     '''
-    Creates a protocol for the automated setting of a 96 well plate from samples.
+    Creates a protocol for the automated setting of a 96 well plate from samples. Each sample is distributed in 4 wells of the plate.
     '''
     def __init__(self,samples:List,
                  sample_tube_volume:float = 1200,
@@ -33,6 +31,7 @@ class Plate_setup(Test_setup):
                  tiprack_position:int=9,
                  pipette:str='p300_single_gen2',
                  pipette_position:str='right',
+                 use_temperature_module:bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -45,7 +44,7 @@ class Plate_setup(Test_setup):
         self.tiprack_position = tiprack_position
         self.pipette = pipette
         self.pipette_position = pipette_position
-        self.use_temperature_module = False
+        self.use_temperature_module = use_temperature_module
         self.dict_of_samples_in_plate = {}
         self.dict_of_samples_in_temp_mod_position = {}
 
@@ -67,35 +66,6 @@ class Plate_setup(Test_setup):
         
         #Protocol
 
-        #Define slots
-        slot_1 = ['A2', 'B2', 'C2', 'D2']
-        slot_2 = ['A3', 'B3', 'C3', 'D3']
-        slot_3 = ['A4', 'B4', 'C4', 'D4']
-        slot_4 = ['A5', 'B5', 'C5', 'D5']
-        slot_5 = ['A6', 'B6', 'C6', 'D6']
-        slot_6 = ['A7', 'B7', 'C7', 'D7']
-        slot_7 = ['A8', 'B8', 'C8', 'D8']
-        slot_8 = ['A9', 'B9', 'C9', 'D9']
-        slot_9 = ['A10', 'B10', 'C10', 'D10']
-        slot_10 = ['A11', 'B11', 'C11', 'D11']
-        slot_11 = ['E2', 'F2', 'G2', 'H2']
-        slot_12 = ['E3', 'F3', 'G3', 'H3']
-        slot_13 = ['E4', 'F4', 'G4', 'H4']
-        slot_14 = ['E5', 'F5', 'G5', 'H5']
-        slot_15 = ['E6', 'F6', 'G6', 'H6']
-        slot_16 = ['E7', 'F7', 'G7', 'H7']
-        slot_17 = ['E8', 'F8', 'G8', 'H8']
-        slot_18 = ['E9', 'F9', 'G9', 'H9']
-        slot_19 = ['E10', 'F10', 'G10', 'H10']
-        slot_20 = ['E11', 'F11', 'G11', 'H11']
-        slot_21 = ['A1', 'B1', 'C1', 'D1']
-        slot_22 = ['E1', 'F1', 'G1', 'H1']
-        slot_23 = ['A12', 'B12', 'C12', 'D12']
-        slot_24 = ['E12', 'F12', 'G12', 'H12']
-
-        slots = [slot_1, slot_2, slot_3, slot_4, slot_5, slot_6, slot_7, slot_8, slot_9, slot_10, slot_11, slot_12, slot_13, slot_14, slot_15, slot_16, slot_17, slot_18, slot_19, slot_20, slot_21, slot_22, slot_23, slot_24]
-
-
         #Load samples
         temp_wells_counter = 0
         for sample in self.samples:
@@ -107,104 +77,133 @@ class Plate_setup(Test_setup):
             self.dict_of_samples_in_plate[sample] = slots[temp_wells_counter]
             temp_wells_counter += 1
 
+        #output
+        print('Samples in tube rack')
         print(self.dict_of_samples_in_temp_mod_position)
+        print('Samples in plate')
         print(self.dict_of_samples_in_plate)
-    
-    def get_xlsx_output(self, name:str):
-        workbook = xlsxwriter.Workbook(f'{name}.xlsx')
-        worksheet = workbook.add_worksheet()
-        row_num =0
-        col_num =0
-        worksheet.write(row_num, col_num, 'Samples in temp_module')
-        row_num +=2
-        for key, value in self.dict_of_samples_in_temp_mod_position.items():
-            worksheet.write(row_num, col_num, key)
-            worksheet.write(row_num, col_num+1, value)
-            row_num +=1
-        col_num = 0
-        row_num += 4
-        worksheet.write(row_num, col_num, 'Samples in 96 well plate')
-        row_num += 2
-        for key, value in self.dict_of_samples_in_plate.items():
-            worksheet.write(row_num, col_num, key)
-            worksheet.write_column(row_num+1, col_num, value)
-            col_num += 1
-        workbook.close()
-        self.xlsx_output = workbook
-        return self.xlsx_output
         #END
 
 
 
-class Single_supplement_test(Test_setup):
+class Plate_supplemented_samples(Test_setup):
     '''
     Creates a protocol for the automated setting of a 96 well plate with a gradient of inducer.
 
     '''
-    def __init__(self,samples:List,
-                 sample_volume:float = 2,
-                 inducer:str = None,
-                 inducer_initial_concentration:float = 0.0,
-                 inducer_final_concentration:float = 0.0,
-                 number_of_inducer_step:int = 0,
+    def __init__(self,sample_name:str,
+                 inducer_name:str,
+                 inducer_initial_concentration:float = 1,
+                 initial_mix_inducer_volume:float = 50.0,
+                 initial_mix_sample_volume:float = 50.0,
+                 serial_dilution_volume:float = 20,
+                 serial_dilution_steps:int = 10,
                  number_of_replicates:int = 3,
-                 media_labware:str = '96 well plate',
-                 media_position:int = 20,
-                 inducer_labware:str = '96 well plate',
-                 inducer_position:int = 20,
+                 starting_row:str = 'A',
+                 sample_volume_plate:float = 200,
+                 sample_labware:str = '96 well plate',
                  aspiration_rate:float=0.5,
                  dispense_rate:float=1,
+                 tube_rack_labware:str = 'opentrons_24_aluminumblock_nest_1.5ml_snapcap',
+                 tube_rack_position:int = 4,
                  tiprack_labware:str='opentrons_96_tiprack_300ul',
                  tiprack_position:int=9,
                  pipette:str='p300_single_gen2',
-                 pipette_position:str='left'):
+                 pipette_position:str='left',
+                 use_temperature_module:bool = False,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        self.samples = samples
-        self.sample_volume = sample_volume
-        self.inducer = inducer
+        self.sample_name = sample_name
+        self.inducer_name = inducer_name
         self.inducer_initial_concentration = inducer_initial_concentration
-        self.inducer_final_concentration = inducer_final_concentration
-        self.number_of_inducer_step = number_of_inducer_step
+        self.initial_mix_sample_volume = initial_mix_sample_volume
+        self.initial_mix_inducer_volume = initial_mix_inducer_volume
+        self.serial_dilution_volume = serial_dilution_volume
+        self.serial_dilution_steps = serial_dilution_steps
         self.number_of_replicates = number_of_replicates
-        self.media_labware = media_labware
-        self.media_position = media_position
-        self.inducer_labware = inducer_labware
-        self.inducer_position = inducer_position
+        self.starting_row = starting_row
+        self.sample_volume_plate = sample_volume_plate
+        self.sample_labware = sample_labware
         self.aspiration_rate = aspiration_rate
         self.dispense_rate = dispense_rate
+        self.tube_rack_labware = tube_rack_labware
+        self.tube_rack_position = tube_rack_position
         self.tiprack_labware = tiprack_labware
         self.tiprack_position = tiprack_position
         self.pipette = pipette
         self.pipette_position = pipette_position
+        self.use_temperature_module = use_temperature_module
+        self.dict_of_samples_in_plate = {}
+        self.dict_of_tubes_in_temp_mod_position = {}
 
-
-        if self.number_of_inducer_step == 0:
-            raise ValueError('Number of inducer steps must be greater than 0')
+        if self.serial_dilution_steps == 0:
+            raise ValueError('Number of serial dilution steps must be greater than 0')
         if self.number_of_replicates < 3:
-            raise ValueError('Number of replicates must be greater than 3') 
-        if self.number_of_inducer_step * self.number_of_replicates > 56:
-            raise ValueError('Number of inducer steps with their replicates must be less than 56')
-
+            raise Warning('Number of replicates must be greater than 3 for statistical analysis') 
+        if self.number_of_replicates > 8:
+            raise ValueError('Number of replicates must be less than 8 to fit in the 96 well plate')
+        
     def run(self, protocol: protocol_api.ProtocolContext):
 
         #Labware
         tiprack = protocol.load_labware(self.tiprack_labware, f'{self.tiprack_position}')
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=[tiprack])
-        plate = protocol.load_labware(self.calibration_plate_labware, self.calibration_plate_position)
+        plate = protocol.load_labware(self.test_labware, self.test_position)
+
         if self.use_temperature_module:
             temperature_module = protocol.load_module('Temperature Module', self.tube_rack_position)
             tube_rack = temperature_module.load_labware(self.tube_rack_labware)
         else:
             tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
-        if self.use_falcon_tubes:
-            falcon_tube_rack = protocol.load_labware(self.falcon_tube_rack_labware, self.falcon_tube_rack_position)
-        #Protocol
+        
+        # Protocol
+            
+        # Load inducer
+        temp_wells_counter = 0
+        self.dict_of_tubes_in_temp_mod_position[self.inducer_name] = temp_wells[temp_wells_counter]
+        temp_wells_counter += 1
+        
+        # Load samples and distribute them in the plate
+        start_at_row = row_letter_to_number[self.starting_row] - 1
 
-        #Load media
+        for replicate_number in range(self.number_of_replicates + 1):
+            working_row_index = start_at_row + replicate_number
+            self.dict_of_tubes_in_temp_mod_position[f'replicate_{replicate_number}'] = temp_wells[temp_wells_counter]
+            pipette.pick_up_tip()
+            for dilution_step in range(self.serial_dilution_steps):
+                position = rows[working_row_index][dilution_step+1]
+                liquid_transfer(pipette, self.sample_volume_plate, tube_rack[self.dict_of_tubes_in_temp_mod_position[f'replicate_{replicate_number}']], plate[position], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+            pipette.drop_tip()
+            temp_wells_counter += 1
+            working_row_index += 1
 
-        #Load supplement
 
-        #Load cells
+        # Create initial mix on the first row
+        initial_mix_position = rows[start_at_row][0]
+        self.dict_of_samples_in_plate['initial_mix'] = initial_mix_position
+        #pipette sample to initial mix
+        liquid_transfer(pipette, self.initial_mix_sample_volume, tube_rack[self.dict_of_tubes_in_temp_mod_position['replicate_1']], plate[initial_mix_position], self.aspiration_rate, self.dispense_rate)
+        #pipette inducer to initial mix
+        liquid_transfer(pipette, self.initial_mix_inducer_volume, tube_rack[self.dict_of_tubes_in_temp_mod_position[self.inducer_name]], plate[initial_mix_position], self.aspiration_rate, self.dispense_rate,mix_after=self.initial_mix_sample_volume/2)
+
+        # Serial dilution
+        for replicate_number in range(self.number_of_replicates):
+            working_row_index = start_at_row + replicate_number
+            pipette.pick_up_tip()
+            for dilution_step in range(self.serial_dilution_steps):
+                position = rows[working_row_index][dilution_step+1]
+                liquid_transfer(pipette, self.serial_dilution_volume, tube_rack[self.dict_of_tubes_in_temp_mod_position[f'replicate_{replicate_number}']], plate[position], self.aspiration_rate, self.dispense_rate, mix_before=self.sample_volume_plate/2, new_tip=False, drop_tip=False)
+                self.dict_of_samples_in_plate[f'replicate_{replicate_number}_dilution{dilution_step}'] = position
+            pipette.drop_tip()
+            working_row_index += 1
+        
+        #output
+        print('Samples and inducer in tube rack')
+        print(self.dict_of_tubes_in_temp_mod_position)
+        print('Samples in plate')
+        print(self.dict_of_samples_in_plate)
+        #END
 
 
 

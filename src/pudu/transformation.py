@@ -1,8 +1,6 @@
 from opentrons import protocol_api
-import sbol3
 from pudu.utils import thermo_wells, temp_wells, liquid_transfer
 from typing import List, Dict
-import xlsxwriter
 
 
 class Transformation():
@@ -43,8 +41,8 @@ class Transformation():
         The rate of dispense in microliters per second. By default, 1 microliter per second.
     '''
     def __init__(self,
-        list_of_dnas:List = [],
-        competent_cells: str = None,
+        list_of_dnas:List = [], # TODO:add SBOL version
+        competent_cells: str = None, # TODO: add SBOL version
         replicates:int=2,
         thermocycler_starting_well:int = 0,
         thermocycler_labware:str = 'nest_96_wellplate_100ul_pcr_full_skirt',
@@ -141,8 +139,6 @@ class Chemical_transformation(Transformation):
         self.recovery_incubation = recovery_incubation
         self.dict_of_parts_in_temp_mod_position = {}
         self.dict_of_parts_in_thermocycler = {}
-        self.sbol_output = []
-        self.xlsx_output = None
 
         metadata = {
         'protocolName': 'PUDU Transformation',
@@ -259,29 +255,11 @@ class Chemical_transformation(Transformation):
         recovery = [
             self.recovery_incubation]
         thermocycler_mod.execute_profile(steps=recovery, repetitions=1, block_max_volume=30)
+        
+        #output
+        print('Strain and media tube in temp_mod')
+        print(self.dict_of_parts_in_temp_mod_position)
+        print('Genetically modified organisms in thermocycler')
+        print(self.dict_of_parts_in_thermocycler)
         #Optionally plate
-        #END
-
-    def get_xlsx_output(self, name:str):
-        workbook = xlsxwriter.Workbook(f'{name}.xlsx')
-        worksheet = workbook.add_worksheet()
-        row_num =0
-        col_num =0
-        worksheet.write(row_num, col_num, 'Reagents in temp_module')
-        row_num +=2
-        for key, value in self.dict_of_parts_in_temp_mod_position.items():
-            worksheet.write(row_num, col_num, key)
-            worksheet.write(row_num, col_num+1, value)
-            row_num +=1
-        col_num = 0
-        row_num += 4
-        worksheet.write(row_num, col_num, 'GMOs in thermocycler_module')
-        row_num += 2
-        for key, value in self.dict_of_parts_in_thermocycler.items():
-            worksheet.write(row_num, col_num, key)
-            worksheet.write_column(row_num+1, col_num, value)
-            col_num += 1
-        workbook.close()
-        self.xlsx_output = workbook
-        return self.xlsx_output
         #END

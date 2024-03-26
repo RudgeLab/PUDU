@@ -75,7 +75,7 @@ class Calibration():
         tiprack_labware:str='opentrons_96_tiprack_300ul',
         tiprack_position:int=9,
         pipette:str='p300_single_gen2',
-        pipette_position:str='left',
+        pipette_position:str='right',
         calibration_plate_labware:str='corning_96_wellplate_360ul_flat',
         calibration_plate_position:int=7,
         tube_rack_labware:str='opentrons_24_aluminumblock_nest_1.5ml_snapcap',
@@ -123,8 +123,6 @@ class iGEM_rgb_od(Calibration):
         Labware to use as calibration plate. By default corning_96_wellplate_360ul_flat.
     calibration_plate_position: int
         Deck position for calibration plate. By default 7.
-    use_temperature_module: bool    
-        Whether to use temperature module or not. By default True.
     tube_rack_labware: str
         Labware to use as tube rack. By default opentrons_24_aluminumblock_nest_1.5ml_snapcap.
     tube_rack_position: int
@@ -139,8 +137,8 @@ class iGEM_rgb_od(Calibration):
     def __init__(self,
         *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        self.sbol_output = []
+    
+        #Does a SBOL component of this make sense?
 
         metadata = {
         'protocolName': 'iGEM RGB OD600 calibration',
@@ -161,18 +159,33 @@ class iGEM_rgb_od(Calibration):
         #set deck
         #add calibrants
         sulforhodamine_1x = tube_rack['A1']
-        fluorescein_1x = tube_rack['A2']
-        cascade_blue_1x = tube_rack['A3']
-        microspheres_1x = tube_rack['A4']
+        fluorescein_1x = tube_rack['B1']
+        cascade_blue_1x = tube_rack['C1']
+        microspheres_1x = tube_rack['D1']
         #add dilution buffers in tube rack
-        pbs_1 = tube_rack['B1']
+        pbs_1 = tube_rack['A2']
         pbs_2 = tube_rack['B2']
-        pbs_3 = tube_rack['B3']
-        pbs_4 = tube_rack['B4']
-        water_1 = tube_rack['C1']
-        water_2 = tube_rack['C2']
-        water_3 = tube_rack['C3']
-        water_4 = tube_rack['C4']
+        pbs_3 = tube_rack['C2']
+        pbs_4 = tube_rack['D2']
+        pbs_5 = tube_rack['A3']
+        pbs_6 = tube_rack['B3']
+        pbs_7 = tube_rack['C3']
+        pbs_8 = tube_rack['D3']
+        water_1 = tube_rack['A4']
+        water_2 = tube_rack['B4']
+        water_3 = tube_rack['C4']
+        water_4 = tube_rack['D4']
+        water_5 = tube_rack['A5']
+        water_6 = tube_rack['B5']
+        water_7 = tube_rack['C5']
+        water_8 = tube_rack['D5']
+        binit = tube_rack['A6']
+
+        #homogenization
+        mix_vol = 100
+        mix_reps = 3
+        #TODO use 2.0 tubes
+
         #if using falcon, remap pbs and water
         if self.use_falcon_tubes:
             #add dilution buffers in falcon tube rack
@@ -209,52 +222,84 @@ class iGEM_rgb_od(Calibration):
             liquid_transfer(pipette, 100, water_4, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         #dispense fluorescein
-        liquid_transfer(pipette, 200, fluorescein_1x, plate['A1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
-        liquid_transfer(pipette, 200, fluorescein_1x, plate['B1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+        liquid_transfer(pipette, 200, fluorescein_1x, plate['A1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
+        liquid_transfer(pipette, 200, fluorescein_1x, plate['B1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
         #dispense sulforhodamine 101
-        liquid_transfer(pipette, 200, sulforhodamine_1x, plate['C1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
-        liquid_transfer(pipette, 200, sulforhodamine_1x, plate['D1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+        liquid_transfer(pipette, 200, sulforhodamine_1x, plate['C1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
+        liquid_transfer(pipette, 200, sulforhodamine_1x, plate['D1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
         #dispense cascade blue
-        liquid_transfer(pipette, 200, cascade_blue_1x, plate['E1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
-        liquid_transfer(pipette, 200, cascade_blue_1x, plate['F1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+        liquid_transfer(pipette, 200, cascade_blue_1x, plate['E1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
+        liquid_transfer(pipette, 200, cascade_blue_1x, plate['F1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
         #dispense microspheres nanoparticles
-        liquid_transfer(pipette, 200, microspheres_1x, plate['G1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
-        liquid_transfer(pipette, 200, microspheres_1x, plate['H1'], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4)
+        liquid_transfer(pipette, 200, microspheres_1x, plate['G1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
+        liquid_transfer(pipette, 200, microspheres_1x, plate['H1'], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps)
         #fluorescein serial dilutions
         pipette.pick_up_tip()
-        for i in range(0,11):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(0,10):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         pipette.pick_up_tip()
-        for i in range(12,23):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(12,22):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         #sulforamine serial dilution
         pipette.pick_up_tip()
-        for i in range(24,35):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(24,34):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         pipette.pick_up_tip()
-        for i in range(36,47):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(36,46):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         #cascade blue serial dilution
         pipette.pick_up_tip()
-        for i in range(48,59):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(48,58):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         pipette.pick_up_tip()
-        for i in range(60,71):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(60,70):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         #nanoparticles serial dilutions
         pipette.pick_up_tip()
         for i in range(72,83):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         pipette.pick_up_tip()
-        for i in range(84,95):
-            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=200, mix_reps=4, new_tip=False, drop_tip=False)
+        for i in range(84,94):
+            liquid_transfer(pipette, 100, plate[plate_96_wells[i]], plate[plate_96_wells[i+1]], self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        liquid_transfer(pipette, 100, plate[plate_96_wells[i+1]], binit, self.aspiration_rate, self.dispense_rate, mix_before=mix_vol, mix_reps=mix_reps, new_tip=False, drop_tip=False)
+        pipette.drop_tip()
+
+        # 1/2 dilution, filling 200 uL
+        #dispense PBS
+        pipette.pick_up_tip()
+        for well in plate_96_wells[0:12]:
+            liquid_transfer(pipette, 100, pbs_5, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        for well in plate_96_wells[12:24]:
+            liquid_transfer(pipette, 100, pbs_6, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        for well in plate_96_wells[24:36]:
+            liquid_transfer(pipette, 100, pbs_7, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        for well in plate_96_wells[36:48]:
+            liquid_transfer(pipette, 100, pbs_8, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        pipette.drop_tip()
+        #dispense water
+        pipette.pick_up_tip()
+        for well in plate_96_wells[48:60]:
+            liquid_transfer(pipette, 100, water_5, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        for well in plate_96_wells[60:72]:
+            liquid_transfer(pipette, 100, water_6, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        for well in plate_96_wells[72:84]:
+            liquid_transfer(pipette, 100, water_7, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
+        for well in plate_96_wells[84:96]:
+            liquid_transfer(pipette, 100, water_8, plate[well], self.aspiration_rate, self.dispense_rate, new_tip=False, drop_tip=False)
         pipette.drop_tip()
         #END
 
@@ -270,5 +315,5 @@ metadata = {
 
 def run(protocol= protocol_api.ProtocolContext):
 
-    pudu_calibration = iGEM_rgb_od()
+    pudu_calibration = iGEM_rgb_od(calibration_plate_labware='nest_96_wellplate_200ul_flat')
     pudu_calibration.run(protocol)
