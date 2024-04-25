@@ -271,7 +271,7 @@ class Loop_assembly(DNA_assembly):
         profile = [
             {'temperature': 42, 'hold_time_minutes': 2},
             {'temperature': 16, 'hold_time_minutes': 5}]
-        thermocycler_mod.execute_profile(steps=profile, repetitions=25, block_max_volume=30)
+        thermocycler_mod.execute_profile(steps=profile, repetitions=75, block_max_volume=30)
 
         denaturation = [
             {'temperature': 60, 'hold_time_minutes': 10},
@@ -287,7 +287,7 @@ class Loop_assembly(DNA_assembly):
         print(self.dict_of_parts_in_thermocycler)     
 
 # assembly
-assembly_Odd_1 = {"promoter":["GVP0010", "GVP0011", "GVP0014"], "rbs":["B0033","B0034"], "cds":"sfGFP", "terminator":"B0015", "receiver":"Odd_1"}
+assembly_Odd_1 = {"promoter":["GVP0008", "GVP0010", "GVP0012", "GVP0013", "GVP0016", "GVP0017"], "rbs":"B0034", "cds":"sfGFP", "terminator":"B0015", "receiver":"Odd_1"}
 #assembly_Even_2 = {"c4_receptor":"GD0001", "c4_buff_gfp":"GD0002", "spacer1":"20ins1", "spacer2":"Even_2", "receiver":"Even_2"}
 assemblies = [assembly_Odd_1]
 
