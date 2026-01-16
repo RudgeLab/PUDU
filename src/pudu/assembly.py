@@ -798,7 +798,7 @@ class Domestication(BaseAssembly):
                 f'({len(self.parts_list)} parts × {self.replicates} replicates).'
             )
 
-        self._validate_reaction_volumes(num_parts=len(self.parts_list))
+        self._validate_reaction_volumes(num_parts=2)
 
     def _reset_assembly_state(self):
         """Reset assembly processing state"""
@@ -840,7 +840,7 @@ class ManualLoopAssembly(BaseAssembly):
             raise ValueError("Must provide assemblies either via assembly_data or assemblies parameter")
 
         super().__init__(json_params=json_params, *args, **kwargs)
-        super().__init__(*args, **kwargs)
+
         self.assemblies = assemblies
         self.pattern_odd = 'Odd*'
         self.pattern_even = 'Even*'
