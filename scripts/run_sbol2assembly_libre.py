@@ -297,7 +297,7 @@ def run(protocol= protocol_api.ProtocolContext):
     #I am taking in the name of Json file and make it assembly
     #import using pandas or somthing to convert to usable dictionary
     import json
-    with open("output.json", "r") as f:
+    with open("scripts/output.json", "r") as f:
         assembly_sbol2_uris = json.load(f)
 
 
