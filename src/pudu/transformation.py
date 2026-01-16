@@ -134,7 +134,6 @@ class HeatShockTransformation(Transformation):
             self.recovery_incubation = {'temperature': 37, 'hold_time_minutes': 60}
         else:
             self.recovery_incubation = recovery_incubation
-        self.recovery_incubation = recovery_incubation
         self.dict_of_parts_in_temp_mod_position = {}
         self.dict_of_parts_in_thermocycler = {}
 
