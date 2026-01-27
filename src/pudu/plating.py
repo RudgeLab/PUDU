@@ -10,6 +10,8 @@ class Plating():
 
     """
     def __init__(self,
+                 plating_data: Optional[Dict] = None,
+                 json_params: Optional[Dict] = None,
                  volume_total_reaction: float = 20,
                  volume_bacteria_transfer: float = 2,
                  volume_colony: float = 4,
@@ -17,25 +19,22 @@ class Plating():
                  volume_lb: float = 10000,
                  replicates: int = 1,
                  number_dilutions: int = 2,
-                 max_colonies = 192,
+                 max_colonies: int = 192,
 
                  thermocycler_starting_well: int = 0,
-                 # thermocycler_labware: str = 'nest_96_wellplate_100ul_pcr_full_skirt',
                  thermocycler_labware: str = 'biorad_96_wellplate_200ul_pcr',
 
                  small_tiprack: str = 'opentrons_96_filtertiprack_20ul',
                  small_tiprack_position: str = '9',
-                 initial_small_tip: str = None,
+                 initial_small_tip: Optional[str] = None,
                  large_tiprack: str = 'opentrons_96_filtertiprack_200ul',
                  large_tiprack_position: str = '1',
-                 initial_large_tip:str = None,
+                 initial_large_tip: Optional[str] = None,
                  small_pipette: str = 'p20_single_gen2',
                  small_pipette_position: str = 'left',
                  large_pipette: str = 'p300_single_gen2',
                  large_pipette_position: str = 'right',
 
-
-                 # dilution_plate: str = 'nest_96_wellplate_200ul_flat',
                  dilution_plate: str = 'nest_96_wellplate_100ul_pcr_full_skirt',
                  dilution_plate_position1: str = '2',
                  dilution_plate_position2: str = '3',
@@ -49,48 +48,183 @@ class Plating():
 
                  aspiration_rate: float = 0.5,
                  dispense_rate: float = 1,
-                 bacterium_locations: Dict = None):
+                 bacterium_locations: Optional[Dict] = None,
+                 **kwargs):
 
-        self.volume_total_reaction = volume_total_reaction
-        self.volume_bacteria_transfer = volume_bacteria_transfer
-        self.volume_colony = volume_colony
-        self.volume_lb_transfer = volume_lb_transfer
-        self.volume_lb = volume_lb
-        self.replicates = replicates
-        self.number_dilutions = number_dilutions
-        self.thermocycler_starting_well = thermocycler_starting_well
-        self.thermocycler_labware = thermocycler_labware
-        self.small_tiprack = small_tiprack
-        self.small_tiprack_position = small_tiprack_position
-        self.initial_small_tip = initial_small_tip
-        self.large_tiprack = large_tiprack
-        self.large_tiprack_position = large_tiprack_position
-        self.initial_large_tip = initial_large_tip
-        self.small_pipette = small_pipette
-        self.small_pipette_position = small_pipette_position
-        self.large_pipette = large_pipette
-        self.large_pipette_position = large_pipette_position
-        self.dilution_plate = dilution_plate
-        self.dilution_plate_position1 = dilution_plate_position1
-        self.dilution_plate_position2 = dilution_plate_position2
-        self.agar_plate = agar_plate
-        self.agar_plate_position1 = agar_plate_position1
-        self.agar_plate_position2 = agar_plate_position2
-        self.tube_rack = tube_rack
-        self.tube_rack_position = tube_rack_position
-        self.lb_tube_position = lb_tube_position
-        self.aspiration_rate = aspiration_rate
-        self.dispense_rate = dispense_rate
-        self.bacterium_locations = bacterium_locations
-        self.number_constructs = len(bacterium_locations)
+        # Collect kwargs for merging
+        kwargs_params = {
+            'volume_total_reaction': volume_total_reaction,
+            'volume_bacteria_transfer': volume_bacteria_transfer,
+            'volume_colony': volume_colony,
+            'volume_lb_transfer': volume_lb_transfer,
+            'volume_lb': volume_lb,
+            'replicates': replicates,
+            'number_dilutions': number_dilutions,
+            'max_colonies': max_colonies,
+            'thermocycler_starting_well': thermocycler_starting_well,
+            'thermocycler_labware': thermocycler_labware,
+            'small_tiprack': small_tiprack,
+            'small_tiprack_position': small_tiprack_position,
+            'initial_small_tip': initial_small_tip,
+            'large_tiprack': large_tiprack,
+            'large_tiprack_position': large_tiprack_position,
+            'initial_large_tip': initial_large_tip,
+            'small_pipette': small_pipette,
+            'small_pipette_position': small_pipette_position,
+            'large_pipette': large_pipette,
+            'large_pipette_position': large_pipette_position,
+            'dilution_plate': dilution_plate,
+            'dilution_plate_position1': dilution_plate_position1,
+            'dilution_plate_position2': dilution_plate_position2,
+            'agar_plate': agar_plate,
+            'agar_plate_position1': agar_plate_position1,
+            'agar_plate_position2': agar_plate_position2,
+            'tube_rack': tube_rack,
+            'tube_rack_position': tube_rack_position,
+            'lb_tube_position': lb_tube_position,
+            'aspiration_rate': aspiration_rate,
+            'dispense_rate': dispense_rate,
+            'bacterium_locations': bacterium_locations
+        }
+
+        kwargs_params.update(kwargs)
+
+        self._merged_params = self._merge_params(plating_data, json_params, kwargs_params)
+
+        if self._merged_params.get('bacterium_locations') is None:
+            raise ValueError("Must input bacterium_locations (either via plating_data, advanced_params, or bacterium_locations parameter)")
+
+        self.volume_total_reaction = self._merged_params['volume_total_reaction']
+        self.volume_bacteria_transfer = self._merged_params['volume_bacteria_transfer']
+        self.volume_colony = self._merged_params['volume_colony']
+        self.volume_lb_transfer = self._merged_params['volume_lb_transfer']
+        self.volume_lb = self._merged_params['volume_lb']
+        self.replicates = self._merged_params['replicates']
+        self.number_dilutions = self._merged_params['number_dilutions']
+        self.thermocycler_starting_well = self._merged_params['thermocycler_starting_well']
+        self.thermocycler_labware = self._merged_params['thermocycler_labware']
+        self.small_tiprack = self._merged_params['small_tiprack']
+        self.small_tiprack_position = self._merged_params['small_tiprack_position']
+        self.initial_small_tip = self._merged_params['initial_small_tip']
+        self.large_tiprack = self._merged_params['large_tiprack']
+        self.large_tiprack_position = self._merged_params['large_tiprack_position']
+        self.initial_large_tip = self._merged_params['initial_large_tip']
+        self.small_pipette = self._merged_params['small_pipette']
+        self.small_pipette_position = self._merged_params['small_pipette_position']
+        self.large_pipette = self._merged_params['large_pipette']
+        self.large_pipette_position = self._merged_params['large_pipette_position']
+        self.dilution_plate = self._merged_params['dilution_plate']
+        self.dilution_plate_position1 = self._merged_params['dilution_plate_position1']
+        self.dilution_plate_position2 = self._merged_params['dilution_plate_position2']
+        self.agar_plate = self._merged_params['agar_plate']
+        self.agar_plate_position1 = self._merged_params['agar_plate_position1']
+        self.agar_plate_position2 = self._merged_params['agar_plate_position2']
+        self.tube_rack = self._merged_params['tube_rack']
+        self.tube_rack_position = self._merged_params['tube_rack_position']
+        self.lb_tube_position = self._merged_params['lb_tube_position']
+        self.aspiration_rate = self._merged_params['aspiration_rate']
+        self.dispense_rate = self._merged_params['dispense_rate']
+        self.bacterium_locations = self._merged_params['bacterium_locations']
+        self.number_constructs = len(self.bacterium_locations)
+        self.max_colonies = self._merged_params['max_colonies']
+
         self.total_colonies = self.number_constructs * self.number_dilutions * self.replicates
-        self.max_colonies = max_colonies
+
         if self.total_colonies > self.max_colonies:
             raise ValueError(f"Protocol only supports a max of {self.max_colonies} colonies")
         if self.replicates > 8:
             raise ValueError("Protocol only supports a max of 8 replicates")
         if self.number_dilutions > 2:
             raise ValueError("Protocol currently supports a max of 2 dilutions")
+
+    def _merge_params(self, plating_data: Optional[Dict], json_params: Optional[Dict], kwargs_params: Dict) -> Dict:
+        """
+        Merge parameters with precedence: defaults <- plating_data <- json_params <- kwargs
+
+        Args:
+            plating_data: Optional dict containing protocol data (bacterium_locations)
+            json_params: Optional dict containing configuration parameters
+            kwargs_params: Dict of parameters passed as kwargs
+
+        Returns:
+            Merged parameter dictionary
+        """
+        # Define defaults for all valid parameters
+        valid_params = {
+            'volume_total_reaction': 20,
+            'volume_bacteria_transfer': 2,
+            'volume_colony': 4,
+            'volume_lb_transfer': 18,
+            'volume_lb': 10000,
+            'replicates': 1,
+            'number_dilutions': 2,
+            'max_colonies': 192,
+            'thermocycler_starting_well': 0,
+            'thermocycler_labware': 'biorad_96_wellplate_200ul_pcr',
+            'small_tiprack': 'opentrons_96_filtertiprack_20ul',
+            'small_tiprack_position': '9',
+            'initial_small_tip': None,
+            'large_tiprack': 'opentrons_96_filtertiprack_200ul',
+            'large_tiprack_position': '1',
+            'initial_large_tip': None,
+            'small_pipette': 'p20_single_gen2',
+            'small_pipette_position': 'left',
+            'large_pipette': 'p300_single_gen2',
+            'large_pipette_position': 'right',
+            'dilution_plate': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'dilution_plate_position1': '2',
+            'dilution_plate_position2': '3',
+            'agar_plate': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'agar_plate_position1': '5',
+            'agar_plate_position2': '6',
+            'tube_rack': 'opentrons_15_tuberack_falcon_15ml_conical',
+            'tube_rack_position': '4',
+            'lb_tube_position': 0,
+            'aspiration_rate': 0.5,
+            'dispense_rate': 1,
+            'bacterium_locations': None
+        }
+
+        # Start with defaults
+        merged = valid_params.copy()
+
+        # Apply plating_data (if provided)
+        if plating_data is not None:
+            self._validate_param_structure(plating_data, valid_params, 'plating_data')
+            merged.update(plating_data)
+
+        # Apply json_params (if provided)
+        if json_params is not None:
+            self._validate_param_structure(json_params, valid_params, 'json_params')
+            merged.update(json_params)
+
+        # Apply kwargs (highest precedence) - only if they differ from defaults
+        for key, value in kwargs_params.items():
+            if key in valid_params:
+                # Only override if the value is explicitly different from the default
+                if value != valid_params[key]:
+                    merged[key] = value
+
+        return merged
+
+    def _validate_param_structure(self, params: Dict, valid_params: Dict, param_name: str):
+        """
+        Validate that all parameters in the dict are recognized.
+
+        Args:
+            params: Dictionary to validate
+            valid_params: Dictionary of valid parameter names
+            param_name: Name of the parameter dict (for error messages)
+
+        Raises:
+            ValueError: If unknown parameters are found
+        """
+        unknown_params = set(params.keys()) - set(valid_params.keys())
+        if unknown_params:
+            raise ValueError(
+                f"Unknown parameters in {param_name}: {unknown_params}.\n"
+                f"Valid parameters are: {set(valid_params.keys())}"
+            )
 
     def calculate_plate_layout(self,protocol, plate1, plate2=None):
         """

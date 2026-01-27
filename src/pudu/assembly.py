@@ -1,6 +1,6 @@
 import xlsxwriter
 from opentrons import protocol_api
-from typing import List, Dict
+from typing import List, Dict, Optional
 from fnmatch import fnmatch
 from itertools import product
 import json
@@ -14,6 +14,7 @@ class BaseAssembly(ABC):
     """
 
     def __init__(self,
+                 json_params: Optional[Dict] = None,
                  volume_total_reaction: float = 20,
                  volume_part: float = 2,
                  volume_restriction_enzyme: float = 2,
@@ -25,9 +26,10 @@ class BaseAssembly(ABC):
                  temperature_module_labware: str = 'opentrons_24_aluminumblock_nest_1.5ml_snapcap',
                  temperature_module_position: str = '1',
                  tiprack_labware: str = 'opentrons_96_tiprack_20ul',
-                 tiprack_positions: List[str] = None,
+                 tiprack_positions: Optional[List[str]] = None,
                  pipette: str = 'p20_single_gen2',
                  pipette_position: str = 'left',
+                 initial_tip: Optional[str] = None,
                  aspiration_rate: float = 0.5,
                  dispense_rate: float = 1,
                  take_picture: bool = False,
@@ -36,30 +38,58 @@ class BaseAssembly(ABC):
                  output_xlsx: bool = True,
                  protocol_name: str = ''):
 
-        self.volume_total_reaction = volume_total_reaction
-        self.volume_part = volume_part
-        self.volume_restriction_enzyme = volume_restriction_enzyme
-        self.volume_t4_dna_ligase = volume_t4_dna_ligase
-        self.volume_t4_dna_ligase_buffer = volume_t4_dna_ligase_buffer
-        self.replicates = replicates
-        self.thermocycler_starting_well = thermocycler_starting_well
-        self.thermocycler_labware = thermocycler_labware
-        self.temperature_module_labware = temperature_module_labware
-        self.temperature_module_position = temperature_module_position
-        self.tiprack_labware = tiprack_labware
-        if tiprack_positions is None:
+        kwargs_params = {
+            'volume_total_reaction': volume_total_reaction,
+            'volume_part': volume_part,
+            'volume_restriction_enzyme': volume_restriction_enzyme,
+            'volume_t4_dna_ligase': volume_t4_dna_ligase,
+            'volume_t4_dna_ligase_buffer': volume_t4_dna_ligase_buffer,
+            'replicates': replicates,
+            'thermocycler_starting_well': thermocycler_starting_well,
+            'thermocycler_labware': thermocycler_labware,
+            'temperature_module_labware': temperature_module_labware,
+            'temperature_module_position': temperature_module_position,
+            'tiprack_labware': tiprack_labware,
+            'tiprack_positions': tiprack_positions,
+            'pipette': pipette,
+            'pipette_position': pipette_position,
+            'initial_tip' : initial_tip,
+            'aspiration_rate': aspiration_rate,
+            'dispense_rate': dispense_rate,
+            'take_picture': take_picture,
+            'take_video': take_video,
+            'water_testing': water_testing,
+            'output_xlsx': output_xlsx,
+            'protocol_name': protocol_name
+        }
+
+        params = self._merge_params(json_params, kwargs_params)
+
+        self.volume_total_reaction = params['volume_total_reaction']
+        self.volume_part = params['volume_part']
+        self.volume_restriction_enzyme = params['volume_restriction_enzyme']
+        self.volume_t4_dna_ligase = params['volume_t4_dna_ligase']
+        self.volume_t4_dna_ligase_buffer = params['volume_t4_dna_ligase_buffer']
+        self.replicates = params['replicates']
+        self.thermocycler_starting_well = params['thermocycler_starting_well']
+        self.thermocycler_labware = params['thermocycler_labware']
+        self.temperature_module_labware = params['temperature_module_labware']
+        self.temperature_module_position = params['temperature_module_position']
+        self.tiprack_labware = params['tiprack_labware']
+        if params['tiprack_positions'] is None:
             self.tiprack_positions = ['2', '3', '4', '5', '6', '9']
         else:
-            self.tiprack_positions = tiprack_positions
-        self.pipette = pipette
-        self.pipette_position = pipette_position
-        self.aspiration_rate = aspiration_rate
-        self.dispense_rate = dispense_rate
-        self.take_picture = take_picture
-        self.take_video = take_video
-        self.water_testing = water_testing
-        self.output_xlsx = output_xlsx
-        self.protocol_name = protocol_name
+            self.tiprack_positions =  params['tiprack_positions']
+        self.pipette = params['pipette']
+        self.pipette_position = params['pipette_position']
+        self.initial_tip = params['initial_tip']
+        self.aspiration_rate = params['aspiration_rate']
+        self.dispense_rate = params['dispense_rate']
+        self.take_picture = params['take_picture']
+        self.take_video = params['take_video']
+        self.water_testing = params['water_testing']
+        self.output_xlsx = params['output_xlsx']
+        self.protocol_name = params['protocol_name']
 
         # Shared tracking dictionaries
         self.dict_of_parts_in_temp_mod_position = {}
@@ -80,6 +110,160 @@ class BaseAssembly(ABC):
             'current_batch': 1,
             'total_batches': 1
         }
+
+    def _merge_params(self, json_params: Dict, kwargs_params: Dict) -> Dict:
+        """
+        Merge parameters with precedence: defaults <- advanced_params <- kwargs
+
+        Args:
+            advanced_params: Dictionary of parameters from JSON/dict (optional)
+            kwargs_params: Dictionary of parameters from function kwargs
+
+        Returns:
+            Merged parameter dictionary
+
+        Raises:
+            ValueError: If advanced_params contains unknown parameters
+        """
+        # Define all valid parameter names with their defaults
+        valid_params = {
+            'volume_total_reaction': 20,
+            'volume_part': 2,
+            'volume_restriction_enzyme': 2,
+            'volume_t4_dna_ligase': 4,
+            'volume_t4_dna_ligase_buffer': 2,
+            'replicates': 1,
+            'thermocycler_starting_well': 0,
+            'thermocycler_labware': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'temperature_module_labware': 'opentrons_24_aluminumblock_nest_1.5ml_snapcap',
+            'temperature_module_position': '1',
+            'tiprack_labware': 'opentrons_96_tiprack_20ul',
+            'tiprack_positions': None,
+            'pipette': 'p20_single_gen2',
+            'pipette_position': 'left',
+            'initial_tip': None,
+            'aspiration_rate': 0.5,
+            'dispense_rate': 1,
+            'take_picture': False,
+            'take_video': False,
+            'water_testing': False,
+            'output_xlsx': True,
+            'protocol_name': ''
+        }
+
+        # Start with defaults
+        merged = valid_params.copy()
+
+        # Apply json_params if provided
+        if json_params is not None:
+            self._validate_param_structure(json_params, valid_params)
+            merged.update(json_params)
+
+        # Apply kwargs (checking against defaults to see what was explicitly passed)
+        # Only update if the kwarg value differs from the default
+        for key, value in kwargs_params.items():
+            if key in valid_params:
+                # Always use kwargs value, even if it matches default
+                # This ensures explicit kwargs override advanced_params
+                if json_params is None or key not in json_params or value != valid_params[key]:
+                    merged[key] = value
+
+        return merged
+
+    def _validate_param_structure(self, advanced_params: Dict, valid_params: Dict):
+        """
+        Validate that advanced_params only contains known parameter names.
+
+        Args:
+            advanced_params: Dictionary to validate
+            valid_params: Dictionary of valid parameter names
+
+        Raises:
+            ValueError: If unknown parameters are found
+        """
+        unknown_params = set(advanced_params.keys()) - set(valid_params.keys())
+        if unknown_params:
+            raise ValueError(
+                f"Unknown parameters in advanced_params: {unknown_params}. "
+                f"Valid parameters are: {set(valid_params.keys())}"
+            )
+
+    def _validate_reaction_volumes(self, num_parts: int):
+        """
+        Validate that reaction volumes are physically possible.
+
+        Args:
+            num_parts: Number of DNA parts (including backbone) in the assembly
+
+        Raises:
+            ValueError: If volumes exceed total reaction volume
+        """
+        volume_reagents = (self.volume_restriction_enzyme +
+                          self.volume_t4_dna_ligase +
+                          self.volume_t4_dna_ligase_buffer)
+
+        total_parts_volume = self.volume_part * num_parts
+        total_needed = volume_reagents + total_parts_volume
+
+        if total_needed >= self.volume_total_reaction:
+            water_volume = self.volume_total_reaction - total_needed
+            raise ValueError(
+                f"Reaction volume error: Cannot fit {num_parts} parts into {self.volume_total_reaction}µL reaction.\n"
+                f"  Required volumes:\n"
+                f"    - Reagents (enzyme + ligase + buffer): {volume_reagents}µL\n"
+                f"    - Parts ({num_parts} × {self.volume_part}µL): {total_parts_volume}µL\n"
+                f"    - Water: {water_volume}µL (NEGATIVE!)\n"
+                f"  Total needed: {total_needed}µL\n"
+                f"  Solutions:\n"
+                f"    1. Increase 'volume_total_reaction' to at least {total_needed + 1}µL\n"
+                f"    2. Decrease 'volume_part' to at most {(self.volume_total_reaction - volume_reagents - 1) / num_parts:.1f}µL\n"
+                f"    3. Decrease reagent volumes"
+            )
+
+    def _well_to_index(self, well_name: str) -> int:
+        """
+        Convert well name (e.g., 'A1', 'H12') to 0-based index in 96-well plate.
+
+        Args:
+            well_name: Well position like 'A1', 'B3', 'H12'
+
+        Returns:
+            Zero-based index (0-95) for the well
+
+        Raises:
+            ValueError: If well_name format is invalid
+        """
+        if not well_name or len(well_name) < 2:
+            raise ValueError(f"Invalid well name: '{well_name}'. Expected format like 'A1', 'B3', 'H12'")
+
+        row = well_name[0]
+        try:
+            col = int(well_name[1:])
+        except ValueError:
+            raise ValueError(f"Invalid well name: '{well_name}'. Column must be a number (e.g., 'A1', 'H12')")
+
+        if row not in 'ABCDEFGH':
+            raise ValueError(f"Invalid well name: '{well_name}'. Row must be A-H")
+
+        if col < 1 or col > 12:
+            raise ValueError(f"Invalid well name: '{well_name}'. Column must be 1-12")
+
+        row_index = ord(row) - ord('A')
+        col_index = col - 1
+        return row_index + (col_index * 8)
+
+    def _tips_available_from_position(self, well_name: str) -> int:
+        """
+        Calculate how many tips are available starting from a given position.
+
+        Args:
+            well_name: Starting well position like 'A1', 'H12'
+
+        Returns:
+            Number of tips available from that position to H12
+        """
+        start_index = self._well_to_index(well_name)
+        return 96 - start_index
 
     @abstractmethod
     def process_assemblies(self):
@@ -106,7 +290,22 @@ class BaseAssembly(ABC):
     def setup_tip_management(self, protocol):
         """Setup batch tip management for high-throughput applications."""
         total_tips_needed = self._calculate_total_tips_needed()
-        tip_racks_needed = (total_tips_needed + 95) // 96
+
+        first_rack_tips = 96
+        if self.initial_tip:
+            try:
+                first_rack_tips = self._tips_available_from_position(self.initial_tip)
+                protocol.comment(f"Starting from tip {self.initial_tip} ({first_rack_tips} tips available on first rack)")
+            except ValueError as e:
+                raise ValueError(f"Error with initial_tip parameter: {e}")
+
+        # Calculate racks needed, accounting for the partially used first rack
+        if total_tips_needed <= first_rack_tips:
+            tip_racks_needed = 1
+        else:
+            remaining_tips = total_tips_needed - first_rack_tips
+            additional_racks = (remaining_tips + 95) // 96
+            tip_racks_needed = 1 + additional_racks
 
         available_deck_slots = self.tiprack_positions
         max_racks_on_deck = len(available_deck_slots)
@@ -215,6 +414,9 @@ class BaseAssembly(ABC):
 
         all_tip_racks = self.setup_tip_management(protocol)
         pipette = protocol.load_instrument(self.pipette, self.pipette_position, tip_racks=all_tip_racks)
+        if self.initial_tip:
+            pipette.starting_tip = self.tip_management['on_deck_racks'][0][self.initial_tip]
+            protocol.comment(f"Pipette will start from tip {self.initial_tip}")
 
         # Load common reagents (shared)
         dd_h2o = self._load_reagent(protocol, module_labware=alum_block, well_position=0,
@@ -283,6 +485,11 @@ class BaseAssembly(ABC):
                     self.get_xlsx_output(self.protocol_name)
                 except Exception as e:
                     protocol.comment(f"Could not create Excel file: {e}")
+            # Export transformation input for next protocol (simulation only)
+            try:
+                self._export_transformation_input(protocol)
+            except Exception as e:
+                protocol.comment(f"Could not export transformation input: {e}")
 
         # Output results
         print('Parts and reagents in temp_module')
@@ -293,6 +500,30 @@ class BaseAssembly(ABC):
         print(self.dna_list_for_transformation_protocol)
 
     # Helper methods (shared)
+    def _export_transformation_input(self, protocol, competent_cells='DH5alpha'):
+        """
+        Export transformation input JSON during simulation.
+
+        Args:
+            protocol: Protocol context
+            competent_cells: Competent cells to use for transformation (default: DH5alpha)
+        """
+
+        transformation_input = {
+            'list_of_dna': self.dna_list_for_transformation_protocol,
+            'competent_cells': competent_cells
+        }
+
+        output_path = 'transformation_input.json'
+        with open(output_path, 'w') as f:
+            json.dump(transformation_input, f, indent=2)
+
+        protocol.comment("\n" + "="*70)
+        protocol.comment(f"Generated {output_path} for next protocol")
+        protocol.comment(f"  DNA constructs: {len(self.dna_list_for_transformation_protocol)}")
+        protocol.comment(f"  Competent cells: {competent_cells}")
+        protocol.comment("="*70)
+
     def _load_reagent(self, protocol, module_labware, well_position, name, description=None,
                       volume=1000, color_index=None):
         """Load a reagent or DNA part onto the temperature module."""
@@ -350,8 +581,33 @@ class Domestication(BaseAssembly):
     Each part is assembled separately with the backbone to create domesticated parts.
     """
 
-    def __init__(self, assemblies: List[Dict], *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self,
+                 assembly_data: Optional[Dict] = None,
+                 json_params: Optional[str] = None,
+                 assemblies: Optional[List[Dict]] = None,
+                 *args, **kwargs):
+        """
+        Initialize Domestication Assembly protocol.
+
+        Args:
+            assembly_data: Dict containing 'assemblies' key (new standardized approach)
+            advanced_params: Optional advanced parameters
+            assemblies: List of assembly dicts (backward compatibility)
+            *args, **kwargs: Passed to BaseAssembly
+        """
+        # Handle parameter precedence: assembly_data <- assemblies kwarg
+        if assembly_data is not None:
+            if 'assemblies' in assembly_data:
+                assemblies = assembly_data['assemblies']
+            else:
+                # Allow passing assemblies directly in assembly_data for flexibility
+                assemblies = assembly_data
+
+        # Validate that assemblies were provided
+        if assemblies is None:
+            raise ValueError("Must provide assemblies either via assembly_data or assemblies parameter")
+
+        super().__init__(json_params=json_params, *args, **kwargs)
         self.assemblies = assemblies
         self.parts_list = []
         self.backbone = ""
@@ -482,8 +738,9 @@ class Domestication(BaseAssembly):
                                      mix_before=self.volume_part, touch_tip=True, drop_tip=False)
 
                 # Remove air bubbles with mixing
+                mix_volume = min(self.volume_total_reaction, pipette.max_volume)
                 for _ in range(int(self.volume_total_reaction / 10)):
-                    self.liquid_transfer(protocol=protocol, pipette=pipette, volume=self.volume_total_reaction,
+                    self.liquid_transfer(protocol=protocol, pipette=pipette, volume=mix_volume,
                                          source=dest_well.bottom(), dest=dest_well.bottom(8),
                                          asp_rate=1.0, disp_rate=1.0, new_tip=False, drop_tip=False,
                                          touch_tip=True)
@@ -492,7 +749,7 @@ class Domestication(BaseAssembly):
                 # Track assembly
                 assembly_name = f"Part: {part}, Replicate: {r + 1}"
                 self.dict_of_parts_in_thermocycler[assembly_name] = dest_well_name
-                self.dna_list_for_transformation_protocol.append((self.backbone, part, f'replicate_{r + 1}'))
+                self.dna_list_for_transformation_protocol.append(f"{part}_rep{r + 1}")
 
                 thermocycler_well_counter += 1
 
@@ -541,6 +798,8 @@ class Domestication(BaseAssembly):
                 f'({len(self.parts_list)} parts × {self.replicates} replicates).'
             )
 
+        self._validate_reaction_volumes(num_parts=2)
+
     def _reset_assembly_state(self):
         """Reset assembly processing state"""
         self.parts_list = []
@@ -554,8 +813,34 @@ class ManualLoopAssembly(BaseAssembly):
     Supports Odd/Even pattern detection for automatic enzyme selection.
     """
 
-    def __init__(self, assemblies: List[Dict], *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self,
+                 assembly_data: Optional[Dict] = None,
+                 json_params: Optional[str] = None,
+                 assemblies: Optional[List[Dict]] = None,
+                 *args, **kwargs):
+        """
+        Initialize Manual Loop Assembly protocol.
+
+        Args:
+            assembly_data: Dict containing 'assemblies' key (new standardized approach)
+            json_params: Optional advanced parameters
+            assemblies: List of assembly dicts (backward compatibility)
+            *args, **kwargs: Passed to BaseAssembly
+        """
+        # Handle parameter precedence: assembly_data <- assemblies kwarg
+        if assembly_data is not None:
+            if 'assemblies' in assembly_data:
+                assemblies = assembly_data['assemblies']
+            else:
+                # Allow passing assemblies directly in assembly_data for flexibility
+                assemblies = assembly_data
+
+        # Validate that assemblies were provided
+        if assemblies is None:
+            raise ValueError("Must provide assemblies either via assembly_data or assemblies parameter")
+
+        super().__init__(json_params=json_params, *args, **kwargs)
+
         self.assemblies = assemblies
         self.pattern_odd = 'Odd*'
         self.pattern_even = 'Even*'
@@ -715,6 +1000,11 @@ class ManualLoopAssembly(BaseAssembly):
                 f'combinations. Number of combinations in the protocol are {wells_needed}.'
             )
 
+        # Validate reaction volumes for all combinations
+        for combination in self.odd_combinations + self.even_combinations:
+            num_parts = len(combination)
+            self._validate_reaction_volumes(num_parts)
+
     def _process_combinations(self, protocol, pipette, combinations, restriction_enzyme,
                               thermo_plate, alum_block, dd_h2o, t4_dna_ligase_buffer,
                               t4_dna_ligase, volume_reagents, thermocycler_well_counter):
@@ -762,15 +1052,17 @@ class ManualLoopAssembly(BaseAssembly):
                                              mix_before=self.volume_part, touch_tip=True)
 
                 # Remove air bubbles
+                mix_volume = min(self.volume_total_reaction, pipette.max_volume)
                 for _ in range(int(self.volume_total_reaction / 10)):
-                    self.liquid_transfer(protocol=protocol, pipette=pipette, volume=self.volume_total_reaction,
+                    self.liquid_transfer(protocol=protocol, pipette=pipette, volume=mix_volume,
                                          source=dest_well.bottom(), dest=dest_well.bottom(8),
                                          asp_rate=1.0, disp_rate=1.0, new_tip=False, drop_tip=False, touch_tip=True)
                 pipette.drop_tip()
 
                 # Track combination
                 self.dict_of_parts_in_thermocycler[f"Replicate: {r + 1}, Combination: {combination}"] = dest_well_name
-                self.dna_list_for_transformation_protocol.append(combination + (f'replicate_{r + 1}',))
+                combination_name = "_".join(combination)
+                self.dna_list_for_transformation_protocol.append(f"{combination_name}_rep{r + 1}")
                 thermocycler_well_counter += 1
 
         return thermocycler_well_counter
@@ -782,8 +1074,33 @@ class SBOLLoopAssembly(BaseAssembly):
     Each assembly dictionary represents one specific construct to build.
     """
 
-    def __init__(self, assemblies: List[Dict], *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self,
+                 assembly_data: Optional[Dict] = None,
+                 json_params: Optional[str] = None,
+                 assemblies: Optional[List[Dict]] = None,
+                 *args, **kwargs):
+        """
+        Initialize SBOL Loop Assembly protocol.
+
+        Args:
+            assembly_data: Dict containing 'assemblies' key (new standardized approach)
+            advanced_params: Optional advanced parameters
+            assemblies: List of assembly dicts (backward compatibility)
+            *args, **kwargs: Passed to BaseAssembly
+        """
+        # Handle parameter precedence: assembly_data <- assemblies kwarg
+        if assembly_data is not None:
+            if 'assemblies' in assembly_data:
+                assemblies = assembly_data['assemblies']
+            else:
+                # Allow passing assemblies directly in assembly_data for flexibility
+                assemblies = assembly_data
+
+        # Validate that assemblies were provided
+        if assemblies is None:
+            raise ValueError("Must provide assemblies either via assembly_data or assemblies parameter")
+
+        super().__init__(json_params=json_params, *args, **kwargs)
         self.assemblies = assemblies
         self.parts_set = set()
         self.backbone_set = set()
@@ -897,15 +1214,16 @@ class SBOLLoopAssembly(BaseAssembly):
                                              mix_before=self.volume_part, touch_tip=True)
 
                 # Remove air bubbles
+                mix_volume = min(self.volume_total_reaction, pipette.max_volume)
                 for _ in range(int(self.volume_total_reaction / 10)):
-                    self.liquid_transfer(protocol=protocol, pipette=pipette, volume=self.volume_total_reaction,
+                    self.liquid_transfer(protocol=protocol, pipette=pipette, volume=mix_volume,
                                          source=dest_well.bottom(), dest=dest_well.bottom(8),
                                          asp_rate=1.0, disp_rate=1.0, new_tip=False, drop_tip=False, touch_tip=True)
                 pipette.drop_tip()
 
                 # Track assembly
                 self.dict_of_parts_in_thermocycler[f"Replicate: {r + 1}, Product: {product_name}"] = dest_well_name
-                self.dna_list_for_transformation_protocol.append(tuple(parts + [f'replicate_{r + 1}']))
+                self.dna_list_for_transformation_protocol.append(f"{product_name}_rep{r + 1}")
                 thermocycler_well_counter += 1
 
         return thermocycler_well_counter
@@ -968,6 +1286,11 @@ class SBOLLoopAssembly(BaseAssembly):
                 f'This protocol only supports assemblies with up to {available_wells} '
                 f'combinations. Number of assemblies in the protocol are {wells_needed}.'
             )
+
+        # Validate reaction volumes for each assembly
+        for assembly_combo in self.assembly_combinations:
+            num_parts = len(assembly_combo['parts'])
+            self._validate_reaction_volumes(num_parts)
 
 
 class LoopAssembly:

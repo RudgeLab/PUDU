@@ -1,5 +1,5 @@
 from opentrons import protocol_api
-from typing import List, Dict
+from typing import List, Dict, Optional
 from pudu.utils import colors
 
 
@@ -41,9 +41,11 @@ class Transformation():
         The rate of dispense in microliters per second. By default, 1 microliter per second.
     '''
     def __init__(self,
-                 list_of_dna:List = None,
+                 transformation_data: Optional[Dict] = None,
+                 json_params: Optional[Dict] = None,
+                 list_of_dna:Optional[List] = None,
                  volume_dna:float = 20,
-                 competent_cells:str = None,
+                 competent_cells: Optional[str] = None,
                  replicates:int=2,
                  thermocycler_starting_well:int = 0,
                  thermocycler_labware:str = "nest_96_wellplate_100ul_pcr_full_skirt",
@@ -63,79 +65,247 @@ class Transformation():
                  aspiration_rate:float = 0.5,
                  dispense_rate:float = 1,
                  initial_dna_well:int = 0,
-                 water_testing:bool = False
+                 water_testing:bool = False,
+                 **kwargs
                  ):
 
-        if list_of_dna is None:
-            raise ValueError ("Must input a list of DNA strings")
-        else:
-            self.list_of_dna = list_of_dna
-        self.volume_dna = volume_dna
-        if competent_cells is None:
-            raise ValueError ("Must input a competent cell strings")
-        else:
-            self.competent_cells = competent_cells
-        self.replicates = replicates
-        self.thermocycler_starting_well = thermocycler_starting_well
-        self.thermocycler_labware = thermocycler_labware
-        self.temperature_module_labware = temperature_module_labware
-        self.temperature_module_position = temperature_module_position
-        self.dna_plate = dna_plate
-        self.dna_plate_position = dna_plate_position
-        self.use_dna_96plate = use_dna_96plate
-        self.tiprack_p20_labware = tiprack_p20_labware
-        self.tiprack_p20_position = tiprack_p20_position
-        self.tiprack_p200_labware = tiprack_p200_labware
-        self.tiprack_p200_position = tiprack_p200_position
-        self.pipette_p20 = pipette_p20
-        self.pipette_p20_position = pipette_p20_position
-        self.pipette_p300 = pipette_p300
-        self.pipette_p300_position = pipette_p300_position
-        self.aspiration_rate = aspiration_rate
-        self.dispense_rate = dispense_rate
-        self.initial_dna_well = initial_dna_well
-        self.water_testing = water_testing
+        kwargs_params = {
+            'list_of_dna': list_of_dna,
+            'volume_dna': volume_dna,
+            'competent_cells': competent_cells,
+            'replicates': replicates,
+            'thermocycler_starting_well': thermocycler_starting_well,
+            'thermocycler_labware': thermocycler_labware,
+            'temperature_module_labware': temperature_module_labware,
+            'temperature_module_position': temperature_module_position,
+            'dna_plate': dna_plate,
+            'dna_plate_position': dna_plate_position,
+            'use_dna_96plate': use_dna_96plate,
+            'tiprack_p20_labware': tiprack_p20_labware,
+            'tiprack_p20_position': tiprack_p20_position,
+            'tiprack_p200_labware': tiprack_p200_labware,
+            'tiprack_p200_position': tiprack_p200_position,
+            'pipette_p20': pipette_p20,
+            'pipette_p20_position': pipette_p20_position,
+            'pipette_p300': pipette_p300,
+            'pipette_p300_position': pipette_p300_position,
+            'aspiration_rate': aspiration_rate,
+            'dispense_rate': dispense_rate,
+            'initial_dna_well': initial_dna_well,
+            'water_testing': water_testing
+        }
+        kwargs_params.update(kwargs)
+
+        self._merged_params = self._merge_params(transformation_data, json_params, kwargs_params)
+
+        if self._merged_params.get('list_of_dna') is None:
+            raise ValueError(
+                "Must input a list of DNA strings (either via transformation_data, advanced_params, or list_of_dna parameter)")
+        if self._merged_params.get('competent_cells') is None:
+            raise ValueError(
+                "Must input a competent cell string (either via transformation_data, advanced_params, or competent_cells parameter)")
+
+        # Set all attributes from merged parameters
+        self.list_of_dna = self._merged_params['list_of_dna']
+        self.volume_dna = self._merged_params['volume_dna']
+        self.competent_cells = self._merged_params['competent_cells']
+        self.replicates = self._merged_params['replicates']
+        self.thermocycler_starting_well = self._merged_params['thermocycler_starting_well']
+        self.thermocycler_labware = self._merged_params['thermocycler_labware']
+        self.temperature_module_labware = self._merged_params['temperature_module_labware']
+        self.temperature_module_position = self._merged_params['temperature_module_position']
+        self.dna_plate = self._merged_params['dna_plate']
+        self.dna_plate_position = self._merged_params['dna_plate_position']
+        self.use_dna_96plate = self._merged_params['use_dna_96plate']
+        self.tiprack_p20_labware = self._merged_params['tiprack_p20_labware']
+        self.tiprack_p20_position = self._merged_params['tiprack_p20_position']
+        self.tiprack_p200_labware = self._merged_params['tiprack_p200_labware']
+        self.tiprack_p200_position = self._merged_params['tiprack_p200_position']
+        self.pipette_p20 = self._merged_params['pipette_p20']
+        self.pipette_p20_position = self._merged_params['pipette_p20_position']
+        self.pipette_p300 = self._merged_params['pipette_p300']
+        self.pipette_p300_position = self._merged_params['pipette_p300_position']
+        self.aspiration_rate = self._merged_params['aspiration_rate']
+        self.dispense_rate = self._merged_params['dispense_rate']
+        self.initial_dna_well = self._merged_params['initial_dna_well']
+        self.water_testing = self._merged_params['water_testing']
+
+    def _merge_params(self, transformation_data: Optional[Dict], advanced_params: Optional[Dict], kwargs_params: Dict) -> Dict:
+        """
+        Merge parameters with precedence: defaults <- transformation_data <- advanced_params <- kwargs
+
+        Args:
+            transformation_data: Optional dict containing protocol data (list_of_dna, competent_cells)
+            advanced_params: Optional dict containing configuration parameters
+            kwargs_params: Dict of parameters passed as kwargs
+
+        Returns:
+            Merged parameter dictionary
+        """
+        # Define defaults for all valid parameters
+        # Includes both Transformation and HeatShockTransformation parameters
+        valid_params = {
+            # Transformation base parameters
+            'list_of_dna': None,
+            'volume_dna': 20,
+            'competent_cells': None,
+            'replicates': 2,
+            'thermocycler_starting_well': 0,
+            'thermocycler_labware': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'temperature_module_labware': 'opentrons_24_aluminumblock_nest_1.5ml_snapcap',
+            'temperature_module_position': '1',
+            'dna_plate': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'dna_plate_position': '2',
+            'use_dna_96plate': False,
+            'tiprack_p20_labware': 'opentrons_96_tiprack_20ul',
+            'tiprack_p20_position': '9',
+            'tiprack_p200_labware': 'opentrons_96_filtertiprack_200ul',
+            'tiprack_p200_position': '6',
+            'pipette_p20': 'p20_single_gen2',
+            'pipette_p20_position': 'left',
+            'pipette_p300': 'p300_single_gen2',
+            'pipette_p300_position': 'right',
+            'aspiration_rate': 0.5,
+            'dispense_rate': 1,
+            'initial_dna_well': 0,
+            'water_testing': False,
+            # HeatShockTransformation-specific parameters
+            'transfer_volume_dna': 2,
+            'transfer_volume_competent_cell': 20,
+            'tube_volume_competent_cell': 100,
+            'transfer_volume_recovery_media': 60,
+            'tube_volume_recovery_media': 1200,
+            'cold_incubation1': None,
+            'heat_shock': None,
+            'cold_incubation2': None,
+            'recovery_incubation': None
+        }
+
+        # Start with defaults
+        merged = valid_params.copy()
+
+        # Apply transformation_data (if provided)
+        if transformation_data is not None:
+            self._validate_param_structure(transformation_data, valid_params, 'transformation_data')
+            merged.update(transformation_data)
+
+        # Apply advanced_params (if provided)
+        if advanced_params is not None:
+            self._validate_param_structure(advanced_params, valid_params, 'advanced_params')
+            merged.update(advanced_params)
+
+        # Apply kwargs (highest precedence) - only if they differ from defaults
+        for key, value in kwargs_params.items():
+            if key in valid_params:
+                # Only override if the value is explicitly different from the default
+                if value != valid_params[key]:
+                    merged[key] = value
+
+        return merged
+
+    def _validate_param_structure(self, params: Dict, valid_params: Dict, param_name: str):
+        """
+        Validate that all parameters in the dict are recognized.
+
+        Args:
+            params: Dictionary to validate
+            valid_params: Dictionary of valid parameter names
+            param_name: Name of the parameter dict (for error messages)
+
+        Raises:
+            ValueError: If unknown parameters are found
+        """
+        unknown_params = set(params.keys()) - set(valid_params.keys())
+        if unknown_params:
+            raise ValueError(
+                f"Unknown parameters in {param_name}: {unknown_params}.\n"
+                f"Valid parameters are: {set(valid_params.keys())}"
+            )
 
 class HeatShockTransformation(Transformation):
     '''
        Creates a protocol for automated transformation.
     '''
     def __init__(self,
+                transformation_data: Optional[Dict] = None,
+                json_params: Optional[Dict] = None,
                 transfer_volume_dna:float = 2,
                 transfer_volume_competent_cell:float = 20,
                 tube_volume_competent_cell:float =100,
                 transfer_volume_recovery_media:float = 60,
                 tube_volume_recovery_media:float = 1200, #add a bit more to pick it properly
-                cold_incubation1:Dict = None,
-                heat_shock:Dict = None,
-                cold_incubation2:Dict = None,
-                recovery_incubation:Dict = None,
+                cold_incubation1:Optional[Dict] = None,
+                heat_shock:Optional[Dict] = None,
+                cold_incubation2:Optional[Dict] = None,
+                recovery_incubation:Optional[Dict] = None,
                 *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            transformation_data=transformation_data,
+            json_params=json_params,
+            transfer_volume_dna=transfer_volume_dna,
+            transfer_volume_competent_cell=transfer_volume_competent_cell,
+            tube_volume_competent_cell=tube_volume_competent_cell,
+            transfer_volume_recovery_media=transfer_volume_recovery_media,
+            tube_volume_recovery_media=tube_volume_recovery_media,
+            cold_incubation1=cold_incubation1,
+            heat_shock=heat_shock,
+            cold_incubation2=cold_incubation2,
+            recovery_incubation=recovery_incubation,
+            *args, **kwargs)
 
-        self.transfer_volume_dna = transfer_volume_dna
-        self.transfer_volume_competent_cell = transfer_volume_competent_cell
-        self.tube_volume_competent_cell = tube_volume_competent_cell
-        self.transfer_volume_recovery_media = transfer_volume_recovery_media
-        self.tube_volume_recovery_media = tube_volume_recovery_media
+        self.transfer_volume_dna = self._merged_params['transfer_volume_dna']
+        self.transfer_volume_competent_cell = self._merged_params['transfer_volume_competent_cell']
+        self.tube_volume_competent_cell = self._merged_params['tube_volume_competent_cell']
+        self.transfer_volume_recovery_media = self._merged_params['transfer_volume_recovery_media']
+        self.tube_volume_recovery_media = self._merged_params['tube_volume_recovery_media']
+
+        cold_incubation1 = self._merged_params['cold_incubation1']
+        heat_shock = self._merged_params['heat_shock']
+        cold_incubation2 = self._merged_params['cold_incubation2']
+        recovery_incubation = self._merged_params['recovery_incubation']
+
         if cold_incubation1 is None:
             self.cold_incubation1 = {'temperature': 4, 'hold_time_minutes': 30}
         else:
             self.cold_incubation1 = cold_incubation1
+
         if heat_shock is None:
             self.heat_shock = {'temperature': 42, 'hold_time_minutes': 1}
         else:
             self.heat_shock = heat_shock
+
         if cold_incubation2 is None:
             self.cold_incubation2 = {'temperature': 4, 'hold_time_minutes': 2}
         else:
             self.cold_incubation2 = cold_incubation2
+
         if recovery_incubation is None:
             self.recovery_incubation = {'temperature': 37, 'hold_time_minutes': 60}
         else:
             self.recovery_incubation = recovery_incubation
         self.dict_of_parts_in_temp_mod_position = {}
         self.dict_of_parts_in_thermocycler = {}
+
+    def _export_plating_input(self, protocol):
+        """
+        Export plating input JSON during simulation.
+        Args:
+            protocol: Protocol context
+        """
+        import json
+
+        plating_input = {
+            'bacterium_locations': self.dict_of_parts_in_thermocycler
+        }
+
+        output_path = 'plating_input.json'
+        with open(output_path, 'w') as f:
+            json.dump(plating_input, f, indent=2)
+
+        protocol.comment("\n" + "="*70)
+        protocol.comment(f"Generated {output_path} for next protocol")
+        protocol.comment(f"  Bacteria locations: {len(self.dict_of_parts_in_thermocycler)}")
+        protocol.comment("="*70)
 
     def liquid_transfer(self, protocol, pipette, volume, source, dest,
                         asp_rate: float = 0.5, disp_rate: float = 1.0,
@@ -244,6 +414,13 @@ class HeatShockTransformation(Transformation):
         ]
         if not self.water_testing:
             thermocycler_module.execute_profile(steps=recovery, repetitions=1, block_max_volume=30)
+
+        # Export plating input for next protocol (simulation only)
+        if protocol.is_simulating():
+            try:
+                self._export_plating_input(protocol)
+            except Exception as e:
+                protocol.comment(f"Could not export plating input: {e}")
 
         # output
         print('Strain and media tube in temp_mod')
