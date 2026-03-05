@@ -1,19 +1,14 @@
-transformation_data = {
-    'list_of_dna': ['GVD0011', 'GVD0013', 'GVD0015'],
-    'competent_cells': 'DH5alpha'
-}
-
-advanced_params = {
-    'replicates': 3,
-    'volume_dna': 25,
-    'thermocycler_starting_well': 0,
-    'transfer_volume_dna': 5,
-    'tube_volume_competent_cell': 150
-}
-
 from pudu.transformation import HeatShockTransformation
 from opentrons import protocol_api
 
+
+transformation_data = [
+    {
+        'Strain': 'GVD_strain',
+        'Chassis': 'DH5alpha',
+        'Plasmids': ['GVD0011', 'GVD0013', 'GVD0015']
+    }
+]
 
 # Protocol metadata
 metadata = {
@@ -29,18 +24,11 @@ def run(protocol: protocol_api.ProtocolContext):
 
     transformation = HeatShockTransformation(
         transformation_data=transformation_data,
-        advanced_params=advanced_params
+        replicates=3,
+        volume_dna=25,
+        thermocycler_starting_well=0,
+        transfer_volume_dna=5,
+        tube_volume_competent_cell=150
     )
-
-    # OLD APPROACH: Using kwargs directly (commented out)
-    # transformation = HeatShockTransformation(
-    #     list_of_dna=['GVD0011', 'GVD0013', 'GVD0015'],
-    #     competent_cells='DH5alpha',
-    #     replicates=3,
-    #     volume_dna=25,
-    #     thermocycler_starting_well=0,
-    #     transfer_volume_dna=5,
-    #     tube_volume_competent_cell=150
-    # )
 
     transformation.run(protocol)
