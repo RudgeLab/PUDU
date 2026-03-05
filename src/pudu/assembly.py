@@ -95,6 +95,7 @@ class BaseAssembly(ABC):
         self.dict_of_parts_in_temp_mod_position = {}
         self.dict_of_parts_in_thermocycler = {}
         self.dna_list_for_transformation_protocol = []
+        self.product_uri_to_wells = {}
         self.xlsx_output = None
 
         #Initialize Camera
@@ -500,28 +501,18 @@ class BaseAssembly(ABC):
         print(self.dna_list_for_transformation_protocol)
 
     # Helper methods (shared)
-    def _export_transformation_input(self, protocol, competent_cells='DH5alpha'):
+    def _export_transformation_input(self, protocol):
         """
-        Export transformation input JSON during simulation.
-
-        Args:
-            protocol: Protocol context
-            competent_cells: Competent cells to use for transformation (default: DH5alpha)
+        Export plasmid location JSON during simulation for use by transformation protocol.
+        Format: { "product_uri": ["well1", "well2", ...], ... }
         """
-
-        transformation_input = {
-            'list_of_dna': self.dna_list_for_transformation_protocol,
-            'competent_cells': competent_cells
-        }
-
         output_path = 'transformation_input.json'
         with open(output_path, 'w') as f:
-            json.dump(transformation_input, f, indent=2)
+            json.dump(self.product_uri_to_wells, f, indent=2)
 
         protocol.comment("\n" + "="*70)
-        protocol.comment(f"Generated {output_path} for next protocol")
-        protocol.comment(f"  DNA constructs: {len(self.dna_list_for_transformation_protocol)}")
-        protocol.comment(f"  Competent cells: {competent_cells}")
+        protocol.comment(f"Generated {output_path} for transformation protocol")
+        protocol.comment(f"  Products: {len(self.product_uri_to_wells)}")
         protocol.comment("="*70)
 
     def _load_reagent(self, protocol, module_labware, well_position, name, description=None,
@@ -1133,7 +1124,8 @@ class SBOLLoopAssembly(BaseAssembly):
             assembly_combo = {
                 'parts': [backbone_name] + part_names,  # Include backbone as first part
                 'enzyme': enzyme_name,
-                'product': product_name
+                'product': product_name,
+                'product_uri': assembly["Product"]
             }
             self.assembly_combinations.append(assembly_combo)
 
@@ -1224,6 +1216,13 @@ class SBOLLoopAssembly(BaseAssembly):
                 # Track assembly
                 self.dict_of_parts_in_thermocycler[f"Replicate: {r + 1}, Product: {product_name}"] = dest_well_name
                 self.dna_list_for_transformation_protocol.append(f"{product_name}_rep{r + 1}")
+
+                # Track URI -> well locations for transformation export
+                product_uri = assembly_combo['product_uri']
+                if product_uri not in self.product_uri_to_wells:
+                    self.product_uri_to_wells[product_uri] = []
+                self.product_uri_to_wells[product_uri].append(dest_well_name)
+
                 thermocycler_well_counter += 1
 
         return thermocycler_well_counter
