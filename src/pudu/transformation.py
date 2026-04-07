@@ -1,3 +1,4 @@
+from itertools import groupby
 from opentrons import protocol_api
 from typing import List, Dict, Optional
 from pudu.utils import colors
@@ -804,11 +805,15 @@ class HeatShockTransformation(Transformation):
     def _transfer_competent_cells(self, protocol, pipette, pcr_plate, competent_cell_wells_by_chassis,
                                   transfer_volume_competent_cell, thermocycler_starting_well):
         """
-        Transfer competent cells into thermocycler wells, one well per reaction.
+        Transfer competent cells into thermocycler wells.
         Iterates self.transformations as ground truth. For each strain, fills
         location_replicates * replicates wells with the appropriate chassis cells.
         Tube selection is per-chassis (chassis_reaction_count) so multiple chassis
         types each consume only their own tubes independently.
+
+        Tips are reused within each consecutive source tube block (one pickup per tube)
+        by batching destinations with distribute(). A new tip is picked up whenever the
+        source tube changes, preventing cross-chassis contamination.
 
         Parameters:
         - protocol: Protocol context
@@ -818,6 +823,8 @@ class HeatShockTransformation(Transformation):
         - transfer_volume_competent_cell: Volume to transfer per well in µL
         - thermocycler_starting_well: Starting well index in thermocycler plate
         """
+        # Pre-compute all transfers as (source_well, dest_well, chassis, strain)
+        transfers = []
         well_index = thermocycler_starting_well
         chassis_reaction_count = {chassis: 0 for chassis in self.all_chassis}
 
@@ -825,32 +832,34 @@ class HeatShockTransformation(Transformation):
             chassis = transformation['chassis']
             cell_wells = competent_cell_wells_by_chassis[chassis]
 
-            for replicate in range(self.location_replicates * self.replicates):
+            for _ in range(self.location_replicates * self.replicates):
                 dest_well = pcr_plate.wells()[well_index]
-
-                # Select tube based on per-chassis reaction count
                 tube_index = chassis_reaction_count[chassis] // self.transformations_per_cell_tube
                 source_well = cell_wells[tube_index]
-
-                self.liquid_transfer(
-                    protocol=protocol,
-                    pipette=pipette,
-                    volume=transfer_volume_competent_cell,
-                    source=source_well,
-                    dest=dest_well,
-                    asp_rate=self.aspiration_rate,
-                    disp_rate=self.dispense_rate,
-                    mix_before=20,
-                    touch_tip=False
-                )
-
-                name = f"Competent_Cell_{chassis}"
-                if dest_well.well_name not in self.dict_of_parts_in_thermocycler:
-                    self.dict_of_parts_in_thermocycler[dest_well.well_name] = [transformation['strain']]
-                self.dict_of_parts_in_thermocycler[dest_well.well_name].append(name)
+                transfers.append((source_well, dest_well, chassis, transformation['strain']))
 
                 chassis_reaction_count[chassis] += 1
                 well_index += 1
+
+        # Distribute per consecutive source tube — one tip pickup per tube.
+        # dict_of_parts_in_thermocycler is updated after each distribute() call
+        # so it reflects only wells that have actually been filled.
+        for source_well, group in groupby(transfers, key=lambda t: t[0]):
+            group_list = list(group)
+            dest_wells = [t[1] for t in group_list]
+            pipette.distribute(
+                volume=transfer_volume_competent_cell,
+                source=source_well,
+                dest=dest_wells,
+                mix_before=(3, 50),
+                disposal_volume=0,
+                new_tip='once'
+            )
+            for _, dest_well, chassis, strain in group_list:
+                name = f"Competent_Cell_{chassis}"
+                if dest_well.well_name not in self.dict_of_parts_in_thermocycler:
+                    self.dict_of_parts_in_thermocycler[dest_well.well_name] = [strain]
+                self.dict_of_parts_in_thermocycler[dest_well.well_name].append(name)
 
     def _transfer_DNA(self, protocol, pipette, pcr_plate, transfer_volume_dna, thermocycler_starting_well):
         """
