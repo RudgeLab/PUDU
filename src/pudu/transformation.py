@@ -70,6 +70,12 @@ class Transformation():
     water_testing : bool
         If True, uses water in place of competent cells and recovery media during
         simulation/testing runs. By default, False.
+    initial_tip_p20 : str, optional
+        Well name of the first tip to use from the p20 tip rack (e.g. 'B1').
+        If None, starts from the first available tip. By default, None.
+    initial_tip_p300 : str, optional
+        Well name of the first tip to use from the p300 tip rack (e.g. 'C3').
+        If None, starts from the first available tip. By default, None.
     '''
     def __init__(self,
                  transformation_data: Optional[List] = None,
@@ -96,6 +102,8 @@ class Transformation():
                  dispense_rate:float = 1,
                  initial_dna_well:int = 0,
                  water_testing:bool = False,
+                 initial_tip_p20:Optional[str] = None,
+                 initial_tip_p300:Optional[str] = None,
                  **kwargs
                  ):
 
@@ -120,7 +128,9 @@ class Transformation():
             'aspiration_rate': aspiration_rate,
             'dispense_rate': dispense_rate,
             'initial_dna_well': initial_dna_well,
-            'water_testing': water_testing
+            'water_testing': water_testing,
+            'initial_tip_p20': initial_tip_p20,
+            'initial_tip_p300': initial_tip_p300
         }
         kwargs_params.update(kwargs)
 
@@ -163,6 +173,8 @@ class Transformation():
         self.dispense_rate = self._merged_params['dispense_rate']
         self.initial_dna_well = self._merged_params['initial_dna_well']
         self.water_testing = self._merged_params['water_testing']
+        self.initial_tip_p20 = self._merged_params['initial_tip_p20']
+        self.initial_tip_p300 = self._merged_params['initial_tip_p300']
 
     def _extract_name_from_uri(self, uri: str) -> str:
         """Extract name from SBOL URI"""
@@ -276,6 +288,8 @@ class Transformation():
             'dispense_rate': 1,
             'initial_dna_well': 0,
             'water_testing': False,
+            'initial_tip_p20': None,
+            'initial_tip_p300': None,
             # HeatShockTransformation-specific parameters
             'transfer_volume_dna': 2,
             'transfer_volume_competent_cell': 20,
@@ -507,7 +521,11 @@ class HeatShockTransformation(Transformation):
         tiprack_p200 = protocol.load_labware(self.tiprack_p200_labware, self.tiprack_p200_position)
         # Load the pipette
         pipette_p20 = protocol.load_instrument(self.pipette_p20, self.pipette_p20_position, tip_racks=[tiprack_p20])
+        if self.initial_tip_p20:
+            pipette_p20.starting_tip = tiprack_p20[self.initial_tip_p20]
         pipette_p300 = protocol.load_instrument(self.pipette_p300, self.pipette_p300_position, tip_racks=[tiprack_p200])
+        if self.initial_tip_p300:
+            pipette_p300.starting_tip = tiprack_p200[self.initial_tip_p300]
         #Validate protocol
         self._validate_protocol(protocol, alumblock)
 

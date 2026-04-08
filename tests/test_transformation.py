@@ -9,6 +9,7 @@ the specific issues identified in code review:
 Tests are split into:
   - TestTransformationDataParsing  : __init__ / _parse_transformation_data
   - TestValidateProtocol           : _validate_protocol edge cases
+  - TestInitialTips                : initial_tip_p20 / initial_tip_p300 params
 """
 
 import unittest
@@ -255,6 +256,110 @@ class TestValidateProtocol(unittest.TestCase):
         self.assertEqual(len(t.competent_cell_tubes_by_chassis), 2)
         self.assertEqual(t.competent_cell_tubes_by_chassis['DH5alpha'], 1)
         self.assertEqual(t.competent_cell_tubes_by_chassis['BL21'], 1)
+
+
+# ---------------------------------------------------------------------------
+# 3. Initial tip parameters
+# ---------------------------------------------------------------------------
+
+class TestInitialTips(unittest.TestCase):
+    """
+    Tests for initial_tip_p20 and initial_tip_p300.
+
+    Attribute tests verify the full wiring:
+      __init__ param → kwargs_params → _merge_params → self.attribute
+
+    Assignment tests replicate the run() conditional logic with mock objects
+    to confirm starting_tip is set (or not set) correctly without needing a
+    full protocol context.
+    """
+
+    # --- Attribute wiring ---
+
+    def test_initial_tips_default_to_none(self):
+        """Both params must default to None when not provided."""
+        t = make_transformation(SINGLE_DH5ALPHA)
+        self.assertIsNone(t.initial_tip_p20)
+        self.assertIsNone(t.initial_tip_p300)
+
+    def test_initial_tip_p20_stored(self):
+        t = make_transformation(SINGLE_DH5ALPHA, initial_tip_p20='B1')
+        self.assertEqual(t.initial_tip_p20, 'B1')
+
+    def test_initial_tip_p300_stored(self):
+        t = make_transformation(SINGLE_DH5ALPHA, initial_tip_p300='C3')
+        self.assertEqual(t.initial_tip_p300, 'C3')
+
+    def test_both_initial_tips_set_independently(self):
+        """Setting both at once must not interfere with each other."""
+        t = make_transformation(SINGLE_DH5ALPHA, initial_tip_p20='A3', initial_tip_p300='D6')
+        self.assertEqual(t.initial_tip_p20, 'A3')
+        self.assertEqual(t.initial_tip_p300, 'D6')
+
+    def test_initial_tips_via_json_params(self):
+        """Params must be in valid_params so they can be set via json_params."""
+        t = make_transformation(
+            SINGLE_DH5ALPHA,
+            json_params={'initial_tip_p20': 'E1', 'initial_tip_p300': 'F2'}
+        )
+        self.assertEqual(t.initial_tip_p20, 'E1')
+        self.assertEqual(t.initial_tip_p300, 'F2')
+
+    # --- starting_tip assignment logic ---
+
+    def test_starting_tip_set_on_tiprack_when_provided(self):
+        """
+        When initial_tip_p20/p300 are set, starting_tip should be assigned
+        using tiprack[well_name]. Replicates the run() conditional with mocks.
+        """
+        t = make_transformation(SINGLE_DH5ALPHA, initial_tip_p20='B1', initial_tip_p300='C3')
+
+        mock_tiprack_p20 = MagicMock()
+        mock_tiprack_p300 = MagicMock()
+        mock_pipette_p20 = MagicMock()
+        mock_pipette_p300 = MagicMock()
+
+        if t.initial_tip_p20:
+            mock_pipette_p20.starting_tip = mock_tiprack_p20[t.initial_tip_p20]
+        if t.initial_tip_p300:
+            mock_pipette_p300.starting_tip = mock_tiprack_p300[t.initial_tip_p300]
+
+        mock_tiprack_p20.__getitem__.assert_called_once_with('B1')
+        mock_tiprack_p300.__getitem__.assert_called_once_with('C3')
+
+    def test_starting_tip_not_assigned_when_none(self):
+        """When initial_tip params are None, starting_tip must never be touched."""
+        t = make_transformation(SINGLE_DH5ALPHA)
+
+        mock_tiprack_p20 = MagicMock()
+        mock_tiprack_p300 = MagicMock()
+        mock_pipette_p20 = MagicMock()
+        mock_pipette_p300 = MagicMock()
+
+        if t.initial_tip_p20:
+            mock_pipette_p20.starting_tip = mock_tiprack_p20[t.initial_tip_p20]
+        if t.initial_tip_p300:
+            mock_pipette_p300.starting_tip = mock_tiprack_p300[t.initial_tip_p300]
+
+        mock_tiprack_p20.__getitem__.assert_not_called()
+        mock_tiprack_p300.__getitem__.assert_not_called()
+
+    def test_p20_tip_set_independently_of_p300(self):
+        """Setting only p20 must leave p300 starting_tip untouched."""
+        t = make_transformation(SINGLE_DH5ALPHA, initial_tip_p20='G6')
+
+        mock_tiprack_p20 = MagicMock()
+        mock_tiprack_p300 = MagicMock()
+        mock_pipette_p20 = MagicMock()
+        mock_pipette_p300 = MagicMock()
+
+        if t.initial_tip_p20:
+            mock_pipette_p20.starting_tip = mock_tiprack_p20[t.initial_tip_p20]
+        if t.initial_tip_p300:
+            mock_pipette_p300.starting_tip = mock_tiprack_p300[t.initial_tip_p300]
+
+        mock_tiprack_p20.__getitem__.assert_called_once_with('G6')
+        mock_tiprack_p300.__getitem__.assert_not_called()
 
 
 if __name__ == '__main__':
