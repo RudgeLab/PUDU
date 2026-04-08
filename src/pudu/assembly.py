@@ -742,6 +742,12 @@ class Domestication(BaseAssembly):
                 self.dict_of_parts_in_thermocycler[assembly_name] = dest_well_name
                 self.dna_list_for_transformation_protocol.append(f"{part}_rep{r + 1}")
 
+                # Populate product_uri_to_wells so _export_transformation_input
+                # produces a non-empty JSON for the assembly→transformation handoff
+                if part not in self.product_uri_to_wells:
+                    self.product_uri_to_wells[part] = []
+                self.product_uri_to_wells[part].append(dest_well_name)
+
                 thermocycler_well_counter += 1
 
         return thermocycler_well_counter
@@ -1054,6 +1060,13 @@ class ManualLoopAssembly(BaseAssembly):
                 self.dict_of_parts_in_thermocycler[f"Replicate: {r + 1}, Combination: {combination}"] = dest_well_name
                 combination_name = "_".join(combination)
                 self.dna_list_for_transformation_protocol.append(f"{combination_name}_rep{r + 1}")
+
+                # Populate product_uri_to_wells so _export_transformation_input
+                # produces a non-empty JSON for the assembly→transformation handoff
+                if combination_name not in self.product_uri_to_wells:
+                    self.product_uri_to_wells[combination_name] = []
+                self.product_uri_to_wells[combination_name].append(dest_well_name)
+
                 thermocycler_well_counter += 1
 
         return thermocycler_well_counter
