@@ -1,27 +1,20 @@
 # Golden Gate Manual Assembly Protocol
 
 ## Overview
-This document provides human-readable Golden Gate assembly instructions from SBOL-style JSON input.
-It is an instruction sheet for manual execution and is not an Opentrons OT-2 script.
+Golden Gate assembly is a one-pot DNA cloning method that uses a Type IIS restriction enzyme, such as BsaI, together with DNA ligase to assemble multiple DNA fragments in a predefined order.
+Because Type IIS enzymes cut outside their recognition sites, they generate custom overhangs that direct fragment assembly and allow the recognition sites to be removed from the final construct.
+In this protocol, plasmids containing DNA parts and a destination backbone are combined with the restriction enzyme and ligase in a single tube, then cycled in a thermocycler between digestion and ligation temperatures. Repetition of these cycles enriches for the correctly assembled composite plasmid, after which the enzymes are heat-inactivated and the reaction is held at 4 °C until collection.
 
 ## Inputs
 - Number of target products: 2
 - `composite_1` (https://SBOL2Build.org/composite_1/1)
 - `composite_2` (https://SBOL2Build.org/composite_2/1)
 
-## Default reagent assumptions
-- Total reaction volume: 20 µL
-- Per DNA component volume (backbone or part): 2 µL
-- Restriction enzyme volume: 2 µL
-- T4 DNA ligase volume: 4 µL
-- T4 DNA ligase buffer volume: 2 µL
-- Water volume is calculated per reaction from the configured defaults.
-
 ## Reaction summary
-| Product | Backbone | Parts | Restriction Enzyme | # DNA Components | Water (µL) | Total (µL) |
-| --- | --- | --- | --- | ---: | ---: | ---: |
-| composite_1 | pSB1C3 | J23101, B0034, GFP, B0015 | BsaI | 5 | 2 | 20 |
-| composite_2 | pSB1C3 | J23106, B0034, RFP, B0015 | BsaI | 5 | 2 | 20 |
+| Product | Backbone | Parts | Restriction Enzyme | # DNA Components | DNA each (µL) | Enzyme (µL) | Ligase (µL) | Buffer (µL) | Water (µL) | Total (µL) |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| composite_1 | pSB1C3 | J23101, B0034, GFP, B0015 | BsaI | 5 | 2 | 2 | 4 | 2 | 2 | 20 |
+| composite_2 | pSB1C3 | J23106, B0034, RFP, B0015 | BsaI | 5 | 2 | 2 | 4 | 2 | 2 | 20 |
 
 ## Per-reaction instructions
 
@@ -58,14 +51,13 @@ URI: https://SBOL2Build.org/composite_2/1
 12. Briefly spin down if appropriate.
 
 ## Thermocycling
-- Program a Golden Gate cycling profile suitable for your Type IIS enzyme and ligase system.
-- Typical high-level pattern:
-  - 25-35 cycles alternating between digestion and ligation temperatures.
-  - Follow with a final digestion/inactivation step as appropriate for enzyme cleanup.
-  - Hold at 4°C until samples are recovered.
-- Use your lab's validated Golden Gate settings for the selected restriction enzyme.
+- Use a cycling profile that holds 42°C for 2 minutes and 16°C for 5 minutes; repeat this profile 75 times.
+- Denature/inactivate proteins by holding 60°C for 10 minutes followed by 80°C for 10 minutes.
+- Hold at 4°C until samples are collected.
 
 ## Notes
 - If the assembly was designed correctly, the final product should lack the Type IIS recognition sites used during assembly.
 - This generated document is a manual instruction sheet and not an automated OT-2 protocol.
 - Assumes all DNA parts are available at suitable concentrations and added at equal per-part volume.
+- Store the assembly product at 4 °C for better stability until used for downstream applications.
+- Validate assembled plasmids by restriction digest and gel electrophoresis, Sanger sequencing, or whole-plasmid sequencing.

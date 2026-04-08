@@ -1323,6 +1323,10 @@ class ManualAssembly(BaseAssembly):
                  assembly_data: Optional[Dict] = None,
                  json_params: Optional[str] = None,
                  assemblies: Optional[List[Dict]] = None,
+                 thermocycling_profile: Optional[List[Dict[str, float]]] = None,
+                 thermocycling_cycles: int = 75,
+                 denaturation_profile: Optional[List[Dict[str, float]]] = None,
+                 hold_temperature: float = 4,
                  *args, **kwargs):
         if assembly_data is not None:
             if isinstance(assembly_data, dict) and 'assemblies' in assembly_data:
@@ -1338,6 +1342,16 @@ class ManualAssembly(BaseAssembly):
         super().__init__(json_params=json_params, *args, **kwargs)
         self.assemblies = assemblies
         self.reaction_records: List[ManualReactionRecord] = []
+        self.thermocycling_profile = thermocycling_profile or [
+            {'temperature': 42, 'hold_time_minutes': 2},
+            {'temperature': 16, 'hold_time_minutes': 5}
+        ]
+        self.thermocycling_cycles = thermocycling_cycles
+        self.denaturation_profile = denaturation_profile or [
+            {'temperature': 60, 'hold_time_minutes': 10},
+            {'temperature': 80, 'hold_time_minutes': 10}
+        ]
+        self.hold_temperature = hold_temperature
 
     def process_assemblies(self):
         """Parse and validate input assemblies, then build reaction records."""
@@ -1468,15 +1482,25 @@ class ManualAssembly(BaseAssembly):
         return f"{int(value)}" if float(value).is_integer() else f"{value:.2f}"
 
     def _render_thermocycling_section(self) -> str:
-        """High-level Golden Gate thermocycling instructions. Can be parameterized later."""
+        """High-level Golden Gate thermocycling instructions."""
+        profile_descriptions = [
+            f"{step['temperature']}°C for {step['hold_time_minutes']} minutes"
+            for step in self.thermocycling_profile
+        ]
+        denaturation_descriptions = [
+            f"{step['temperature']}°C for {step['hold_time_minutes']} minutes"
+            for step in self.denaturation_profile
+        ]
+
+        profile_sentence = " and ".join(profile_descriptions)
+        denaturation_sentence = " followed by ".join(denaturation_descriptions)
+
         return (
             "## Thermocycling\n"
-            "- Program a Golden Gate cycling profile suitable for your Type IIS enzyme and ligase system.\n"
-            "- Typical high-level pattern:\n"
-            "  - 25-35 cycles alternating between digestion and ligation temperatures.\n"
-            "  - Follow with a final digestion/inactivation step as appropriate for enzyme cleanup.\n"
-            "  - Hold at 4°C until samples are recovered.\n"
-            "- Use your lab's validated Golden Gate settings for the selected restriction enzyme.\n"
+            f"- Use a cycling profile that holds {profile_sentence}; "
+            f"repeat this profile {self.thermocycling_cycles} times.\n"
+            f"- Denature/inactivate proteins by holding {denaturation_sentence}.\n"
+            f"- Hold at {self.hold_temperature}°C until samples are collected.\n"
         )
 
     def render_markdown(self) -> str:
@@ -1488,8 +1512,14 @@ class ManualAssembly(BaseAssembly):
             "# Golden Gate Manual Assembly Protocol",
             "",
             "## Overview",
-            "This document provides human-readable Golden Gate assembly instructions from SBOL-style JSON input.",
-            "It is an instruction sheet for manual execution and is not an Opentrons OT-2 script.",
+            "Golden Gate assembly is a one-pot DNA cloning method that uses a Type IIS restriction enzyme, "
+            "such as BsaI, together with DNA ligase to assemble multiple DNA fragments in a predefined order.",
+            "Because Type IIS enzymes cut outside their recognition sites, they generate custom overhangs that "
+            "direct fragment assembly and allow the recognition sites to be removed from the final construct.",
+            "In this protocol, plasmids containing DNA parts and a destination backbone are combined with the "
+            "restriction enzyme and ligase in a single tube, then cycled in a thermocycler between digestion and "
+            "ligation temperatures. Repetition of these cycles enriches for the correctly assembled composite "
+            "plasmid, after which the enzymes are heat-inactivated and the reaction is held at 4 °C until collection.",
             "",
             "## Inputs",
             f"- Number of target products: {len(self.reaction_records)}",
@@ -1499,23 +1529,17 @@ class ManualAssembly(BaseAssembly):
 
         lines.extend([
             "",
-            "## Default reagent assumptions",
-            f"- Total reaction volume: {self._fmt_volume(self.volume_total_reaction)} µL",
-            f"- Per DNA component volume (backbone or part): {self._fmt_volume(self.volume_part)} µL",
-            f"- Restriction enzyme volume: {self._fmt_volume(self.volume_restriction_enzyme)} µL",
-            f"- T4 DNA ligase volume: {self._fmt_volume(self.volume_t4_dna_ligase)} µL",
-            f"- T4 DNA ligase buffer volume: {self._fmt_volume(self.volume_t4_dna_ligase_buffer)} µL",
-            "- Water volume is calculated per reaction from the configured defaults.",
-            "",
             "## Reaction summary",
-            "| Product | Backbone | Parts | Restriction Enzyme | # DNA Components | Water (µL) | Total (µL) |",
-            "| --- | --- | --- | --- | ---: | ---: | ---: |",
+            "| Product | Backbone | Parts | Restriction Enzyme | # DNA Components | DNA each (µL) | Enzyme (µL) | Ligase (µL) | Buffer (µL) | Water (µL) | Total (µL) |",
+            "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         ])
 
         for record in self.reaction_records:
             lines.append(
                 f"| {record.product_name} | {record.backbone_name} | {', '.join(record.part_names)} | "
                 f"{record.restriction_enzyme_name} | {record.number_of_dna_components} | "
+                f"{self._fmt_volume(self.volume_part)} | {self._fmt_volume(self.volume_restriction_enzyme)} | "
+                f"{self._fmt_volume(self.volume_t4_dna_ligase)} | {self._fmt_volume(self.volume_t4_dna_ligase_buffer)} | "
                 f"{self._fmt_volume(record.water_volume)} | {self._fmt_volume(record.total_reaction_volume)} |"
             )
 
@@ -1558,7 +1582,9 @@ class ManualAssembly(BaseAssembly):
             "## Notes",
             "- If the assembly was designed correctly, the final product should lack the Type IIS recognition sites used during assembly.",
             "- This generated document is a manual instruction sheet and not an automated OT-2 protocol.",
-            "- Assumes all DNA parts are available at suitable concentrations and added at equal per-part volume."
+            "- Assumes all DNA parts are available at suitable concentrations and added at equal per-part volume.",
+            "- Store the assembly product at 4 °C for better stability until used for downstream applications.",
+            "- Validate assembled plasmids by restriction digest and gel electrophoresis, Sanger sequencing, or whole-plasmid sequencing."
         ])
 
         return "\n".join(lines) + "\n"

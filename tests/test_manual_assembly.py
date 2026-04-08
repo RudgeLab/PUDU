@@ -50,9 +50,11 @@ class TestManualAssembly(unittest.TestCase):
 
         self.assertIn("# Golden Gate Manual Assembly Protocol", markdown)
         self.assertIn("## Reaction summary", markdown)
+        self.assertIn("DNA each (µL)", markdown)
         self.assertIn("### Product: composite_1", markdown)
         self.assertIn("Add 2 µL part `J23101`", markdown)
         self.assertIn("## Thermocycling", markdown)
+        self.assertIn("repeat this profile 75 times", markdown)
 
 
 if __name__ == "__main__":
