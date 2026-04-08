@@ -1580,9 +1580,8 @@ class ManualAssembly(BaseAssembly):
         lines.extend([
             "",
             "## Notes",
-            "- If the assembly was designed correctly, the final product should lack the Type IIS recognition sites used during assembly.",
-            "- This generated document is a manual instruction sheet and not an automated OT-2 protocol.",
-            "- Assumes all DNA parts are available at suitable concentrations and added at equal per-part volume.",
+            "- Thermocylcer iterations can be increased to improve the reaction efficiency.",
+            "- Assumes all DNA parts are available at suitable concentrations and added at equal molarity. Suggested molarities are 20 fmol/µL for parts and 10 fmol/µL for backbones.",
             "- Store the assembly product at 4 °C for better stability until used for downstream applications.",
             "- Validate assembled plasmids by restriction digest and gel electrophoresis, Sanger sequencing, or whole-plasmid sequencing."
         ])
