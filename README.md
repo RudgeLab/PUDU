@@ -67,3 +67,19 @@ then in the OT-2 terminal run:
 ## Tutorials
 
 TODO
+
+## Manual Golden Gate protocol generation
+
+PUDU now supports generating a **human-readable manual Golden Gate protocol** from SBOL-style JSON input using `ManualAssembly`.
+
+- The class builds structured per-reaction records (product, backbone, ordered parts, enzyme, and calculated reagent volumes).
+- It renders a Markdown protocol suitable for lab use and future PDF conversion.
+- It does **not** generate OT-2 commands.
+
+Example script:
+
+```bash
+PYTHONPATH=src python scripts/generate_manual_assembly_protocol.py
+```
+
+This writes a protocol document to `scripts/manual_assembly_protocol.md`.
