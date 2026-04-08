@@ -594,7 +594,21 @@ class HeatShockTransformation(Transformation):
         # Number of location replicates per strain (assembly replicates of the same plasmid in plate,
         # always 1 for temp module since plasmids are in a single sequential well)
         if self.plasmid_locations is not None:
-            self.location_replicates = len(next(iter(self.plasmid_locations.values())))
+            # Build name→URI map for the plasmids referenced in this protocol
+            name_to_uri = {self._extract_name_from_uri(uri): uri for uri in self.plasmid_locations}
+            well_counts = {}
+            for plasmid_name in self.all_plasmids:
+                if plasmid_name in name_to_uri:
+                    uri = name_to_uri[plasmid_name]
+                    well_counts[plasmid_name] = len(self.plasmid_locations[uri])
+            unique_counts = set(well_counts.values())
+            if len(unique_counts) > 1:
+                detail = ', '.join(f'{name}: {count} wells' for name, count in well_counts.items())
+                raise ValueError(
+                    f"plasmid_locations has inconsistent replicate counts across plasmids — "
+                    f"all plasmids must have the same number of wells. Found: {detail}"
+                )
+            self.location_replicates = unique_counts.pop() if unique_counts else 1
         else:
             self.location_replicates = 1
 
