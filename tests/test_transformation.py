@@ -295,6 +295,22 @@ class TestValidateProtocol(unittest.TestCase):
         t = make_transformation(SINGLE_DH5ALPHA)
         self._run_validate(t, num_wells=24)
 
+    def test_initial_dna_well_offset_included_in_capacity_check(self):
+        """
+        P2: initial_dna_well offset must be counted in the temp-module capacity check.
+        3 reagents (1 plasmid + 1 cell tube + 1 media tube) fit in 24 wells by raw count,
+        but starting at well 22 pushes the last reagent to well 24 — out of range.
+        """
+        t = make_transformation(SINGLE_DH5ALPHA, initial_dna_well=22)
+        with self.assertRaises(ValueError) as ctx:
+            self._run_validate(t, num_wells=24)
+        self.assertIn('more than', str(ctx.exception))
+
+    def test_initial_dna_well_offset_within_capacity_passes(self):
+        """A non-zero initial_dna_well that still fits within the block must not raise."""
+        t = make_transformation(SINGLE_DH5ALPHA, initial_dna_well=5)
+        self._run_validate(t, num_wells=24)  # 5 + 1 + 1 + 1 = 8 <= 24
+
     def test_multi_chassis_reagent_count(self):
         """
         Multi-chassis: each chassis gets its own cell tube(s).

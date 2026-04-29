@@ -685,9 +685,13 @@ class HeatShockTransformation(Transformation):
                                  f'{self.media_tubes_needed} tubes with media.'
                                  f'Please modify the protocol and try again.')
         else:
-            # DNA, cells, and media all on the temp module
-            if total_plasmid_wells + total_competent_cell_tubes + self.media_tubes_needed > module_wells:
+            # DNA, cells, and media all on the temp module.
+            # Loading starts at initial_dna_well, so the offset must be included
+            # in the capacity check — otherwise a non-zero offset can push the
+            # final reagent past the last well even when raw counts look fine.
+            if self.initial_dna_well + total_plasmid_wells + total_competent_cell_tubes + self.media_tubes_needed > module_wells:
                 raise ValueError(f'The number of reagents is more than {module_wells}.'
+                                 f'DNA starts at well {self.initial_dna_well}.'
                                  f'There are {total_plasmid_wells} plasmid wells.'
                                  f'{total_competent_cell_tubes} tubes with competent cells ({self.competent_cell_tubes_by_chassis}).'
                                  f'{self.media_tubes_needed} tubes with media.'
