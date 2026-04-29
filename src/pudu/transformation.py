@@ -210,6 +210,8 @@ class Transformation():
         transformations = []
         all_plasmids_set = set()
         all_chassis_set = set()
+        seen_plasmid_names = {}  # name -> URI; detects two different URIs that collapse to the same name
+        seen_chassis_names = {}  # name -> URI; same check for chassis
 
         for idx, transformation in enumerate(transformation_data):
             # Validate required fields
@@ -226,9 +228,31 @@ class Transformation():
 
             # Extract names from URIs
             strain_name = self._extract_name_from_uri(transformation['Strain'])
-            chassis_name = self._extract_name_from_uri(transformation['Chassis'])
+            chassis_uri = transformation['Chassis']
+            chassis_name = self._extract_name_from_uri(chassis_uri)
             plasmid_uris = transformation['Plasmids']
             plasmid_names = [self._extract_name_from_uri(p) for p in plasmid_uris]
+
+            # Chassis collision check: same name from two different URIs is ambiguous
+            if chassis_name in seen_chassis_names and seen_chassis_names[chassis_name] != chassis_uri:
+                raise ValueError(
+                    f"Transformation {idx}: two chassis URIs extract to the same name "
+                    f"'{chassis_name}': '{seen_chassis_names[chassis_name]}' and '{chassis_uri}'. "
+                    f"Rename one URI to avoid ambiguity."
+                )
+            seen_chassis_names[chassis_name] = chassis_uri
+
+            # Plasmid collision check: same name from two different URIs would cause
+            # silent well lookup errors in _load_dna_into_dna_plate.
+            # The same URI appearing multiple times (shared plasmid) is fine.
+            for plasmid_uri, plasmid_name in zip(plasmid_uris, plasmid_names):
+                if plasmid_name in seen_plasmid_names and seen_plasmid_names[plasmid_name] != plasmid_uri:
+                    raise ValueError(
+                        f"Transformation {idx}: two plasmid URIs extract to the same name "
+                        f"'{plasmid_name}': '{seen_plasmid_names[plasmid_name]}' and '{plasmid_uri}'. "
+                        f"Rename one URI to avoid ambiguity."
+                    )
+                seen_plasmid_names[plasmid_name] = plasmid_uri
 
             # If plasmid_locations provided, validate all plasmid URIs are present
             if self.plasmid_locations is not None:

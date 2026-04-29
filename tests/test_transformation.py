@@ -171,6 +171,57 @@ class TestTransformationDataParsing(unittest.TestCase):
         self.assertEqual(t.all_chassis, ['DH5alpha'])
         self.assertEqual(t.all_plasmids, ['plasmid_1'])
 
+    def test_shared_plasmid_uri_across_transformations_passes(self):
+        """Same plasmid URI used in two different transformations is valid (shared source well)."""
+        t = make_transformation([
+            {
+                'Strain':  'https://SBOL2Build.org/strain_1/1',
+                'Chassis': 'https://sbolcanvas.org/DH5alpha/1',
+                'Plasmids': ['https://SBOL2Build.org/plasmid_1/1']
+            },
+            {
+                'Strain':  'https://SBOL2Build.org/strain_2/1',
+                'Chassis': 'https://sbolcanvas.org/BL21/1',
+                'Plasmids': ['https://SBOL2Build.org/plasmid_1/1']  # same URI
+            }
+        ])
+        # plasmid_1 appears only once — shared, not a collision
+        self.assertEqual(t.all_plasmids, ['plasmid_1'])
+
+    def test_colliding_plasmid_uris_raises(self):
+        """Two different URIs that extract to the same plasmid name must raise."""
+        with self.assertRaises(ValueError) as ctx:
+            make_transformation([
+                {
+                    'Strain':  'https://SBOL2Build.org/strain_1/1',
+                    'Chassis': 'https://sbolcanvas.org/DH5alpha/1',
+                    'Plasmids': ['https://SBOL2Build.org/plasmid_1/1']
+                },
+                {
+                    'Strain':  'https://SBOL2Build.org/strain_2/1',
+                    'Chassis': 'https://sbolcanvas.org/DH5alpha/1',
+                    'Plasmids': ['https://SBOL2Build.org/plasmid_1/2']  # different URI, same name
+                }
+            ])
+        self.assertIn('plasmid_1', str(ctx.exception))
+
+    def test_colliding_chassis_uris_raises(self):
+        """Two different URIs that extract to the same chassis name must raise."""
+        with self.assertRaises(ValueError) as ctx:
+            make_transformation([
+                {
+                    'Strain':  'https://SBOL2Build.org/strain_1/1',
+                    'Chassis': 'https://sbolcanvas.org/DH5alpha/1',
+                    'Plasmids': ['https://SBOL2Build.org/plasmid_1/1']
+                },
+                {
+                    'Strain':  'https://SBOL2Build.org/strain_2/1',
+                    'Chassis': 'https://sbolcanvas.org/DH5alpha/2',  # different URI, same name
+                    'Plasmids': ['https://SBOL2Build.org/plasmid_2/1']
+                }
+            ])
+        self.assertIn('DH5alpha', str(ctx.exception))
+
 
 # ---------------------------------------------------------------------------
 # 2. _validate_protocol edge cases
