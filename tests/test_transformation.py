@@ -233,8 +233,12 @@ class TestValidateProtocol(unittest.TestCase):
     validation logic without spinning up a full protocol context.
     """
 
-    def _run_validate(self, transformation, num_wells=24):
-        transformation._validate_protocol(protocol=None, labware=MockLabware(num_wells))
+    def _run_validate(self, transformation, num_wells=24, tube_rack_wells=24):
+        transformation._validate_protocol(
+            protocol=None,
+            labware=MockLabware(num_wells),
+            tube_rack=MockLabware(tube_rack_wells)
+        )
 
     # --- P2: inconsistent plasmid replicate counts ---
 
@@ -269,10 +273,10 @@ class TestValidateProtocol(unittest.TestCase):
 
     # --- Reagent capacity ---
 
-    def test_too_many_reagents_for_alumblock_raises(self):
+    def test_too_many_plasmids_for_alumblock_raises(self):
         """
-        20 unique plasmids + competent cell tubes + media tubes > 24 wells.
-        Uses temp module path (no plasmid_locations).
+        25 unique plasmids > 24 wells on the temperature module.
+        Cells and media are on the tube rack, so the alumblock check is plasmids-only.
         """
         overflow_data = [
             {
@@ -280,11 +284,21 @@ class TestValidateProtocol(unittest.TestCase):
                 'Chassis': 'https://sbolcanvas.org/DH5alpha/1',
                 'Plasmids': [f'https://SBOL2Build.org/plasmid_{i}/1']
             }
-            for i in range(20)
+            for i in range(25)
         ]
         t = make_transformation(overflow_data)
         with self.assertRaises(ValueError) as ctx:
             self._run_validate(t, num_wells=24)
+        self.assertIn('more than', str(ctx.exception))
+
+    def test_too_many_tubes_for_tube_rack_raises(self):
+        """
+        Enough reactions to overflow a very small tube rack.
+        2 strains × 2 replicates = 4 reactions → 1 cell tube + 1 media tube = 2 > 1.
+        """
+        t = make_transformation(TWO_STRAINS_TWO_PLASMIDS)
+        with self.assertRaises(ValueError) as ctx:
+            self._run_validate(t, tube_rack_wells=1)
         self.assertIn('more than', str(ctx.exception))
 
     def test_reagents_exactly_at_capacity_passes(self):
@@ -298,10 +312,10 @@ class TestValidateProtocol(unittest.TestCase):
     def test_initial_dna_well_offset_included_in_capacity_check(self):
         """
         P2: initial_dna_well offset must be counted in the temp-module capacity check.
-        3 reagents (1 plasmid + 1 cell tube + 1 media tube) fit in 24 wells by raw count,
-        but starting at well 22 pushes the last reagent to well 24 — out of range.
+        Cells and media are now on the tube rack, so the alumblock holds only plasmids.
+        initial_dna_well=24 + 1 plasmid = 25 > 24 → out of range.
         """
-        t = make_transformation(SINGLE_DH5ALPHA, initial_dna_well=22)
+        t = make_transformation(SINGLE_DH5ALPHA, initial_dna_well=24)
         with self.assertRaises(ValueError) as ctx:
             self._run_validate(t, num_wells=24)
         self.assertIn('more than', str(ctx.exception))
@@ -309,7 +323,7 @@ class TestValidateProtocol(unittest.TestCase):
     def test_initial_dna_well_offset_within_capacity_passes(self):
         """A non-zero initial_dna_well that still fits within the block must not raise."""
         t = make_transformation(SINGLE_DH5ALPHA, initial_dna_well=5)
-        self._run_validate(t, num_wells=24)  # 5 + 1 + 1 + 1 = 8 <= 24
+        self._run_validate(t, num_wells=24)  # 5 + 1 plasmid = 6 <= 24
 
     def test_multi_chassis_reagent_count(self):
         """
