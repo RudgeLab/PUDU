@@ -673,6 +673,11 @@ class HeatShockTransformation(Transformation):
                     f"plasmid_locations has inconsistent replicate counts across plasmids — "
                     f"all plasmids must have the same number of wells. Found: {detail}"
                 )
+            if unique_counts == {0}:
+                raise ValueError(
+                    "plasmid_locations contains empty well lists for all referenced plasmids. "
+                    "Each plasmid must have at least one destination well."
+                )
             self.location_replicates = unique_counts.pop() if unique_counts else 1
         else:
             self.location_replicates = 1
