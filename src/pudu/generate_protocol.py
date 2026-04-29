@@ -70,14 +70,18 @@ def detect_protocol_type(data) -> tuple[str, Optional[str]]:
         - protocol_type: 'assembly', 'transformation', or 'plating'
         - assembly_subtype: 'SBOL', 'Manual', 'Domestication', or None
     """
-    # Handle legacy format: bare list of assemblies
+    # Handle bare list formats
     if isinstance(data, list):
         if not data:
             raise ValueError("Empty data provided")
 
         first_item = data[0]
 
-        # Check for SBOL format
+        # Check for transformation format (Strain/Chassis/Plasmids)
+        if 'Strain' in first_item and 'Chassis' in first_item and 'Plasmids' in first_item:
+            return 'transformation', None
+
+        # Check for SBOL assembly format
         sbol_keys = {'Product', 'Backbone', 'PartsList', 'Restriction Enzyme'}
         if sbol_keys.issubset(set(first_item.keys())):
             return 'assembly', 'SBOL'
@@ -119,8 +123,8 @@ def detect_protocol_type(data) -> tuple[str, Optional[str]]:
             # Default to SBOL
             return 'assembly', 'SBOL'
 
-        # Check for transformation
-        if 'list_of_dna' in data and 'competent_cells' in data:
+        # Check for transformation (new SBOL format: list with Strain/Chassis/Plasmids)
+        if isinstance(data, list) and data and 'Strain' in data[0] and 'Chassis' in data[0] and 'Plasmids' in data[0]:
             return 'transformation', None
 
         # Check for plating
@@ -159,7 +163,7 @@ def format_python_value(value, indent_level=0):
         if all(isinstance(item, str) for item in value):
             # Simple list of strings - keep on one line if short
             formatted = ', '.join(items)
-            if len(formatted) < 80:
+            if len(formatted) < 100:
                 return f'[{formatted}]'
         # Multi-line list
         formatted_items = ',\n'.join(f'{indent}    {item}' for item in items)
@@ -177,12 +181,128 @@ def format_python_value(value, indent_level=0):
     else:
         return repr(value)
 
+def _format_annotation(ann) -> str:
+    """Format a type annotation as a clean string for display in comments."""
+    import inspect
+    if ann is inspect.Parameter.empty:
+        return ''
+    if hasattr(ann, '__name__'):
+        return ann.__name__
+    # Clean up typing generics: typing.Optional[typing.Dict] -> Optional[Dict]
+    return str(ann).replace('typing.', '')
+
+
+def generate_param_reference(protocol_type: str, class_name: str, module_str: str) -> str:
+    """
+    Generate a commented parameter reference block for the end of the protocol file.
+
+    Dynamically imports the protocol class and uses inspect to extract the full
+    __init__ signature and class docstrings, formatted as comments so users can
+    see all available parameters when making last-minute edits before running on
+    the robot.
+
+    Args:
+        protocol_type: Protocol type string (e.g. 'transformation')
+        class_name: Protocol class name (e.g. 'HeatShockTransformation')
+        module_str: Fully-qualified module path (e.g. 'pudu.transformation')
+
+    Returns:
+        Commented parameter reference block as a string, or a short error comment
+        if the class cannot be imported.
+    """
+    try:
+        import importlib
+        import inspect
+
+        mod = importlib.import_module(module_str)
+        cls = getattr(mod, class_name)
+
+        lines = []
+        lines.append("")
+        lines.append("")
+        lines.append("# " + "=" * 70)
+        lines.append(f"# PARAMETER REFERENCE — {class_name}")
+        lines.append("#")
+        lines.append("# To customize your protocol, add any of the parameters below")
+        lines.append(f"# to the {class_name}() constructor call in run() above.")
+        lines.append("# Example:  protocol_instance = " + class_name + "(")
+        lines.append(f"#               {PROTOCOL_CONFIGS[protocol_type]['data_param']}={PROTOCOL_CONFIGS[protocol_type]['data_key']},")
+        lines.append("#               replicates=3,")
+        lines.append("#               initial_tip='B1',")
+        lines.append("#           )")
+        lines.append("# " + "=" * 70)
+
+        # Collect all __init__ params walking the MRO from most-specific to base.
+        # Use an ordered dict so subclass params appear first.
+        seen_params = set()
+        mro_params = []  # list of (class, [(name, default, annotation), ...])
+
+        for klass in cls.__mro__:
+            if klass is object:
+                continue
+            try:
+                sig = inspect.signature(klass.__init__)
+            except (ValueError, TypeError):
+                continue
+
+            klass_params = []
+            for name, param in sig.parameters.items():
+                if name in ('self', 'args', 'kwargs') or name in seen_params:
+                    continue
+                seen_params.add(name)
+                default = param.default if param.default is not inspect.Parameter.empty else '(required)'
+                ann = _format_annotation(param.annotation)
+                klass_params.append((name, default, ann))
+
+            if klass_params:
+                mro_params.append((klass.__name__, klass_params))
+
+        # Build parameter table — group by class
+        if mro_params:
+            # Determine column widths across all params
+            all_param_entries = [(n, d, a) for _, params in mro_params for n, d, a in params]
+            max_name = max(len(n) for n, _, _ in all_param_entries)
+            max_type = max((len(a) for _, _, a in all_param_entries if a), default=0)
+
+            for klass_name, params in mro_params:
+                lines.append("#")
+                lines.append(f"# [{klass_name}]")
+                for name, default, ann in params:
+                    type_col = ann.ljust(max_type) if ann else ' ' * max_type
+                    default_repr = repr(default) if not isinstance(default, str) else default
+                    lines.append(f"#   {name:<{max_name}}  {type_col}  = {default_repr}")
+
+        # Append full docstrings for detailed descriptions
+        lines.append("#")
+        lines.append("# " + "-" * 70)
+        lines.append("# Full parameter descriptions:")
+
+        seen_docs: set = set()
+        for klass in cls.__mro__:
+            if klass is object:
+                continue
+            doc = inspect.getdoc(klass)
+            if not doc or doc in seen_docs:
+                continue
+            seen_docs.add(doc)
+            lines.append("#")
+            lines.append(f"# [{klass.__name__}]")
+            for doc_line in doc.split('\n'):
+                lines.append(f"# {doc_line}" if doc_line.strip() else "#")
+
+        return '\n'.join(lines)
+
+    except Exception as e:
+        return f"\n\n# (Parameter reference unavailable: {e})"
+
+
 def generate_protocol(
     protocol_data: Any,
     json_params: Optional[Dict] = None,
     metadata: Optional[Dict] = None,
     protocol_type: str = 'assembly',
-    assembly_subtype: Optional[str] = None
+    assembly_subtype: Optional[str] = None,
+    plasmid_locations: Optional[Dict] = None
 ) -> str:
     """
     Generate a complete Opentrons protocol file as a string.
@@ -193,6 +313,7 @@ def generate_protocol(
         metadata: Optional metadata dictionary (merged with defaults)
         protocol_type: Type of protocol ('assembly', 'transformation', 'plating')
         assembly_subtype: Subtype for assembly protocols ('SBOL', 'Manual', 'Domestication')
+        plasmid_locations: Optional dict mapping plasmid URIs to well locations (from assembly output)
 
     Returns:
         Complete protocol file as a string
@@ -239,10 +360,16 @@ def generate_protocol(
     lines.append("")
     lines.append("")
 
-    # Assemblies
+    # Protocol data
     lines.append(f"# Protocol data")
     lines.append(f"{data_key} = {format_python_value(actual_data)}")
     lines.append("")
+
+    # Plasmid locations (transformation only, from assembly output)
+    if plasmid_locations is not None:
+        lines.append("# Plasmid well locations from assembly protocol output")
+        lines.append(f"plasmid_locations = {format_python_value(plasmid_locations)}")
+        lines.append("")
 
     # Advanced params (if provided)
     if json_params:
@@ -265,16 +392,29 @@ def generate_protocol(
     # All protocols now use <type>_data + advanced_params pattern
     data_param = config['data_param']
 
+    # Build constructor arguments
+    constructor_args = [f"{data_param}={data_key}"]
+    if plasmid_locations is not None:
+        constructor_args.append("plasmid_locations=plasmid_locations")
     if json_params:
+        constructor_args.append("json_params=json_params")
+
+    if len(constructor_args) > 1:
         lines.append(f"    protocol_instance = {class_name}(")
-        lines.append(f"        {data_param}={data_key},")
-        lines.append("        json_params=json_params")
+        for i, arg in enumerate(constructor_args):
+            comma = "," if i < len(constructor_args) - 1 else ""
+            lines.append(f"        {arg}{comma}")
         lines.append("    )")
     else:
-        lines.append(f"    protocol_instance = {class_name}({data_param}={data_key})")
+        lines.append(f"    protocol_instance = {class_name}({constructor_args[0]})")
 
     lines.append("    protocol_instance.run(protocol)")
     lines.append("")
+
+    # Parameter reference block — appended as comments for last-minute editing
+    param_ref = generate_param_reference(protocol_type, class_name, module)
+    if param_ref:
+        lines.append(param_ref)
 
     return '\n'.join(lines)
 
@@ -288,8 +428,11 @@ Examples:
   # Generate assembly protocol (auto-detect type)
   python -m pudu.generate_protocol data.json params.json -o protocol.py --protocol-type assembly
 
-  # Generate transformation protocol
-  python -m pudu.generate_protocol transformation.json params.json -o protocol.py --protocol-type transformation
+  # Generate transformation protocol with assembly output
+  python -m pudu.generate_protocol synbiosuite.json params.json -o protocol.py --protocol-type transformation --plasmid-locations transformation_input.json
+
+  # Generate transformation protocol without prior assembly (manual input)
+  python -m pudu.generate_protocol synbiosuite.json params.json -o protocol.py --protocol-type transformation
 
   # Generate plating protocol
   python -m pudu.generate_protocol plating.json -o protocol.py --protocol-type plating
@@ -338,6 +481,13 @@ Examples:
     )
 
     parser.add_argument(
+        '--plasmid-locations',
+        type=Path,
+        default=None,
+        help='Path to plasmid locations JSON file from assembly simulation (transformation protocols only)'
+    )
+
+    parser.add_argument(
         '--metadata',
         type=Path,
         default=None,
@@ -368,6 +518,19 @@ Examples:
             sys.exit(1)
         except json.JSONDecodeError as e:
             print(f"Error: Invalid JSON in advanced params file: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    # Load plasmid locations if provided
+    plasmid_locations = None
+    if args.plasmid_locations:
+        try:
+            with open(args.plasmid_locations, 'r') as f:
+                plasmid_locations = json.load(f)
+        except FileNotFoundError:
+            print(f"Error: Plasmid locations file not found: {args.plasmid_locations}", file=sys.stderr)
+            sys.exit(1)
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in plasmid locations file: {e}", file=sys.stderr)
             sys.exit(1)
 
     # Load metadata if provided
@@ -415,7 +578,8 @@ Examples:
             json_params=json_params,
             metadata=metadata,
             protocol_type=protocol_type,
-            assembly_subtype=assembly_subtype
+            assembly_subtype=assembly_subtype,
+            plasmid_locations=plasmid_locations
         )
     except Exception as e:
         print(f"Error generating protocol: {e}", file=sys.stderr)

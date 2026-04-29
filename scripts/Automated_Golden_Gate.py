@@ -6,7 +6,7 @@ metadata = {
     'protocolName': 'Automated Golden Gate',
     'author': 'Gonzalo Vidal <gsvidal@uc.cl>, Carlos Vidal-Céspedes <carlos.vidal.c@ug.uchile.cl>',
     'description': 'Protocol to perform a Golden Gate experiment',
-    'apiLevel': '2.10'
+    'apiLevel': '2.14'
 }
 
 def run(protocol: protocol_api.ProtocolContext):
