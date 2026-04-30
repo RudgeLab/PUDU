@@ -48,13 +48,12 @@ class TestManualAssembly(unittest.TestCase):
         assembly = ManualAssembly(assemblies=self.assemblies)
         markdown = assembly.render_markdown()
 
-        self.assertIn("# Golden Gate Manual Assembly Protocol", markdown)
-        self.assertIn("## Reaction summary", markdown)
-        self.assertIn("DNA each (µL)", markdown)
-        self.assertIn("### Product: composite_1", markdown)
-        self.assertIn("Add 2 µL part `J23101`", markdown)
-        self.assertIn("## Thermocycling", markdown)
-        self.assertIn("repeat this profile 75 times", markdown)
+        self.assertIn("# Manual Golden Gate Assembly Protocol", markdown)
+        self.assertIn("## Reaction Setup", markdown)
+        self.assertIn("## Assembly 1: composite_1", markdown)
+        self.assertIn("| [J23101](https://sbolcanvas.org/J23101/1) | 2 |", markdown)
+        self.assertIn("## Thermocycler Program", markdown)
+        self.assertIn("| Digest | 37 C | 2 min | 25 |", markdown)
 
 
 if __name__ == "__main__":
