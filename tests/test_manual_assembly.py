@@ -55,6 +55,26 @@ class TestManualAssembly(unittest.TestCase):
         self.assertIn("## Thermocycler Program", markdown)
         self.assertIn("| Digest | 37 C | 2 min | 25 |", markdown)
 
+    def test_markdown_rendering_supports_legacy_thermocycling_profile(self):
+        legacy_profile = [
+            {"temperature": 37, "hold_time_minutes": 2},
+            {"temperature": 16, "hold_time_minutes": 5},
+            {"temperature": 80, "hold_time_minutes": 10},
+            {"temperature": 4, "hold_time_minutes": "indefinite"},
+        ]
+        assembly = ManualAssembly(
+            assemblies=self.assemblies,
+            thermocycling_profile=legacy_profile,
+            thermocycling_cycles=30,
+        )
+
+        markdown = assembly.render_markdown()
+
+        self.assertIn("| Step 1 | 37 C | 2 min | 30 |", markdown)
+        self.assertIn("| Step 2 | 16 C | 5 min | 30 |", markdown)
+        self.assertIn("| Step 3 | 80 C | 10 min | 1 |", markdown)
+        self.assertIn("| Step 4 | 4 C | indefinite | 1 |", markdown)
+
 
 if __name__ == "__main__":
     unittest.main()

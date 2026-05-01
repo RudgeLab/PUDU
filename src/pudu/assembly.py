@@ -1515,10 +1515,18 @@ class ManualAssembly(BaseAssembly):
             "| Step | Temperature | Time | Cycles |",
             "| --- | --- | --- | ---: |",
         ]
-        for step in self.thermocycling_profile:
+        total_steps = len(self.thermocycling_profile)
+        for index, step in enumerate(self.thermocycling_profile, start=1):
             time_value = step['hold_time_minutes']
             time_text = f"{time_value} min" if isinstance(time_value, (int, float)) else str(time_value)
-            lines.append(f"| {step['step']} | {step['temperature']} C | {time_text} | {step['cycles']} |")
+            step_name = step.get('step') or f"Step {index}"
+            if 'cycles' in step:
+                cycles = step['cycles']
+            elif total_steps >= 2 and index <= 2:
+                cycles = self.thermocycling_cycles
+            else:
+                cycles = 1
+            lines.append(f"| {step_name} | {step['temperature']} C | {time_text} | {cycles} |")
         lines.append("")
         return lines
 
