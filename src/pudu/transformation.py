@@ -1,6 +1,7 @@
 from opentrons import protocol_api
 from typing import List, Dict, Optional
 from pudu.utils import colors
+from dataclasses import dataclass
 
 
 class Transformation():
@@ -572,6 +573,7 @@ class HeatShockTransformation(Transformation):
         print('Genetically modified organisms in thermocycler')
         print(self.dict_of_parts_in_thermocycler)
 
+
     def _validate_protocol(self, protocol, labware):
         """
         Validate protocol requirements and compute all derived counts used throughout run().
@@ -943,4 +945,126 @@ class HeatShockTransformation(Transformation):
                 self.dict_of_parts_in_thermocycler[well_name].append(media_name)
 
             well_index += wells_to_fill
+
+
+@dataclass
+class ManualTransformationRecord:
+    strain_uri: str
+    strain_name: str
+    chassis_uri: str
+    chassis_name: str
+    plasmid_uris: List[str]
+    plasmid_names: List[str]
+
+
+class ManualTransformation:
+    """Manual counterpart of automated transformation protocol."""
+
+    def __init__(self,
+                 transformation_data: Optional[List[Dict]] = None,
+                 transfer_volume_dna: float = 2,
+                 transfer_volume_competent_cell: float = 20,
+                 transfer_volume_recovery_media: float = 60,
+                 replicates: int = 2,
+                 cold_incubation1: Optional[Dict] = None,
+                 heat_shock: Optional[Dict] = None,
+                 cold_incubation2: Optional[Dict] = None,
+                 recovery_incubation: Optional[Dict] = None):
+        if not isinstance(transformation_data, list) or not transformation_data:
+            raise ValueError("transformation_data must be a non-empty list of transformation dictionaries")
+        self.transformation_data = transformation_data
+        self.transfer_volume_dna = transfer_volume_dna
+        self.transfer_volume_competent_cell = transfer_volume_competent_cell
+        self.transfer_volume_recovery_media = transfer_volume_recovery_media
+        self.replicates = replicates
+        self.cold_incubation1 = cold_incubation1 or {'temperature': 4, 'hold_time_minutes': 30}
+        self.heat_shock = heat_shock or {'temperature': 42, 'hold_time_minutes': 1}
+        self.cold_incubation2 = cold_incubation2 or {'temperature': 4, 'hold_time_minutes': 2}
+        self.recovery_incubation = recovery_incubation or {'temperature': 37, 'hold_time_minutes': 60}
+        self.records: List[ManualTransformationRecord] = []
+
+    def _extract_name_from_uri(self, uri: str) -> str:
+        if not isinstance(uri, str):
+            return str(uri)
+        parts = [segment for segment in uri.rstrip("/").split("/") if segment]
+        if len(parts) >= 2 and parts[-1].isdigit():
+            return parts[-2]
+        return parts[-1] if parts else "Unknown"
+
+    def _validate_entry(self, transformation: Dict, index: int):
+        required = {"Strain", "Chassis", "Plasmids"}
+        missing = sorted(required - set(transformation))
+        if missing:
+            raise ValueError(f"Transformation {index} is missing required field(s): {', '.join(missing)}")
+        if not isinstance(transformation["Plasmids"], list) or not transformation["Plasmids"]:
+            raise ValueError(f"Transformation {index} must include at least one plasmid in Plasmids")
+
+    def process_transformations(self):
+        self.records = []
+        for idx, entry in enumerate(self.transformation_data, start=1):
+            self._validate_entry(entry, idx)
+            self.records.append(
+                ManualTransformationRecord(
+                    strain_uri=entry["Strain"],
+                    strain_name=self._extract_name_from_uri(entry["Strain"]),
+                    chassis_uri=entry["Chassis"],
+                    chassis_name=self._extract_name_from_uri(entry["Chassis"]),
+                    plasmid_uris=entry["Plasmids"],
+                    plasmid_names=[self._extract_name_from_uri(p) for p in entry["Plasmids"]],
+                )
+            )
+        return self.records
+
+    def render_markdown(self) -> str:
+        if not self.records:
+            self.process_transformations()
+        lines = [
+            "# Manual Heat Shock Transformation Protocol",
+            "",
+            "## Overview",
+            "This protocol describes manual bacterial heat-shock transformation for SBOL-defined strains and plasmids.",
+            "",
+            "## Reaction Setup",
+            f"- Competent cells per reaction: {self.transfer_volume_competent_cell} uL",
+            f"- DNA per reaction: {self.transfer_volume_dna} uL",
+            f"- Recovery media per reaction: {self.transfer_volume_recovery_media} uL",
+            f"- Replicates per transformation: {self.replicates}",
+            f"- Transformations: {len(self.records)}",
+            "",
+        ]
+        for index, record in enumerate(self.records, start=1):
+            lines.extend([
+                f"## Transformation {index}: {record.strain_name}",
+                "",
+                f"- Strain: `{record.strain_name}` ({record.strain_uri})",
+                f"- Chassis: `{record.chassis_name}` ({record.chassis_uri})",
+                f"- Plasmids: {', '.join(f'`{p}`' for p in record.plasmid_names)}",
+                "",
+                "1. Label tube(s) for this transformation.",
+                f"2. Add {self.transfer_volume_competent_cell} uL competent cells.",
+                f"3. Add {self.transfer_volume_dna} uL DNA plasmid mix.",
+                "4. Mix gently by pipetting and keep on ice.",
+                "",
+            ])
+        lines.extend([
+            "## Thermocycler/Incubation Program",
+            "",
+            "| Step | Temperature | Time |",
+            "| --- | --- | --- |",
+            f"| Cold incubation 1 | {self.cold_incubation1['temperature']} C | {self.cold_incubation1['hold_time_minutes']} min |",
+            f"| Heat shock | {self.heat_shock['temperature']} C | {self.heat_shock['hold_time_minutes']} min |",
+            f"| Cold incubation 2 | {self.cold_incubation2['temperature']} C | {self.cold_incubation2['hold_time_minutes']} min |",
+            f"| Recovery | {self.recovery_incubation['temperature']} C | {self.recovery_incubation['hold_time_minutes']} min |",
+            "",
+            "## Post-heat-shock",
+            f"1. Add {self.transfer_volume_recovery_media} uL recovery media.",
+            "2. Incubate according to recovery step.",
+            "3. Plate transformed cells on selective agar.",
+            "",
+        ])
+        return "\n".join(lines)
+
+    def write_markdown(self, output_path: str):
+        with open(output_path, "w", encoding="utf-8") as handle:
+            handle.write(self.render_markdown())
 

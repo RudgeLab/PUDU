@@ -1,4 +1,5 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List
+from dataclasses import dataclass
 from pudu import colors, SmartPipette
 from opentrons import protocol_api
 
@@ -402,3 +403,88 @@ class Plating():
         protocol.comment("\n=== Plating protocol complete ===")
         protocol.comment(f"Plated {self.number_constructs} constructs with {self.replicates} replicates")
         protocol.comment(f"Created a total of {self.total_colonies} colonies")
+
+
+@dataclass
+class ManualPlatingRecord:
+    source_well: str
+    construct_name: str
+
+
+class ManualPlating:
+    """Manual counterpart of automated plating protocol."""
+
+    def __init__(self,
+                 plating_data: Optional[Dict] = None,
+                 bacterium_locations: Optional[Dict] = None,
+                 volume_bacteria_transfer: float = 2,
+                 volume_colony: float = 4,
+                 volume_lb_transfer: float = 18,
+                 replicates: int = 1,
+                 number_dilutions: int = 2):
+        if plating_data is not None and bacterium_locations is None:
+            bacterium_locations = plating_data.get("bacterium_locations")
+        if not isinstance(bacterium_locations, dict) or not bacterium_locations:
+            raise ValueError("bacterium_locations must be a non-empty dictionary")
+
+        self.bacterium_locations = bacterium_locations
+        self.volume_bacteria_transfer = volume_bacteria_transfer
+        self.volume_colony = volume_colony
+        self.volume_lb_transfer = volume_lb_transfer
+        self.replicates = replicates
+        self.number_dilutions = number_dilutions
+        self.records: List[ManualPlatingRecord] = []
+
+    def process_bacterium_locations(self):
+        self.records = [
+            ManualPlatingRecord(source_well=well, construct_name=str(name))
+            for well, name in self.bacterium_locations.items()
+        ]
+        return self.records
+
+    def render_markdown(self) -> str:
+        if not self.records:
+            self.process_bacterium_locations()
+
+        lines = [
+            "# Manual Plating Protocol",
+            "",
+            "## Overview",
+            "This protocol describes manual dilution and plating of transformed bacteria from thermocycler wells.",
+            "",
+            "## Setup",
+            f"- Source cultures: {len(self.records)}",
+            f"- Dilutions per construct: {self.number_dilutions}",
+            f"- Replicates per dilution: {self.replicates}",
+            f"- Bacteria transfer volume: {self.volume_bacteria_transfer} uL",
+            f"- LB transfer volume: {self.volume_lb_transfer} uL",
+            f"- Plating volume: {self.volume_colony} uL",
+            "",
+            "## Source Cultures",
+            "",
+            "| Thermocycler well | Construct |",
+            "| --- | --- |",
+        ]
+        for record in self.records:
+            lines.append(f"| {record.source_well} | {record.construct_name} |")
+
+        lines.extend([
+            "",
+            "## Manual Steps",
+            "1. Label dilution tubes/plate wells for each construct and each dilution.",
+            f"2. For each dilution well, pre-load {self.volume_lb_transfer} uL LB medium.",
+            f"3. Add {self.volume_bacteria_transfer} uL bacteria from each source well into dilution 1 and mix.",
+            "4. If a second dilution is required, transfer from dilution 1 into dilution 2 and mix.",
+            f"5. Spot or spread {self.volume_colony} uL from each dilution onto selective agar.",
+            "6. Incubate plates under strain-appropriate conditions until colonies are visible.",
+            "",
+            "## Notes",
+            "- Use fresh sterile tips between constructs and dilution steps.",
+            "- Keep mapping between source wells and plated positions for colony tracking.",
+            "",
+        ])
+        return "\n".join(lines)
+
+    def write_markdown(self, output_path: str):
+        with open(output_path, "w", encoding="utf-8") as handle:
+            handle.write(self.render_markdown())

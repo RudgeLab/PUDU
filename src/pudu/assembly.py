@@ -1343,14 +1343,14 @@ class ManualAssembly(BaseAssembly):
         self.assemblies = assemblies
         self.reaction_records: List[ManualReactionRecord] = []
         self.thermocycling_profile = thermocycling_profile or [
-            {'temperature': 42, 'hold_time_minutes': 2},
-            {'temperature': 16, 'hold_time_minutes': 5}
+            {'step': 'Digest', 'temperature': 37, 'hold_time_minutes': 2, 'cycles': 25},
+            {'step': 'Ligate', 'temperature': 16, 'hold_time_minutes': 5, 'cycles': 25},
+            {'step': 'Final digestion', 'temperature': 50, 'hold_time_minutes': 5, 'cycles': 1},
+            {'step': 'Heat inactivation', 'temperature': 80, 'hold_time_minutes': 10, 'cycles': 1},
+            {'step': 'Hold', 'temperature': 4, 'hold_time_minutes': 'indefinite', 'cycles': 1},
         ]
         self.thermocycling_cycles = thermocycling_cycles
-        self.denaturation_profile = denaturation_profile or [
-            {'temperature': 60, 'hold_time_minutes': 10},
-            {'temperature': 80, 'hold_time_minutes': 10}
-        ]
+        self.denaturation_profile = denaturation_profile or []
         self.hold_temperature = hold_temperature
 
     def process_assemblies(self):
@@ -1387,18 +1387,45 @@ class ManualAssembly(BaseAssembly):
             if not isinstance(assembly['PartsList'], list) or not assembly['PartsList']:
                 raise ValueError(f"Assembly #{idx} has an invalid 'PartsList'. Expected a non-empty list.")
 
-    def _extract_name_from_uri(self, uri: str) -> str:
-        """Extract display name from URI; falls back safely to raw input if needed."""
-        if not isinstance(uri, str):
-            return str(uri)
-
-        segments = [segment for segment in uri.rstrip('/').split('/') if segment]
-        if not segments:
-            return uri
-
+    def _extract_name_from_uri(self, value) -> str:
+        """Extract human-readable names from dictionaries, URIs, or plain values."""
+        if isinstance(value, dict):
+            for key in ("displayId", "display_id", "name", "label"):
+                if value.get(key):
+                    return value[key]
+        uri = self._extract_uri(value) or value
+        if not uri:
+            return "Unknown"
+        segments = [segment for segment in str(uri).rstrip('/').split('/') if segment]
         if len(segments) >= 2 and segments[-1].isdigit():
             return segments[-2]
-        return segments[-1]
+        return segments[-1] if segments else "Unknown"
+
+    def _extract_uri(self, value) -> Optional[str]:
+        if isinstance(value, dict):
+            for key in (
+                "Implementation",
+                "implementation",
+                "implementation_uri",
+                "implementationUri",
+                "Implementation URI",
+                "uri",
+                "URI",
+                "identity",
+            ):
+                if value.get(key):
+                    return value[key]
+            return None
+        if isinstance(value, str) and value.startswith(("http://", "https://")):
+            return value
+        return None
+
+    def _markdown_link(self, label: str, uri: Optional[str]) -> str:
+        if not uri:
+            return label
+        escaped_label = str(label).replace("[", "\\[").replace("]", "\\]")
+        escaped_uri = str(uri).replace(")", "%29").replace(" ", "%20")
+        return f"[{escaped_label}]({escaped_uri})"
 
     def _calculate_reaction_volumes(self, number_of_dna_components: int) -> Dict[str, float]:
         total_dna_volume = number_of_dna_components * self.volume_part
@@ -1430,10 +1457,10 @@ class ManualAssembly(BaseAssembly):
     def _build_reaction_records(self) -> List[ManualReactionRecord]:
         records: List[ManualReactionRecord] = []
         for assembly in self.assemblies:
-            product_uri = assembly["Product"]
-            backbone_uri = assembly["Backbone"]
+            product_uri = self._extract_uri(assembly["Product"]) or str(assembly["Product"])
+            backbone_uri = self._extract_uri(assembly["Backbone"]) or str(assembly["Backbone"])
             part_uris = assembly["PartsList"]
-            enzyme_uri = assembly["Restriction Enzyme"]
+            enzyme_uri = self._extract_uri(assembly["Restriction Enzyme"]) or str(assembly["Restriction Enzyme"])
 
             product_name = self._extract_name_from_uri(product_uri)
             backbone_name = self._extract_name_from_uri(backbone_uri)
@@ -1445,17 +1472,17 @@ class ManualAssembly(BaseAssembly):
 
             reagent_additions = [
                 {'name': 'nuclease-free water', 'volume_uL': self._fmt_volume(volume_data['water_volume'])},
-                {'name': '10X T4 DNA Ligase Buffer', 'volume_uL': self._fmt_volume(self.volume_t4_dna_ligase_buffer)},
+                {'name': 'T4 DNA ligase buffer', 'volume_uL': self._fmt_volume(self.volume_t4_dna_ligase_buffer)},
                 {'name': 'T4 DNA Ligase', 'volume_uL': self._fmt_volume(self.volume_t4_dna_ligase)},
-                {'name': enzyme_name, 'volume_uL': self._fmt_volume(self.volume_restriction_enzyme)},
-                {'name': f"backbone `{backbone_name}`", 'volume_uL': self._fmt_volume(self.volume_part)},
+                {'name': f"{enzyme_name} restriction enzyme", 'volume_uL': self._fmt_volume(self.volume_restriction_enzyme)},
+                {'name': backbone_name, 'volume_uL': self._fmt_volume(self.volume_part), 'uri': backbone_uri},
             ]
 
             for part_uri, part_name in zip(part_uris, part_names):
                 reagent_additions.append({
-                    'name': f"part `{part_name}`",
+                    'name': part_name,
                     'volume_uL': self._fmt_volume(self.volume_part),
-                    'uri': part_uri
+                    'uri': self._extract_uri(part_uri)
                 })
 
             record = ManualReactionRecord(
@@ -1481,27 +1508,27 @@ class ManualAssembly(BaseAssembly):
     def _fmt_volume(self, value: float) -> str:
         return f"{int(value)}" if float(value).is_integer() else f"{value:.2f}"
 
-    def _render_thermocycling_section(self) -> str:
-        """High-level Golden Gate thermocycling instructions."""
-        profile_descriptions = [
-            f"{step['temperature']}°C for {step['hold_time_minutes']} minutes"
-            for step in self.thermocycling_profile
+    def _render_thermocycling_section(self) -> List[str]:
+        lines = [
+            "## Thermocycler Program",
+            "",
+            "| Step | Temperature | Time | Cycles |",
+            "| --- | --- | --- | ---: |",
         ]
-        denaturation_descriptions = [
-            f"{step['temperature']}°C for {step['hold_time_minutes']} minutes"
-            for step in self.denaturation_profile
-        ]
-
-        profile_sentence = " and ".join(profile_descriptions)
-        denaturation_sentence = " followed by ".join(denaturation_descriptions)
-
-        return (
-            "## Thermocycling\n"
-            f"- Use a cycling profile that holds {profile_sentence}; "
-            f"repeat this profile {self.thermocycling_cycles} times.\n"
-            f"- Denature/inactivate proteins by holding {denaturation_sentence}.\n"
-            f"- Hold at {self.hold_temperature}°C until samples are collected.\n"
-        )
+        total_steps = len(self.thermocycling_profile)
+        for index, step in enumerate(self.thermocycling_profile, start=1):
+            time_value = step['hold_time_minutes']
+            time_text = f"{time_value} min" if isinstance(time_value, (int, float)) else str(time_value)
+            step_name = step.get('step') or f"Step {index}"
+            if 'cycles' in step:
+                cycles = step['cycles']
+            elif total_steps >= 2 and index <= 2:
+                cycles = self.thermocycling_cycles
+            else:
+                cycles = 1
+            lines.append(f"| {step_name} | {step['temperature']} C | {time_text} | {cycles} |")
+        lines.append("")
+        return lines
 
     def render_markdown(self) -> str:
         """Render a complete manual protocol in Markdown format."""
@@ -1509,7 +1536,7 @@ class ManualAssembly(BaseAssembly):
             self.process_assemblies()
 
         lines = [
-            "# Golden Gate Manual Assembly Protocol",
+            "# Manual Golden Gate Assembly Protocol",
             "",
             "## Overview",
             "Golden Gate assembly is a one-pot DNA cloning method that uses a Type IIS restriction enzyme, "
@@ -1521,64 +1548,39 @@ class ManualAssembly(BaseAssembly):
             "ligation temperatures. Repetition of these cycles enriches for the correctly assembled composite "
             "plasmid, after which the enzymes are heat-inactivated and the reaction is held at 4 °C until collection.",
             "",
-            "## Inputs",
-            f"- Number of target products: {len(self.reaction_records)}",
+            "## Reaction Setup",
+            "",
+            f"- Total reaction volume: {self._fmt_volume(self.volume_total_reaction)} uL",
+            f"- DNA input volume: {self._fmt_volume(self.volume_part)} uL per backbone or part",
+            f"- Assemblies: {len(self.reaction_records)}",
         ]
-        for record in self.reaction_records:
-            lines.append(f"- `{record.product_name}` ({record.product_uri})")
-
-        lines.extend([
-            "",
-            "## Reaction summary",
-            "| Product | Backbone | Parts | Restriction Enzyme | # DNA Components | DNA each (µL) | Enzyme (µL) | Ligase (µL) | Buffer (µL) | Water (µL) | Total (µL) |",
-            "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-        ])
-
-        for record in self.reaction_records:
-            lines.append(
-                f"| {record.product_name} | {record.backbone_name} | {', '.join(record.part_names)} | "
-                f"{record.restriction_enzyme_name} | {record.number_of_dna_components} | "
-                f"{self._fmt_volume(self.volume_part)} | {self._fmt_volume(self.volume_restriction_enzyme)} | "
-                f"{self._fmt_volume(self.volume_t4_dna_ligase)} | {self._fmt_volume(self.volume_t4_dna_ligase_buffer)} | "
-                f"{self._fmt_volume(record.water_volume)} | {self._fmt_volume(record.total_reaction_volume)} |"
-            )
-
-        lines.append("")
-        lines.append("## Per-reaction instructions")
         lines.append("")
 
-        for record in self.reaction_records:
-            lines.append(f"### Product: {record.product_name}")
-            lines.append(f"URI: {record.product_uri}")
-            lines.append("")
-            lines.append(f"1. Label one tube as `{record.product_name}`.")
-            lines.append(f"2. Add {self._fmt_volume(record.water_volume)} µL nuclease-free water.")
-            lines.append(f"3. Add {self._fmt_volume(self.volume_t4_dna_ligase_buffer)} µL 10X T4 DNA Ligase Buffer.")
-            lines.append(f"4. Add {self._fmt_volume(self.volume_t4_dna_ligase)} µL T4 DNA Ligase.")
-            lines.append(
-                f"5. Add {self._fmt_volume(self.volume_restriction_enzyme)} µL "
-                f"{record.restriction_enzyme_name} (URI: {record.restriction_enzyme_uri})."
+        for index, record in enumerate(self.reaction_records, start=1):
+            lines.extend(
+                [
+                    f"## Assembly {index}: {record.product_name}",
+                    "",
+                    "| Reagent | Volume (uL) |",
+                    "| --- | ---: |",
+                ]
             )
-            lines.append(
-                f"6. Add {self._fmt_volume(self.volume_part)} µL backbone "
-                f"`{record.backbone_name}` (URI: {record.backbone_uri})."
-            )
-
-            step_counter = 7
-            for part_name, part_uri in zip(record.part_names, record.part_uris):
+            for reagent in record.reagent_additions:
                 lines.append(
-                    f"{step_counter}. Add {self._fmt_volume(self.volume_part)} µL part "
-                    f"`{part_name}` (URI: {part_uri})."
+                    f"| {self._markdown_link(reagent['name'], reagent.get('uri'))} | {reagent['volume_uL']} |"
                 )
-                step_counter += 1
+            lines.extend(
+                [
+                    "",
+                    "1. Add reagents to a PCR tube or thermocycler plate well in the order listed.",
+                    "2. Mix gently by pipetting, then briefly spin down.",
+                    "3. Run the thermocycler program below.",
+                    "",
+                ]
+            )
 
-            lines.append(f"{step_counter}. Mix gently by pipetting. Do not vortex unless explicitly intended.")
-            lines.append(f"{step_counter + 1}. Briefly spin down if appropriate.")
-            lines.append("")
-
-        lines.append(self._render_thermocycling_section().rstrip())
+        lines.extend(self._render_thermocycling_section())
         lines.extend([
-            "",
             "## Notes",
             "- Thermocylcer iterations can be increased to improve the reaction efficiency.",
             "- Assumes all DNA parts are available at suitable concentrations and added at equal molarity. Suggested molarities are 20 fmol/µL for parts and 10 fmol/µL for backbones.",
