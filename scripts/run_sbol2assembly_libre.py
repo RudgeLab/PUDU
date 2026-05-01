@@ -289,7 +289,7 @@ metadata = {
 'protocolName': 'PUDU Loop assembly',
 'author': 'Gonzalo Vidal <g.a.vidal-pena2@ncl.ac.uk>',
 'description': 'Automated DNA assembly Loop protocol',
-'apiLevel': '2.13'}
+'apiLevel': '2.14'}
 
 def run(protocol= protocol_api.ProtocolContext):
 

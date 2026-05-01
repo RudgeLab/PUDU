@@ -1,3 +1,4 @@
+from itertools import groupby
 from opentrons import protocol_api
 from typing import List, Dict, Optional
 from pudu.utils import colors
@@ -70,6 +71,19 @@ class Transformation():
     water_testing : bool
         If True, uses water in place of competent cells and recovery media during
         simulation/testing runs. By default, False.
+    initial_tip_p20 : str, optional
+        Well name of the first tip to use from the p20 tip rack (e.g. 'B1').
+        If None, starts from the first available tip. By default, None.
+    initial_tip_p300 : str, optional
+        Well name of the first tip to use from the p300 tip rack (e.g. 'C3').
+        If None, starts from the first available tip. By default, None.
+    tube_rack_labware : str
+        Labware type for the tube rack that holds competent cells and recovery
+        media. Moving these off the temperature module frees the entire aluminum
+        block for DNA plasmids, maximising unique constructs per run.
+        By default, 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'.
+    tube_rack_position : str
+        Deck slot for the tube rack. By default, '3'.
     '''
     def __init__(self,
                  transformation_data: Optional[List] = None,
@@ -96,6 +110,10 @@ class Transformation():
                  dispense_rate:float = 1,
                  initial_dna_well:int = 0,
                  water_testing:bool = False,
+                 initial_tip_p20:Optional[str] = None,
+                 initial_tip_p300:Optional[str] = None,
+                 tube_rack_labware:str = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap',
+                 tube_rack_position:str = '3',
                  **kwargs
                  ):
 
@@ -120,7 +138,11 @@ class Transformation():
             'aspiration_rate': aspiration_rate,
             'dispense_rate': dispense_rate,
             'initial_dna_well': initial_dna_well,
-            'water_testing': water_testing
+            'water_testing': water_testing,
+            'initial_tip_p20': initial_tip_p20,
+            'initial_tip_p300': initial_tip_p300,
+            'tube_rack_labware': tube_rack_labware,
+            'tube_rack_position': tube_rack_position
         }
         kwargs_params.update(kwargs)
 
@@ -163,6 +185,10 @@ class Transformation():
         self.dispense_rate = self._merged_params['dispense_rate']
         self.initial_dna_well = self._merged_params['initial_dna_well']
         self.water_testing = self._merged_params['water_testing']
+        self.initial_tip_p20 = self._merged_params['initial_tip_p20']
+        self.initial_tip_p300 = self._merged_params['initial_tip_p300']
+        self.tube_rack_labware = self._merged_params['tube_rack_labware']
+        self.tube_rack_position = self._merged_params['tube_rack_position']
 
     def _extract_name_from_uri(self, uri: str) -> str:
         """Extract name from SBOL URI"""
@@ -198,6 +224,8 @@ class Transformation():
         transformations = []
         all_plasmids_set = set()
         all_chassis_set = set()
+        seen_plasmid_names = {}  # name -> URI; detects two different URIs that collapse to the same name
+        seen_chassis_names = {}  # name -> URI; same check for chassis
 
         for idx, transformation in enumerate(transformation_data):
             # Validate required fields
@@ -214,9 +242,31 @@ class Transformation():
 
             # Extract names from URIs
             strain_name = self._extract_name_from_uri(transformation['Strain'])
-            chassis_name = self._extract_name_from_uri(transformation['Chassis'])
+            chassis_uri = transformation['Chassis']
+            chassis_name = self._extract_name_from_uri(chassis_uri)
             plasmid_uris = transformation['Plasmids']
             plasmid_names = [self._extract_name_from_uri(p) for p in plasmid_uris]
+
+            # Chassis collision check: same name from two different URIs is ambiguous
+            if chassis_name in seen_chassis_names and seen_chassis_names[chassis_name] != chassis_uri:
+                raise ValueError(
+                    f"Transformation {idx}: two chassis URIs extract to the same name "
+                    f"'{chassis_name}': '{seen_chassis_names[chassis_name]}' and '{chassis_uri}'. "
+                    f"Rename one URI to avoid ambiguity."
+                )
+            seen_chassis_names[chassis_name] = chassis_uri
+
+            # Plasmid collision check: same name from two different URIs would cause
+            # silent well lookup errors in _load_dna_into_dna_plate.
+            # The same URI appearing multiple times (shared plasmid) is fine.
+            for plasmid_uri, plasmid_name in zip(plasmid_uris, plasmid_names):
+                if plasmid_name in seen_plasmid_names and seen_plasmid_names[plasmid_name] != plasmid_uri:
+                    raise ValueError(
+                        f"Transformation {idx}: two plasmid URIs extract to the same name "
+                        f"'{plasmid_name}': '{seen_plasmid_names[plasmid_name]}' and '{plasmid_uri}'. "
+                        f"Rename one URI to avoid ambiguity."
+                    )
+                seen_plasmid_names[plasmid_name] = plasmid_uri
 
             # If plasmid_locations provided, validate all plasmid URIs are present
             if self.plasmid_locations is not None:
@@ -276,6 +326,10 @@ class Transformation():
             'dispense_rate': 1,
             'initial_dna_well': 0,
             'water_testing': False,
+            'initial_tip_p20': None,
+            'initial_tip_p300': None,
+            'tube_rack_labware': 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap',
+            'tube_rack_position': '3',
             # HeatShockTransformation-specific parameters
             'transfer_volume_dna': 2,
             'transfer_volume_competent_cell': 20,
@@ -432,6 +486,7 @@ class HeatShockTransformation(Transformation):
         self.dict_of_parts_in_temp_mod_position = {}
         self.dict_of_parts_in_thermocycler = {}
         self.dict_of_parts_in_dna_plate = {}
+        self.dict_of_parts_in_tube_rack = {}
         self.plasmid_name_to_wells = {}  # plasmid name -> [well_obj, ...], populated during loading
 
     def _export_plating_input(self, protocol):
@@ -502,20 +557,26 @@ class HeatShockTransformation(Transformation):
         #If using the 96-well pcr plate as a dna construct source
         if self.use_dna_96plate:
             dna_plate = protocol.load_labware(self.dna_plate, self.dna_plate_position)
+        # Load the tube rack for competent cells and recovery media
+        tube_rack = protocol.load_labware(self.tube_rack_labware, self.tube_rack_position)
         # Load the tiprack
         tiprack_p20 = protocol.load_labware(self.tiprack_p20_labware, self.tiprack_p20_position)
         tiprack_p200 = protocol.load_labware(self.tiprack_p200_labware, self.tiprack_p200_position)
         # Load the pipette
         pipette_p20 = protocol.load_instrument(self.pipette_p20, self.pipette_p20_position, tip_racks=[tiprack_p20])
+        if self.initial_tip_p20:
+            pipette_p20.starting_tip = tiprack_p20[self.initial_tip_p20]
         pipette_p300 = protocol.load_instrument(self.pipette_p300, self.pipette_p300_position, tip_racks=[tiprack_p200])
+        if self.initial_tip_p300:
+            pipette_p300.starting_tip = tiprack_p200[self.initial_tip_p300]
         #Validate protocol
-        self._validate_protocol(protocol, alumblock)
+        self._validate_protocol(protocol, alumblock, tube_rack)
 
         #Load Reagents (also populates self.plasmid_name_to_wells)
         if self.use_dna_96plate:
-            competent_cell_wells_by_chassis, media_wells = self._load_reagents_96plate(protocol, dna_plate, alumblock)
+            competent_cell_wells_by_chassis, media_wells = self._load_reagents_96plate(protocol, dna_plate, alumblock, tube_rack)
         else:
-            competent_cell_wells_by_chassis, media_wells = self._load_reagents_temp_module(protocol, alumblock)
+            competent_cell_wells_by_chassis, media_wells = self._load_reagents_temp_module(protocol, alumblock, tube_rack)
 
         #Set Temperature module and Thermocycler module to 4
         thermocycler_module.open_lid()
@@ -565,51 +626,72 @@ class HeatShockTransformation(Transformation):
                 protocol.comment(f"Could not export plating input: {e}")
 
         # output
-        print('Strain and media tube in temp_mod')
-        print(self.dict_of_parts_in_temp_mod_position)
         if self.use_dna_96plate:
-            print('DNA constructs in DNA plate (slot 2)')
+            print('DNA constructs in DNA plate')
             print(self.dict_of_parts_in_dna_plate)
+        else:
+            print('DNA plasmids in temperature module')
+            print(self.dict_of_parts_in_temp_mod_position)
+        print('Competent cells and media in tube rack')
+        print(self.dict_of_parts_in_tube_rack)
         print('Genetically modified organisms in thermocycler')
         print(self.dict_of_parts_in_thermocycler)
 
-
-    def _validate_protocol(self, protocol, labware):
+    def _validate_protocol(self, protocol, labware, tube_rack=None):
         """
         Validate protocol requirements and compute all derived counts used throughout run().
         Sets: self.location_replicates, self.total_transformations,
               self.transformations_per_cell_tube, self.competent_cell_tubes_by_chassis,
               self.reactions_by_chassis, self.transformations_per_media_tube,
               self.media_tubes_needed.
-        Raises ValueError if reagents exceed available alumblock wells.
+
+        Competent cells and recovery media always go onto the tube rack.
+        The aluminum block (labware) is used only for DNA plasmids when
+        use_dna_96plate=False. This maximises the number of unique constructs
+        that can be transformed in a single run.
+
+        Raises ValueError if reagents exceed available wells on either labware.
         """
-        #Number of available wells to load into
         module_wells = len(labware.wells())
+        tube_rack_wells = len(tube_rack.wells()) if tube_rack is not None else 24
 
-        #Number of strains to transform
         total_strains = len(self.transformations)
-
-        #Number of total plasmid wells needed (one well per unique plasmid)
         total_plasmid_wells = len(self.all_plasmids)
 
-        # Number of location replicates per strain (assembly replicates of the same plasmid in plate,
-        # always 1 for temp module since plasmids are in a single sequential well)
+        # Number of location replicates per strain (assembly replicates of the same
+        # plasmid in the 96-well plate; always 1 when plasmids are on the temp module)
         if self.plasmid_locations is not None:
-            self.location_replicates = len(next(iter(self.plasmid_locations.values())))
+            name_to_uri = {self._extract_name_from_uri(uri): uri for uri in self.plasmid_locations}
+            well_counts = {}
+            for plasmid_name in self.all_plasmids:
+                if plasmid_name in name_to_uri:
+                    uri = name_to_uri[plasmid_name]
+                    well_counts[plasmid_name] = len(self.plasmid_locations[uri])
+            unique_counts = set(well_counts.values())
+            if len(unique_counts) > 1:
+                detail = ', '.join(f'{name}: {count} wells' for name, count in well_counts.items())
+                raise ValueError(
+                    f"plasmid_locations has inconsistent replicate counts across plasmids — "
+                    f"all plasmids must have the same number of wells. Found: {detail}"
+                )
+            if unique_counts == {0}:
+                raise ValueError(
+                    "plasmid_locations contains empty well lists for all referenced plasmids. "
+                    "Each plasmid must have at least one destination well."
+                )
+            self.location_replicates = unique_counts.pop() if unique_counts else 1
         else:
             self.location_replicates = 1
 
-        #Total transformation reactions
         self.total_transformations = total_strains * self.location_replicates * self.replicates
 
-        #Calculate competent cell tubes needed per chassis type
+        # Calculate competent cell tubes needed per chassis
         self.transformations_per_cell_tube = self.tube_volume_competent_cell // self.transfer_volume_competent_cell
         self.competent_cell_tubes_by_chassis = {}
         self.reactions_by_chassis = {}
         total_competent_cell_tubes = 0
 
         for chassis in self.all_chassis:
-            # Count how many transformations use this chassis
             transformations_for_chassis = sum(1 for t in self.transformations if t['chassis'] == chassis)
             reactions_for_chassis = transformations_for_chassis * self.location_replicates * self.replicates
             self.reactions_by_chassis[chassis] = reactions_for_chassis
@@ -617,39 +699,42 @@ class HeatShockTransformation(Transformation):
             self.competent_cell_tubes_by_chassis[chassis] = tubes_needed
             total_competent_cell_tubes += tubes_needed
 
-        #Number of tubes with media to be used
         self.transformations_per_media_tube = self.tube_volume_recovery_media // self.transfer_volume_recovery_media
         self.media_tubes_needed = (self.total_transformations + self.transformations_per_media_tube - 1) // self.transformations_per_media_tube
 
-        #Validate wells
-        if self.use_dna_96plate:
-            # DNA is on a separate plate, only cells and media on the temp module
-            if total_competent_cell_tubes + self.media_tubes_needed > module_wells:
-                raise ValueError(f'The number of reagents is more than {module_wells}.'
-                                 f'There are {total_competent_cell_tubes} tubes with competent cells ({self.competent_cell_tubes_by_chassis}).'
-                                 f'{self.media_tubes_needed} tubes with media.'
-                                 f'Please modify the protocol and try again.')
-        else:
-            # DNA, cells, and media all on the temp module
-            if total_plasmid_wells + total_competent_cell_tubes + self.media_tubes_needed > module_wells:
-                raise ValueError(f'The number of reagents is more than {module_wells}.'
-                                 f'There are {total_plasmid_wells} plasmid wells.'
-                                 f'{total_competent_cell_tubes} tubes with competent cells ({self.competent_cell_tubes_by_chassis}).'
-                                 f'{self.media_tubes_needed} tubes with media.'
-                                 f'Please modify the protocol and try again.')
+        # Tube rack capacity: cells and media always live here
+        if total_competent_cell_tubes + self.media_tubes_needed > tube_rack_wells:
+            raise ValueError(
+                f'The number of reagent tubes is more than the tube rack capacity of {tube_rack_wells} wells. '
+                f'There are {total_competent_cell_tubes} competent cell tubes ({self.competent_cell_tubes_by_chassis}) '
+                f'and {self.media_tubes_needed} media tubes. '
+                f'Please modify the protocol and try again.'
+            )
+
+        # Temperature module capacity: DNA plasmids only (when not using 96-well plate).
+        # Loading starts at initial_dna_well so the offset is included in the check.
+        if not self.use_dna_96plate:
+            if self.initial_dna_well + total_plasmid_wells > module_wells:
+                raise ValueError(
+                    f'The number of plasmids requires more than {module_wells} temperature module wells. '
+                    f'DNA starts at well {self.initial_dna_well} with {total_plasmid_wells} unique plasmids '
+                    f'({self.initial_dna_well + total_plasmid_wells} wells needed). '
+                    f'Please modify the protocol and try again.'
+                )
 
 
-    def _load_reagents_96plate(self, protocol, dna_plate, alumblock):
+    def _load_reagents_96plate(self, protocol, dna_plate, alumblock, tube_rack):
         """
         Load all reagents for the 96-well plate workflow (plasmid_locations provided).
         DNA constructs are loaded from the assembly output plate at their fixed positions —
         populates self.plasmid_name_to_wells. Competent cells and media are loaded
-        sequentially onto the alumblock starting at well 0.
+        onto the tube rack (not the alumblock), leaving the alumblock entirely free.
 
         Parameters:
         - protocol: Protocol context
         - dna_plate: 96-well plate labware object (slot 2)
-        - alumblock: Temperature module labware object
+        - alumblock: Temperature module labware object (unused in this path)
+        - tube_rack: Tube rack labware object for competent cells and recovery media
 
         Returns:
         - competent_cell_wells_by_chassis: dict mapping chassis name to list of well objects
@@ -659,19 +744,20 @@ class HeatShockTransformation(Transformation):
         # Populates self.plasmid_name_to_wells
         self._load_dna_into_dna_plate(protocol, dna_plate)
 
-        # Load competent cells for each chassis onto alumblock
+        # Load competent cells and media onto tube rack starting at well 0
         competent_cell_wells_by_chassis = {}
         current_well = 0
         for chassis in self.all_chassis:
             tubes_needed = self.competent_cell_tubes_by_chassis[chassis]
-            wells = self._load_reagents(protocol, alumblock, self.tube_volume_competent_cell,
-                                        f"Competent Cell {chassis}", tubes_needed, initial_well=current_well)
+            wells = self._load_reagents(protocol, tube_rack, self.tube_volume_competent_cell,
+                                        f"Competent Cell {chassis}", tubes_needed, initial_well=current_well,
+                                        tracking_dict=self.dict_of_parts_in_tube_rack)
             competent_cell_wells_by_chassis[chassis] = wells
             current_well += tubes_needed
 
-        # Load media onto alumblock
-        media_wells = self._load_reagents(protocol, alumblock, self.tube_volume_recovery_media,
-                                          "Media", self.media_tubes_needed, initial_well=current_well)
+        media_wells = self._load_reagents(protocol, tube_rack, self.tube_volume_recovery_media,
+                                          "Media", self.media_tubes_needed, initial_well=current_well,
+                                          tracking_dict=self.dict_of_parts_in_tube_rack)
 
         return competent_cell_wells_by_chassis, media_wells
 
@@ -709,16 +795,18 @@ class HeatShockTransformation(Transformation):
             self.dict_of_parts_in_dna_plate[construct_name] = well_names
             current_color += 1
 
-    def _load_reagents_temp_module(self, protocol, alumblock):
+    def _load_reagents_temp_module(self, protocol, alumblock, tube_rack):
         """
         Load all reagents for the temp module workflow (no plasmid_locations).
-        DNA constructs are loaded sequentially starting at initial_dna_well —
-        populates self.plasmid_name_to_wells. Competent cells and media follow
-        sequentially on the same alumblock.
+        DNA constructs are loaded sequentially onto the alumblock starting at
+        initial_dna_well — populates self.plasmid_name_to_wells. Competent cells
+        and media are loaded onto the tube rack (not the alumblock), so the entire
+        alumblock is available for DNA plasmids.
 
         Parameters:
         - protocol: Protocol context
-        - alumblock: Temperature module labware object
+        - alumblock: Temperature module labware object (DNA plasmids only)
+        - tube_rack: Tube rack labware object for competent cells and recovery media
 
         Returns:
         - competent_cell_wells_by_chassis: dict mapping chassis name to list of well objects
@@ -728,19 +816,20 @@ class HeatShockTransformation(Transformation):
         # Populates self.plasmid_name_to_wells
         self._load_dna_into_temp_module(protocol, alumblock)
 
-        # Load competent cells for each chassis, starting after the DNA wells
+        # Load competent cells and media onto tube rack starting at well 0
         competent_cell_wells_by_chassis = {}
-        current_well = self.initial_dna_well + len(self.all_plasmids)
+        current_well = 0
         for chassis in self.all_chassis:
             tubes_needed = self.competent_cell_tubes_by_chassis[chassis]
-            wells = self._load_reagents(protocol, alumblock, self.tube_volume_competent_cell,
-                                        f"Competent Cell {chassis}", tubes_needed, initial_well=current_well)
+            wells = self._load_reagents(protocol, tube_rack, self.tube_volume_competent_cell,
+                                        f"Competent Cell {chassis}", tubes_needed, initial_well=current_well,
+                                        tracking_dict=self.dict_of_parts_in_tube_rack)
             competent_cell_wells_by_chassis[chassis] = wells
             current_well += tubes_needed
 
-        # Load media onto alumblock after competent cells
-        media_wells = self._load_reagents(protocol, alumblock, self.tube_volume_recovery_media,
-                                          "Media", self.media_tubes_needed, initial_well=current_well)
+        media_wells = self._load_reagents(protocol, tube_rack, self.tube_volume_recovery_media,
+                                          "Media", self.media_tubes_needed, initial_well=current_well,
+                                          tracking_dict=self.dict_of_parts_in_tube_rack)
 
         return competent_cell_wells_by_chassis, media_wells
 
@@ -768,11 +857,11 @@ class HeatShockTransformation(Transformation):
             self.dict_of_parts_in_temp_mod_position[construct_name] = well.well_name
             current_color += 1
 
-    def _load_reagents(self, protocol, labware, volume, reagent_name, tube_count, initial_well=0, color_index=None):
+    def _load_reagents(self, protocol, labware, volume, reagent_name, tube_count, initial_well=0, color_index=None, tracking_dict=None):
         """
         Load multiple tubes of the same reagent type onto a labware object.
         Tubes are named {reagent_name}_1, {reagent_name}_2, etc. and tracked
-        in self.dict_of_parts_in_temp_mod_position.
+        in tracking_dict (defaults to self.dict_of_parts_in_temp_mod_position).
 
         Parameters:
         - protocol: Protocol context
@@ -782,10 +871,13 @@ class HeatShockTransformation(Transformation):
         - tube_count: Number of tubes to load
         - initial_well: Starting well index on the labware
         - color_index: Starting color index for Opentrons UI (cycles through colors list)
+        - tracking_dict: Dict to record {name: well_name}; defaults to dict_of_parts_in_temp_mod_position
 
         Returns:
         - List of well objects in order
         """
+        if tracking_dict is None:
+            tracking_dict = self.dict_of_parts_in_temp_mod_position
         wells = []
         current_color = color_index if color_index is not None else 0
         for i in range(tube_count):
@@ -799,18 +891,22 @@ class HeatShockTransformation(Transformation):
             )
 
             well.load_liquid(liquid, volume=volume)
-            self.dict_of_parts_in_temp_mod_position[name] = well.well_name
+            tracking_dict[name] = well.well_name
             current_color += 1
         return wells
 
     def _transfer_competent_cells(self, protocol, pipette, pcr_plate, competent_cell_wells_by_chassis,
                                   transfer_volume_competent_cell, thermocycler_starting_well):
         """
-        Transfer competent cells into thermocycler wells, one well per reaction.
+        Transfer competent cells into thermocycler wells.
         Iterates self.transformations as ground truth. For each strain, fills
         location_replicates * replicates wells with the appropriate chassis cells.
         Tube selection is per-chassis (chassis_reaction_count) so multiple chassis
         types each consume only their own tubes independently.
+
+        Tips are reused within each consecutive source tube block (one pickup per tube)
+        by batching destinations with distribute(). A new tip is picked up whenever the
+        source tube changes, preventing cross-chassis contamination.
 
         Parameters:
         - protocol: Protocol context
@@ -820,6 +916,8 @@ class HeatShockTransformation(Transformation):
         - transfer_volume_competent_cell: Volume to transfer per well in µL
         - thermocycler_starting_well: Starting well index in thermocycler plate
         """
+        # Pre-compute all transfers as (source_well, dest_well, chassis, strain)
+        transfers = []
         well_index = thermocycler_starting_well
         chassis_reaction_count = {chassis: 0 for chassis in self.all_chassis}
 
@@ -827,32 +925,34 @@ class HeatShockTransformation(Transformation):
             chassis = transformation['chassis']
             cell_wells = competent_cell_wells_by_chassis[chassis]
 
-            for replicate in range(self.location_replicates * self.replicates):
+            for _ in range(self.location_replicates * self.replicates):
                 dest_well = pcr_plate.wells()[well_index]
-
-                # Select tube based on per-chassis reaction count
                 tube_index = chassis_reaction_count[chassis] // self.transformations_per_cell_tube
                 source_well = cell_wells[tube_index]
-
-                self.liquid_transfer(
-                    protocol=protocol,
-                    pipette=pipette,
-                    volume=transfer_volume_competent_cell,
-                    source=source_well,
-                    dest=dest_well,
-                    asp_rate=self.aspiration_rate,
-                    disp_rate=self.dispense_rate,
-                    mix_before=20,
-                    touch_tip=False
-                )
-
-                name = f"Competent_Cell_{chassis}"
-                if dest_well.well_name not in self.dict_of_parts_in_thermocycler:
-                    self.dict_of_parts_in_thermocycler[dest_well.well_name] = [transformation['strain']]
-                self.dict_of_parts_in_thermocycler[dest_well.well_name].append(name)
+                transfers.append((source_well, dest_well, chassis, transformation['strain']))
 
                 chassis_reaction_count[chassis] += 1
                 well_index += 1
+
+        # Distribute per consecutive source tube — one tip pickup per tube.
+        # dict_of_parts_in_thermocycler is updated after each distribute() call
+        # so it reflects only wells that have actually been filled.
+        for source_well, group in groupby(transfers, key=lambda t: t[0]):
+            group_list = list(group)
+            dest_wells = [t[1] for t in group_list]
+            pipette.distribute(
+                volume=transfer_volume_competent_cell,
+                source=source_well,
+                dest=dest_wells,
+                mix_before=(3, 50),
+                disposal_volume=0,
+                new_tip='once'
+            )
+            for _, dest_well, chassis, strain in group_list:
+                name = f"Competent_Cell_{chassis}"
+                if dest_well.well_name not in self.dict_of_parts_in_thermocycler:
+                    self.dict_of_parts_in_thermocycler[dest_well.well_name] = [strain]
+                self.dict_of_parts_in_thermocycler[dest_well.well_name].append(name)
 
     def _transfer_DNA(self, protocol, pipette, pcr_plate, transfer_volume_dna, thermocycler_starting_well):
         """
