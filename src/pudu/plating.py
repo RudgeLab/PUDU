@@ -99,6 +99,10 @@ class Plating():
         self.volume_colony = self._merged_params['volume_colony']
         self.dilution_factor = self._merged_params['dilution_factor']
         self.volume_lb_transfer = self.volume_bacteria_transfer * (self.dilution_factor - 1)
+        # Mix volume is capped 1 µL below the total dilution well volume so the pipette
+        # never tries to aspirate more than is physically present. Also bounded by the
+        # p20 maximum (19 µL).
+        self.mix_volume = min(19, self.volume_lb_transfer + self.volume_bacteria_transfer - 1)
         self.volume_lb = self._merged_params['volume_lb']
         self.replicates = self._merged_params['replicates']
         self.number_dilutions = self._merged_params['number_dilutions']
@@ -401,14 +405,14 @@ class Plating():
             # Transfer bacteria → dilution1, mix
             small_pipette.aspirate(self.volume_bacteria_transfer, source_well, rate=self.aspiration_rate)
             small_pipette.dispense(self.volume_bacteria_transfer, dilution1_well, rate=self.dispense_rate)
-            small_pipette.mix(repetitions=5, volume=19, location=dilution1_well)
+            small_pipette.mix(repetitions=5, volume=self.mix_volume, location=dilution1_well)
 
             if self.number_dilutions == 2:
                 dilution2_well = dilution_layout['dilution_2']['wells'][construct_idx]
                 # Seed dilution2 first (before any agar aspirations from dilution1)
                 small_pipette.aspirate(self.volume_bacteria_transfer, dilution1_well, rate=self.aspiration_rate)
                 small_pipette.dispense(self.volume_bacteria_transfer, dilution2_well, rate=self.dispense_rate)
-                small_pipette.mix(repetitions=5, volume=19, location=dilution2_well)
+                small_pipette.mix(repetitions=5, volume=self.mix_volume, location=dilution2_well)
 
             # Plate all dilution-1 replicates
             for replicate in range(self.replicates):

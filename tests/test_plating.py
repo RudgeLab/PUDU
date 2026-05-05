@@ -191,6 +191,24 @@ class TestDilutionFactor(unittest.TestCase):
         p = make_plating(dilution_factor=20, replicates=1, number_dilutions=2)
         self.assertAlmostEqual(p.volume_lb_transfer, 38.0)
 
+    def test_mix_volume_capped_at_19_for_default_factor(self):
+        """Default factor=10 → well=20 µL → mix_volume = min(19, 20-1) = 19."""
+        p = make_plating()
+        self.assertEqual(p.mix_volume, 19)
+
+    def test_mix_volume_capped_below_well_volume_for_small_factor(self):
+        """
+        factor=5, bacteria=2 → well=10 µL → mix_volume = min(19, 10-1) = 9.
+        Without this cap the mix step would try to aspirate 19 µL from a 10 µL well.
+        """
+        p = make_plating(dilution_factor=5)
+        self.assertEqual(p.mix_volume, 9)
+
+    def test_mix_volume_never_exceeds_19(self):
+        """Large factor → well volume > 20, but mix_volume is still capped at 19."""
+        p = make_plating(dilution_factor=20)  # well = 40 µL
+        self.assertEqual(p.mix_volume, 19)
+
 
 # ---------------------------------------------------------------------------
 # 4. Parameter merge hierarchy
