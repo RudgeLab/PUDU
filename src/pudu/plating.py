@@ -15,7 +15,7 @@ class Plating():
                  volume_total_reaction: float = 20,
                  volume_bacteria_transfer: float = 2,
                  volume_colony: float = 4,
-                 volume_lb_transfer: float = 18,
+                 dilution_factor: float = 10,
                  volume_lb: float = 10000,
                  replicates: int = 1,
                  number_dilutions: int = 2,
@@ -56,7 +56,7 @@ class Plating():
             'volume_total_reaction': volume_total_reaction,
             'volume_bacteria_transfer': volume_bacteria_transfer,
             'volume_colony': volume_colony,
-            'volume_lb_transfer': volume_lb_transfer,
+            'dilution_factor': dilution_factor,
             'volume_lb': volume_lb,
             'replicates': replicates,
             'number_dilutions': number_dilutions,
@@ -97,7 +97,8 @@ class Plating():
         self.volume_total_reaction = self._merged_params['volume_total_reaction']
         self.volume_bacteria_transfer = self._merged_params['volume_bacteria_transfer']
         self.volume_colony = self._merged_params['volume_colony']
-        self.volume_lb_transfer = self._merged_params['volume_lb_transfer']
+        self.dilution_factor = self._merged_params['dilution_factor']
+        self.volume_lb_transfer = self.volume_bacteria_transfer * (self.dilution_factor - 1)
         self.volume_lb = self._merged_params['volume_lb']
         self.replicates = self._merged_params['replicates']
         self.number_dilutions = self._merged_params['number_dilutions']
@@ -137,6 +138,21 @@ class Plating():
         if self.number_dilutions > 2:
             raise ValueError("Protocol currently supports a max of 2 dilutions")
 
+        # Each dilution well must hold enough volume for all agar platings plus seeding the next
+        # dilution step. Check before any labware is loaded so errors surface early.
+        volume_dilution_well = self.volume_bacteria_transfer * self.dilution_factor
+        volumes_needed = self.volume_colony * self.replicates + (
+            self.volume_bacteria_transfer if self.number_dilutions > 1 else 0
+        )
+        if volumes_needed > volume_dilution_well:
+            raise ValueError(
+                f"Dilution well volume ({volume_dilution_well:.1f} µL) is insufficient: "
+                f"plating {self.replicates} replicates × {self.volume_colony} µL"
+                + (f" + {self.volume_bacteria_transfer} µL to seed next dilution" if self.number_dilutions > 1 else "")
+                + f" requires {volumes_needed:.1f} µL. "
+                f"Increase dilution_factor or reduce replicates/volume_colony."
+            )
+
     def _merge_params(self, plating_data: Optional[Dict], json_params: Optional[Dict], kwargs_params: Dict) -> Dict:
         """
         Merge parameters with precedence: defaults <- plating_data <- json_params <- kwargs
@@ -154,7 +170,7 @@ class Plating():
             'volume_total_reaction': 20,
             'volume_bacteria_transfer': 2,
             'volume_colony': 4,
-            'volume_lb_transfer': 18,
+            'dilution_factor': 10,
             'volume_lb': 10000,
             'replicates': 1,
             'number_dilutions': 2,
@@ -226,37 +242,46 @@ class Plating():
                 f"Valid parameters are: {set(valid_params.keys())}"
             )
 
-    def calculate_plate_layout(self,protocol, plate1, plate2=None):
+    def calculate_plate_layout(self, protocol, plate1, plate2=None, wells_per_dilution=None):
         """
-        Calculate the layout for colonies on plates with dynamic buffer between dilutions
-        Returns: dict with plate assignments and well positions
-        """
-        colonies_per_dilution = self.number_constructs * self.replicates
+        Calculate the layout for wells on a plate with dynamic expansion across two plates.
 
-        layout =  {
-            'dilution_1': {'plate': 1, 'wells':[]},
-            'dilution_2': {'plate': 1, 'wells':[]} if self.number_dilutions ==2 else None
+        Args:
+            protocol: Protocol context (used for comments)
+            plate1: Primary labware object
+            plate2: Optional secondary labware object, required when wells_per_dilution > 48
+            wells_per_dilution: Number of wells needed per dilution step. Defaults to
+                number_constructs * replicates (original behaviour). Pass
+                number_constructs for dilution plates and number_constructs * replicates
+                for agar plates.
+
+        Returns:
+            dict with plate assignments and well positions keyed by 'dilution_1' / 'dilution_2'
+        """
+        if wells_per_dilution is None:
+            wells_per_dilution = self.number_constructs * self.replicates
+
+        layout = {
+            'dilution_1': {'plate': 1, 'wells': []},
+            'dilution_2': {'plate': 1, 'wells': []} if self.number_dilutions == 2 else None
         }
 
-        #Check if we need two plates
-        if self.number_dilutions ==2 and colonies_per_dilution > 48:
+        if self.number_dilutions == 2 and wells_per_dilution > 48:
             if plate2 is None:
                 raise ValueError("Two plates required but plate2 not provided")
-            #Each Dilution gets its own plate
-            layout['dilution_1']['wells'] = plate1.wells()[:colonies_per_dilution]
+            # Each dilution step gets its own plate
+            layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
             layout['dilution_2']['plate'] = 2
-            layout['dilution_2']['wells'] = plate2.wells()[:colonies_per_dilution]
-            protocol.comment(f"Using 2 plates: {colonies_per_dilution} colonies per dilution exceeds single plate capacity")
-        elif self.number_dilutions ==2 and colonies_per_dilution <= 48:
-            #Both Dilutions Fit On One Plate
-            first_half = plate1.wells()[:colonies_per_dilution]
-            second_half = plate1.wells()[48:48+colonies_per_dilution]
-            layout['dilution_1']['wells'] = first_half
-            layout['dilution_2']['wells'] = second_half
-            protocol.comment(f"Using only one {plate1}: {colonies_per_dilution} colonies on each half")
+            layout['dilution_2']['wells'] = plate2.wells()[:wells_per_dilution]
+            protocol.comment(f"Using 2 plates: {wells_per_dilution} wells per dilution exceeds single-plate half capacity")
+        elif self.number_dilutions == 2 and wells_per_dilution <= 48:
+            # Both dilution steps fit on one plate (each in one half)
+            layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
+            layout['dilution_2']['wells'] = plate1.wells()[48:48 + wells_per_dilution]
+            protocol.comment(f"Using one plate: {wells_per_dilution} wells per dilution fits in each half")
         else:
-            #Single dilution
-            layout['dilution_1']['wells'] = plate1.wells()[:colonies_per_dilution]
+            # Single dilution step
+            layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
         return layout
 
     def run(self, protocol: protocol_api.ProtocolContext):
@@ -296,21 +321,35 @@ class Plating():
             well = thermocycler_plate[well_position]
             well.load_liquid(liquid=liquid_bacteria, volume=self.volume_total_reaction)
 
-        # Load the dilution plates and Calculate the layout of the plates
+        # Load dilution plates — one well per construct per dilution step
         dilution_plate1 = protocol.load_labware(self.dilution_plate, self.dilution_plate_position1)
-        if self.total_colonies <= len(dilution_plate1.wells()):
-            dilution_layout = self.calculate_plate_layout(protocol, dilution_plate1)
-        else:
-            dilution_plate2 = protocol.load_labware(self.dilution_plate, self.dilution_plate_position2)
-            dilution_layout = self.calculate_plate_layout(protocol, dilution_plate1, dilution_plate2)
 
-        #Load the Agar plates and Calculate the layout of the plates
-        agar_plate1 = protocol.load_labware(self.agar_plate, self.agar_plate_position1)
-        if self.total_colonies <= len(agar_plate1.wells()):
-            agar_layout = self.calculate_plate_layout(protocol, agar_plate1)
+        # Validate that the dilution well can physically hold the full dilution volume
+        dilution_well_max = dilution_plate1.wells()[0].max_volume
+        volume_dilution_well = self.volume_bacteria_transfer * self.dilution_factor
+        if volume_dilution_well > dilution_well_max:
+            raise ValueError(
+                f"Dilution factor {self.dilution_factor} with {self.volume_bacteria_transfer} µL bacteria transfer "
+                f"requires {volume_dilution_well:.1f} µL per well, but '{self.dilution_plate}' wells hold "
+                f"only {dilution_well_max:.1f} µL. Reduce dilution_factor or switch to a larger dilution plate."
+            )
+        if self.number_constructs * self.number_dilutions > len(dilution_plate1.wells()):
+            dilution_plate2 = protocol.load_labware(self.dilution_plate, self.dilution_plate_position2)
+            dilution_layout = self.calculate_plate_layout(protocol, dilution_plate1, dilution_plate2,
+                                                          wells_per_dilution=self.number_constructs)
         else:
+            dilution_layout = self.calculate_plate_layout(protocol, dilution_plate1,
+                                                          wells_per_dilution=self.number_constructs)
+
+        # Load agar plates — one well per construct per replicate per dilution step
+        agar_plate1 = protocol.load_labware(self.agar_plate, self.agar_plate_position1)
+        if self.total_colonies > len(agar_plate1.wells()):
             agar_plate2 = protocol.load_labware(self.agar_plate, self.agar_plate_position2)
-            agar_layout = self.calculate_plate_layout(protocol, agar_plate1, agar_plate2)
+            agar_layout = self.calculate_plate_layout(protocol, agar_plate1, agar_plate2,
+                                                      wells_per_dilution=self.number_constructs * self.replicates)
+        else:
+            agar_layout = self.calculate_plate_layout(protocol, agar_plate1,
+                                                      wells_per_dilution=self.number_constructs * self.replicates)
 
 
         thermocycler.set_block_temperature(4)
@@ -322,9 +361,10 @@ class Plating():
         all_dilution_wells = dilution_layout['dilution_1']['wells'][:]
         if self.number_dilutions == 2 and dilution_layout['dilution_2']:
             all_dilution_wells.extend(dilution_layout['dilution_2']['wells'])
-        # Distribute LB efficiently using built-in distribute method
-        # Process in chunks of 8 wells to update aspiration height
+        # Distribute LB using a single tip for the entire step
+        # Process in chunks of 8 wells to update aspiration height as the tube empties
         chunk_size = 8
+        large_pipette.pick_up_tip()
         for i in range(0, len(all_dilution_wells), chunk_size):
             chunk_wells = all_dilution_wells[i:i + chunk_size]
 
@@ -332,68 +372,62 @@ class Plating():
             aspiration_location = smart_pipette.get_aspiration_location(lb_tube)
             protocol.comment(f"Distributing to wells {i + 1}-{min(i + chunk_size, len(all_dilution_wells))}")
 
-            # Use built-in distribute method with updated aspiration location
+            # Distribute without picking up a new tip each chunk
             large_pipette.distribute(
                 volume=self.volume_lb_transfer,
                 source=aspiration_location,
                 dest=chunk_wells,
-                disposal_volume=4,  # For accuracy
-                new_tip='once'  # Use one tip for the chunk
+                disposal_volume=4,
+                new_tip='never'
             )
 
             # Load liquid tracking for dilution wells
             for well in chunk_wells:
                 well.load_liquid(liquid=liquid_broth, volume=self.volume_lb_transfer)
+        large_pipette.drop_tip()
 
         #Transfer bacteria to first dilution and process
         protocol.comment("\n=== Step 2: Transferring bacteria and plating ===")
 
-        well_index = 0
-        for construct_position, construct_names in self.bacterium_locations.items():
+        for construct_idx, (construct_position, construct_names) in enumerate(self.bacterium_locations.items()):
+            source_well = thermocycler_plate[construct_position]
+            dilution1_well = dilution_layout['dilution_1']['wells'][construct_idx]
+
+            protocol.comment(f"\nProcessing construct {construct_idx + 1}: {construct_names}")
+
+            # === Tip 1: set up dilutions + plate all dilution-1 replicates ===
+            small_pipette.pick_up_tip()
+
+            # Transfer bacteria → dilution1, mix
+            small_pipette.aspirate(self.volume_bacteria_transfer, source_well, rate=self.aspiration_rate)
+            small_pipette.dispense(self.volume_bacteria_transfer, dilution1_well, rate=self.dispense_rate)
+            small_pipette.mix(repetitions=5, volume=19, location=dilution1_well)
+
+            if self.number_dilutions == 2:
+                dilution2_well = dilution_layout['dilution_2']['wells'][construct_idx]
+                # Seed dilution2 first (before any agar aspirations from dilution1)
+                small_pipette.aspirate(self.volume_bacteria_transfer, dilution1_well, rate=self.aspiration_rate)
+                small_pipette.dispense(self.volume_bacteria_transfer, dilution2_well, rate=self.dispense_rate)
+                small_pipette.mix(repetitions=5, volume=19, location=dilution2_well)
+
+            # Plate all dilution-1 replicates
             for replicate in range(self.replicates):
-                # Get source and destination wells
-                source_well = thermocycler_plate[construct_position]
-                dilution1_well = dilution_layout['dilution_1']['wells'][well_index]
-                agar1_well = agar_layout['dilution_1']['wells'][well_index]
-
-                protocol.comment(f"\nProcessing {construct_names[0]} replicate {replicate + 1}")
-
-                # Pick up tip once for entire workflow per well
-                small_pipette.pick_up_tip()
-
-                # Transfer bacteria to dilution plate 1
-                small_pipette.aspirate(self.volume_bacteria_transfer, source_well, rate=self.aspiration_rate)
-                small_pipette.dispense(self.volume_bacteria_transfer, dilution1_well, rate=self.dispense_rate)
-
-                # Mix in dilution plate 1 (15µL mixing volume)
-                small_pipette.mix(repetitions=5, volume=19, location=dilution1_well)
-
-                # Plate on agar 1
+                agar1_well = agar_layout['dilution_1']['wells'][construct_idx * self.replicates + replicate]
                 small_pipette.aspirate(self.volume_colony, dilution1_well, rate=self.aspiration_rate)
                 small_pipette.dispense(self.volume_colony, agar1_well.top(-8), rate=self.dispense_rate)
                 small_pipette.blow_out()
 
-                # If we have a second dilution, continue with same tip
-                if self.number_dilutions == 2:
-                    dilution2_well = dilution_layout['dilution_2']['wells'][well_index]
-                    agar2_well = agar_layout['dilution_2']['wells'][well_index]
+            small_pipette.drop_tip()
 
-                    # Transfer from dilution 1 to dilution 2
-                    small_pipette.aspirate(self.volume_bacteria_transfer, dilution1_well, rate=self.aspiration_rate)
-                    small_pipette.dispense(self.volume_bacteria_transfer, dilution2_well, rate=self.dispense_rate)
-
-                    # Mix in dilution plate 2
-                    small_pipette.mix(repetitions=5, volume=19, location=dilution2_well)
-
-                    # Plate on agar 2
+            # === Tip 2: plate all dilution-2 replicates with a clean tip ===
+            if self.number_dilutions == 2:
+                small_pipette.pick_up_tip()
+                for replicate in range(self.replicates):
+                    agar2_well = agar_layout['dilution_2']['wells'][construct_idx * self.replicates + replicate]
                     small_pipette.aspirate(self.volume_colony, dilution2_well, rate=self.aspiration_rate)
                     small_pipette.dispense(self.volume_colony, agar2_well.top(-8), rate=self.dispense_rate)
                     small_pipette.blow_out()
-
-                # Drop tip after completing all transfers for this well
                 small_pipette.drop_tip()
-
-                well_index += 1
 
         # Close thermocycler lid
         # thermocycler.close_lid()
