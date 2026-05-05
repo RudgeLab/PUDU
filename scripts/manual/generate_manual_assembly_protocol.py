@@ -7,8 +7,8 @@ from pudu.assembly import ManualAssembly
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a manual Golden Gate Markdown protocol.")
-    parser.add_argument("--input", default="scripts/manual_assembly_input.json", help="Path to SBOL-style JSON input file.")
-    parser.add_argument("--output", default="scripts/manual_assembly_protocol.md", help="Path to Markdown output file.")
+    parser.add_argument("--input", default="scripts/manual/manual_assembly_input.json", help="Path to SBOL-style JSON input file.")
+    parser.add_argument("--output", default="scripts/manual/manual_assembly_protocol.md", help="Path to Markdown output file.")
     args = parser.parse_args()
 
     input_path = Path(args.input)

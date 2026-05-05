@@ -7,8 +7,8 @@ from pudu.transformation import ManualTransformation
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a manual heat-shock transformation Markdown protocol.")
-    parser.add_argument("--input", default="scripts/manual_transformation_input.json", help="Path to SBOL-style JSON input file.")
-    parser.add_argument("--output", default="scripts/manual_transformation_protocol.md", help="Path to Markdown output file.")
+    parser.add_argument("--input", default="scripts/manual/manual_transformation_input.json", help="Path to SBOL-style JSON input file.")
+    parser.add_argument("--output", default="scripts/manual/manual_transformation_protocol.md", help="Path to Markdown output file.")
     args = parser.parse_args()
 
     input_path = Path(args.input)

@@ -1,0 +1,12 @@
+[
+    {
+        "Strain": "https://SBOL2Build.org/strain_GFP/1",
+        "Chassis": "https://sbolcanvas.org/DH5alpha/1",
+        "Plasmids": ["https://SBOL2Build.org/composite_1/1"]
+    },
+    {
+        "Strain": "https://SBOL2Build.org/strain_RFP/1",
+        "Chassis": "https://sbolcanvas.org/DH5alpha/1",
+        "Plasmids": ["https://SBOL2Build.org/composite_2/1"]
+    }
+]
