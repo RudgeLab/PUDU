@@ -45,7 +45,8 @@ class TestManualAssembly(unittest.TestCase):
         self.assertIn("Cannot fit", str(error.exception))
 
     def test_markdown_rendering_contains_sections_and_parts(self):
-        assembly = ManualAssembly(assemblies=self.assemblies)
+        cycles = 30
+        assembly = ManualAssembly(assemblies=self.assemblies, thermocycling_cycles=cycles)
         markdown = assembly.render_markdown()
 
         self.assertIn("# Manual Golden Gate Assembly Protocol", markdown)
@@ -53,7 +54,8 @@ class TestManualAssembly(unittest.TestCase):
         self.assertIn("## Assembly 1: composite_1", markdown)
         self.assertIn("| [J23101](https://sbolcanvas.org/J23101/1) | 2 |", markdown)
         self.assertIn("## Thermocycler Program", markdown)
-        self.assertIn("| Digest | 37 C | 2 min | 25 |", markdown)
+        self.assertIn(f"| Digest | 37 C | 2 min | {cycles} |", markdown)
+        self.assertIn(f"| Ligate | 16 C | 5 min | {cycles} |", markdown)
 
     def test_markdown_rendering_supports_legacy_thermocycling_profile(self):
         legacy_profile = [
