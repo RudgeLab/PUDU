@@ -422,8 +422,14 @@ class ManualPlating:
                  volume_lb_transfer: float = 18,
                  replicates: int = 1,
                  number_dilutions: int = 2):
-        if plating_data is not None and bacterium_locations is None:
-            bacterium_locations = plating_data.get("bacterium_locations")
+        if plating_data is not None:
+            if bacterium_locations is None:
+                bacterium_locations = plating_data.get("bacterium_locations")
+            volume_bacteria_transfer = plating_data.get("volume_bacteria_transfer", volume_bacteria_transfer)
+            volume_colony = plating_data.get("volume_colony", volume_colony)
+            volume_lb_transfer = plating_data.get("volume_lb_transfer", volume_lb_transfer)
+            replicates = plating_data.get("replicates", replicates)
+            number_dilutions = plating_data.get("number_dilutions", number_dilutions)
         if not isinstance(bacterium_locations, dict) or not bacterium_locations:
             raise ValueError("bacterium_locations must be a non-empty dictionary")
 

@@ -1356,8 +1356,8 @@ class ManualAssembly(BaseAssembly):
         self.assemblies = assemblies
         self.reaction_records: List[ManualReactionRecord] = []
         self.thermocycling_profile = thermocycling_profile or [
-            {'step': 'Digest', 'temperature': 37, 'hold_time_minutes': 2, 'cycles': 25},
-            {'step': 'Ligate', 'temperature': 16, 'hold_time_minutes': 5, 'cycles': 25},
+            {'step': 'Digest', 'temperature': 37, 'hold_time_minutes': 2},
+            {'step': 'Ligate', 'temperature': 16, 'hold_time_minutes': 5},
             {'step': 'Final digestion', 'temperature': 50, 'hold_time_minutes': 5, 'cycles': 1},
             {'step': 'Heat inactivation', 'temperature': 80, 'hold_time_minutes': 10, 'cycles': 1},
             {'step': 'Hold', 'temperature': 4, 'hold_time_minutes': 'indefinite', 'cycles': 1},
