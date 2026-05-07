@@ -1,1 +1,4 @@
 venv
+
+# Generated protocol output files produced by scripts/manual/ generators
+scripts/manual/*.md

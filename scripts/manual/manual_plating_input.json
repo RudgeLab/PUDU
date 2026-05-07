@@ -1,0 +1,8 @@
+{
+    "bacterium_locations": {
+        "A1": "https://SBOL2Build.org/composite_1/1",
+        "A2": "https://SBOL2Build.org/composite_2/1"
+    },
+    "replicates": 2,
+    "number_dilutions": 2
+}
