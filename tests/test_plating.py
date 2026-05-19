@@ -9,6 +9,7 @@ Tests are split into:
   - TestPlateLayout         : calculate_plate_layout single/double plate logic
 """
 
+import json
 import unittest
 from unittest.mock import MagicMock
 from pudu.plating import Plating
@@ -335,6 +336,144 @@ class TestPlateLayout(unittest.TestCase):
 
         self.assertEqual(len(dil_layout['dilution_1']['wells']), 3)
         self.assertEqual(len(agar_layout['dilution_1']['wells']), 12)
+
+
+# ---------------------------------------------------------------------------
+# 6. Plating JSON outputs
+# ---------------------------------------------------------------------------
+
+class TestPlatingOutputs(unittest.TestCase):
+
+    def test_well_name_from_index_column_major(self):
+        from pudu.plating import Plating
+        self.assertEqual(Plating._well_name_from_index(0), 'A1')
+        self.assertEqual(Plating._well_name_from_index(1), 'B1')
+        self.assertEqual(Plating._well_name_from_index(7), 'H1')
+        self.assertEqual(Plating._well_name_from_index(8), 'A2')
+        self.assertEqual(Plating._well_name_from_index(48), 'A7')
+
+    def test_format_construct_name_list(self):
+        from pudu.plating import Plating
+        self.assertEqual(Plating._format_construct_name(['DH5alpha', 'plasmid_1']), 'DH5alpha, plasmid_1')
+
+    def test_format_construct_name_string(self):
+        from pudu.plating import Plating
+        self.assertEqual(Plating._format_construct_name('construct'), 'construct')
+
+    def test_dilution_ratio_label(self):
+        p = make_plating(dilution_factor=10)
+        self.assertEqual(p._dilution_ratio_label(1), '1/10')
+        self.assertEqual(p._dilution_ratio_label(2), '1/100')
+
+    def test_dilution_ratio_label_factor_5(self):
+        p = make_plating(dilution_factor=5)
+        self.assertEqual(p._dilution_ratio_label(1), '1/5')
+        self.assertEqual(p._dilution_ratio_label(2), '1/25')
+
+    def test_build_agar_plate_map_structure(self):
+        p = make_plating(THREE_CONSTRUCTS, replicates=2, number_dilutions=2)
+        plates = p.build_agar_plate_map()
+        self.assertIn('plate_1', plates)
+        self.assertIn('dilution_1', plates['plate_1'])
+        self.assertIn('dilution_2', plates['plate_1'])
+        self.assertIn('ratio', plates['plate_1']['dilution_1'])
+        self.assertIn('wells', plates['plate_1']['dilution_1'])
+
+    def test_build_agar_plate_map_ratio_labels(self):
+        p = make_plating(THREE_CONSTRUCTS, number_dilutions=2, dilution_factor=10)
+        plates = p.build_agar_plate_map()
+        self.assertEqual(plates['plate_1']['dilution_1']['ratio'], '1/10')
+        self.assertEqual(plates['plate_1']['dilution_2']['ratio'], '1/100')
+
+    def test_build_agar_plate_map_well_positions(self):
+        """
+        3 constructs, 2 replicates: dilution_1 wells are A1-F1 (indices 0-5),
+        dilution_2 wells start at index 48 (A7).
+        """
+        p = make_plating(THREE_CONSTRUCTS, replicates=2, number_dilutions=2)
+        plates = p.build_agar_plate_map()
+        dil1_wells = plates['plate_1']['dilution_1']['wells']
+        dil2_wells = plates['plate_1']['dilution_2']['wells']
+        self.assertIn('A1', dil1_wells)
+        self.assertIn('B1', dil1_wells)
+        self.assertEqual(len(dil1_wells), 6)  # 3 constructs × 2 replicates
+        self.assertIn('A7', dil2_wells)
+
+    def test_build_agar_plate_map_replicate_numbering(self):
+        p = make_plating(THREE_CONSTRUCTS, replicates=2, number_dilutions=1)
+        plates = p.build_agar_plate_map()
+        wells = plates['plate_1']['dilution_1']['wells']
+        # construct 0 → A1 (rep 1), B1 (rep 2)
+        self.assertEqual(wells['A1']['replicate'], 1)
+        self.assertEqual(wells['B1']['replicate'], 2)
+        self.assertEqual(wells['A1']['source_well'], 'A1')
+
+    def test_build_agar_plate_map_construct_name(self):
+        p = make_plating(SINGLE_CONSTRUCT, number_dilutions=1)
+        plates = p.build_agar_plate_map()
+        well = plates['plate_1']['dilution_1']['wells']['A1']
+        self.assertEqual(well['construct'], 'DH5alpha, plasmid_1')
+
+    def test_build_agar_plate_map_two_plates_when_overflow(self):
+        """
+        When number_constructs * replicates > 48 with 2 dilutions, each
+        dilution step gets its own plate.
+        """
+        locs = {f'A{i+1}': [f'construct_{i}'] for i in range(25)}
+        p = make_plating(locs, replicates=2, number_dilutions=2)
+        # 25 * 2 = 50 wells per dilution > 48 → two plates
+        plates = p.build_agar_plate_map()
+        self.assertIn('plate_1', plates)
+        self.assertIn('plate_2', plates)
+        self.assertIn('dilution_1', plates['plate_1'])
+        self.assertIn('dilution_2', plates['plate_2'])
+
+    def test_get_plates_json_top_level_key(self):
+        p = make_plating(THREE_CONSTRUCTS, number_dilutions=2)
+        data = p.get_plates_json()
+        self.assertIn('agar_plates', data)
+        self.assertIsInstance(data['agar_plates'], dict)
+
+    def test_write_plates_json_creates_valid_file(self):
+        import tempfile, os
+        p = make_plating(THREE_CONSTRUCTS, replicates=2, number_dilutions=2)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, 'plating_layout.json')
+            returned = p.write_plates_json(path)
+            self.assertTrue(os.path.exists(path))
+            with open(path) as f:
+                loaded = json.load(f)
+            self.assertEqual(loaded, returned)
+            self.assertIn('agar_plates', loaded)
+
+    def test_write_plates_excel_creates_valid_file(self):
+        import tempfile, os, zipfile
+        p = make_plating(THREE_CONSTRUCTS, replicates=2, number_dilutions=2)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, 'plating_layout.xlsx')
+            p.write_plates_excel(path)
+            self.assertTrue(os.path.exists(path))
+            self.assertGreater(os.path.getsize(path), 0)
+            self.assertTrue(zipfile.is_zipfile(path))
+
+    def test_write_plates_excel_two_plates(self):
+        import tempfile, os, zipfile
+        locs = {f'A{i+1}': [f'construct_{i}'] for i in range(25)}
+        p = make_plating(locs, replicates=2, number_dilutions=2)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, 'plating_layout.xlsx')
+            p.write_plates_excel(path)
+            self.assertTrue(os.path.exists(path))
+            self.assertTrue(zipfile.is_zipfile(path))
+
+    def test_write_plates_excel_single_dilution(self):
+        import tempfile, os, zipfile
+        p = make_plating(THREE_CONSTRUCTS, number_dilutions=1)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, 'plating_layout.xlsx')
+            p.write_plates_excel(path)
+            self.assertTrue(os.path.exists(path))
+            self.assertTrue(zipfile.is_zipfile(path))
 
 
 if __name__ == '__main__':

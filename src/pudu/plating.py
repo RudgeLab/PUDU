@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Dict, List
 from dataclasses import dataclass
 from pudu import colors, SmartPipette
@@ -50,6 +51,7 @@ class Plating():
                  aspiration_rate: float = 0.5,
                  dispense_rate: float = 1,
                  bacterium_locations: Optional[Dict] = None,
+                 protocol_name: str = 'plating_layout',
                  **kwargs):
 
         # Collect kwargs for merging
@@ -85,7 +87,8 @@ class Plating():
             'lb_tube_position': lb_tube_position,
             'aspiration_rate': aspiration_rate,
             'dispense_rate': dispense_rate,
-            'bacterium_locations': bacterium_locations
+            'bacterium_locations': bacterium_locations,
+            'protocol_name': protocol_name,
         }
 
         kwargs_params.update(kwargs)
@@ -133,6 +136,7 @@ class Plating():
         self.bacterium_locations = self._merged_params['bacterium_locations']
         self.number_constructs = len(self.bacterium_locations)
         self.max_colonies = self._merged_params['max_colonies']
+        self.protocol_name = self._merged_params['protocol_name']
 
         self.total_colonies = self.number_constructs * self.number_dilutions * self.replicates
 
@@ -203,7 +207,8 @@ class Plating():
             'lb_tube_position': 0,
             'aspiration_rate': 0.5,
             'dispense_rate': 1,
-            'bacterium_locations': None
+            'bacterium_locations': None,
+            'protocol_name': 'plating_layout',
         }
 
         # Start with defaults
@@ -288,6 +293,144 @@ class Plating():
             # Single dilution step
             layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
         return layout
+
+    @staticmethod
+    def _well_name_from_index(idx: int) -> str:
+        row = idx % 8
+        col = idx // 8
+        return f"{'ABCDEFGH'[row]}{col + 1}"
+
+    @staticmethod
+    def _format_construct_name(construct_names) -> str:
+        if isinstance(construct_names, (list, tuple)):
+            return ', '.join(str(x) for x in construct_names)
+        return str(construct_names)
+
+    def _dilution_ratio_label(self, dilution_step: int) -> str:
+        factor = self.dilution_factor ** dilution_step
+        factor_int = int(factor) if float(factor).is_integer() else factor
+        return f"1/{factor_int}"
+
+    def build_agar_plate_map(self) -> Dict:
+        constructs = list(self.bacterium_locations.items())
+        agar_wells_per = self.number_constructs * self.replicates
+        plates: Dict = {}
+
+        for dilution_step in range(1, self.number_dilutions + 1):
+            if self.number_dilutions == 2 and agar_wells_per > 48:
+                plate_key = f'plate_{dilution_step}'
+                start_idx = 0
+            else:
+                plate_key = 'plate_1'
+                start_idx = 0 if dilution_step == 1 else 48
+
+            ratio = self._dilution_ratio_label(dilution_step)
+            dilution_key = f'dilution_{dilution_step}'
+
+            if plate_key not in plates:
+                plates[plate_key] = {}
+            plates[plate_key][dilution_key] = {'ratio': ratio, 'wells': {}}
+
+            for construct_idx, (source_well, construct_names) in enumerate(constructs):
+                name_str = self._format_construct_name(construct_names)
+                for replicate in range(self.replicates):
+                    well_idx = start_idx + construct_idx * self.replicates + replicate
+                    well_name = self._well_name_from_index(well_idx)
+                    plates[plate_key][dilution_key]['wells'][well_name] = {
+                        'construct': name_str,
+                        'source_well': source_well,
+                        'replicate': replicate + 1,
+                    }
+
+        return plates
+
+    def get_plates_json(self) -> Dict:
+        return {'agar_plates': self.build_agar_plate_map()}
+
+    def write_plates_json(self, output_path: str) -> Dict:
+        data = self.get_plates_json()
+        with open(output_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        return data
+
+    def write_plates_excel(self, output_path: str) -> None:
+        try:
+            import xlsxwriter
+        except ImportError:
+            raise ImportError("xlsxwriter is required. Install with: pip install xlsxwriter")
+
+        plates_data = self.build_agar_plate_map()
+        workbook = xlsxwriter.Workbook(output_path)
+        worksheet = workbook.add_worksheet('Agar Plates')
+
+        title_fmt = workbook.add_format({
+            'bold': True, 'font_size': 12,
+            'bg_color': '#4472C4', 'font_color': 'white',
+            'align': 'center', 'valign': 'vcenter', 'border': 1,
+        })
+        header_fmt = workbook.add_format({
+            'bold': True, 'bg_color': '#D9E1F2',
+            'align': 'center', 'valign': 'vcenter', 'border': 1,
+        })
+        well_fmts = {
+            1: workbook.add_format({
+                'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+                'bg_color': '#BDD7EE', 'border': 1,
+            }),
+            2: workbook.add_format({
+                'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+                'bg_color': '#FCE4D6', 'border': 1,
+            }),
+        }
+        empty_fmt = workbook.add_format({'bg_color': '#F2F2F2', 'border': 1})
+
+        worksheet.set_column(0, 0, 4)
+        worksheet.set_column(1, 12, 20)
+
+        current_row = 0
+
+        for plate_idx, (plate_key, dilutions) in enumerate(plates_data.items()):
+            if plate_idx > 0:
+                current_row += 3
+
+            plate_num = plate_key.split('_')[1]
+            ratio_parts = [
+                f"Dilution {dk.split('_')[1]}: {dd['ratio']}"
+                for dk, dd in dilutions.items()
+            ]
+            title = f"Plate {plate_num} · " + " | ".join(ratio_parts)
+
+            worksheet.merge_range(current_row, 0, current_row, 12, title, title_fmt)
+            worksheet.set_row(current_row, 20)
+            current_row += 1
+
+            worksheet.write(current_row, 0, '', header_fmt)
+            for col in range(1, 13):
+                worksheet.write(current_row, col, col, header_fmt)
+            current_row += 1
+
+            for row_letter in 'ABCDEFGH':
+                worksheet.write(current_row, 0, row_letter, header_fmt)
+                worksheet.set_row(current_row, 30)
+                for col_num in range(1, 13):
+                    well_name = f"{row_letter}{col_num}"
+                    cell_written = False
+                    for dilution_key, dilution_data in dilutions.items():
+                        if well_name in dilution_data['wells']:
+                            w = dilution_data['wells'][well_name]
+                            dilution_num = int(dilution_key.split('_')[1])
+                            well_fmt = well_fmts.get(dilution_num, well_fmts[1])
+                            label = w['construct'].split(', ')[0]
+                            if self.replicates > 1:
+                                label += f"\nR{w['replicate']}"
+                            worksheet.write(current_row, col_num, label, well_fmt)
+                            cell_written = True
+                            break
+                    if not cell_written:
+                        worksheet.write(current_row, col_num, '', empty_fmt)
+                current_row += 1
+
+        workbook.close()
 
     def run(self, protocol: protocol_api.ProtocolContext):
         #Labware
@@ -441,6 +584,17 @@ class Plating():
         protocol.comment("\n=== Plating protocol complete ===")
         protocol.comment(f"Plated {self.number_constructs} constructs with {self.replicates} replicates")
         protocol.comment(f"Created a total of {self.total_colonies} colonies")
+
+        if protocol.is_simulating():
+            try:
+                output_path = f'{self.protocol_name}.json'
+                self.write_plates_json(output_path)
+                protocol.comment(f"Generated {output_path}")
+                excel_path = f'{self.protocol_name}.xlsx'
+                self.write_plates_excel(excel_path)
+                protocol.comment(f"Generated {excel_path}")
+            except Exception as e:
+                protocol.comment(f"Could not export plating layout: {e}")
 
 
 @dataclass
