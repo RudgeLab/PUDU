@@ -34,7 +34,7 @@ cycled 75 times between 42 °C (digest) and 16 °C (ligate).
 Generate and simulate the protocol::
 
     python -m pudu.generate_protocol \
-        scripts/manual/manual_assembly_input.json \
+        assembly_input.json \
         -o assembly_protocol.py \
         --protocol-type assembly
 
@@ -54,7 +54,7 @@ with recovery media.
 Generate and simulate::
 
     python -m pudu.generate_protocol \
-        scripts/manual/manual_transformation_input.json \
+        transformation_spec.json \
         -o transformation_protocol.py \
         --protocol-type transformation \
         --plasmid-locations transformation_input.json
@@ -89,15 +89,15 @@ If you don't have access to an OT-2, PUDU can generate human-readable
 Markdown guides for each stage::
 
     python scripts/manual/generate_manual_assembly_protocol.py \
-        --input  scripts/manual/manual_assembly_input.json \
+        --input  assembly_input.json \
         --output scripts/manual/manual_assembly_protocol.md
 
     python scripts/manual/generate_manual_transformation_protocol.py \
-        --input  scripts/manual/manual_transformation_input.json \
+        --input  transformation_spec.json \
         --output scripts/manual/manual_transformation_protocol.md
 
     python scripts/manual/generate_manual_plating_protocol.py \
-        --input  scripts/manual/manual_plating_input.json \
+        --input  plating_input.json \
         --output scripts/manual/manual_plating_protocol.md
 
 Input file formats
