@@ -1,0 +1,52 @@
+{
+  "bacterium_locations": {
+    "A1": [
+      "composite_strain_1",
+      "Competent_Cell_DH5alpha",
+      "composite_plasmid_1",
+      "Media_1"
+    ],
+    "B1": [
+      "composite_strain_1",
+      "Competent_Cell_DH5alpha",
+      "composite_plasmid_1",
+      "Media_1"
+    ],
+    "C1": [
+      "composite_strain_2",
+      "Competent_Cell_DH5alpha",
+      "composite_plasmid_2",
+      "Media_1"
+    ],
+    "D1": [
+      "composite_strain_2",
+      "Competent_Cell_DH5alpha",
+      "composite_plasmid_2",
+      "Media_1"
+    ],
+    "E1": [
+      "composite_strain_3",
+      "Competent_Cell_BL21",
+      "composite_plasmid_1",
+      "Media_1"
+    ],
+    "F1": [
+      "composite_strain_3",
+      "Competent_Cell_BL21",
+      "composite_plasmid_1",
+      "Media_1"
+    ],
+    "G1": [
+      "composite_strain_4",
+      "Competent_Cell_BL21",
+      "composite_plasmid_2",
+      "Media_1"
+    ],
+    "H1": [
+      "composite_strain_4",
+      "Competent_Cell_BL21",
+      "composite_plasmid_2",
+      "Media_1"
+    ]
+  }
+}

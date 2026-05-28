@@ -1,0 +1,22 @@
+[
+    {
+        "Strain": "https://SBOL2Build.org/composite_strain_1/1",
+        "Chassis": "https://sbolcanvas.org/DH5alpha/1",
+        "Plasmids": ["https://SBOL2Build.org/composite_plasmid_1/1"]
+    },
+    {
+        "Strain": "https://SBOL2Build.org/composite_strain_2/1",
+        "Chassis": "https://sbolcanvas.org/DH5alpha/1",
+        "Plasmids": ["https://SBOL2Build.org/composite_plasmid_2/1"]
+    },
+    {
+        "Strain": "https://SBOL2Build.org/composite_strain_3/1",
+        "Chassis": "https://sbolcanvas.org/BL21/1",
+        "Plasmids": ["https://SBOL2Build.org/composite_plasmid_1/1"]
+    },
+    {
+        "Strain": "https://SBOL2Build.org/composite_strain_4/1",
+        "Chassis": "https://sbolcanvas.org/BL21/1",
+        "Plasmids": ["https://SBOL2Build.org/composite_plasmid_2/1"]
+    }
+]
