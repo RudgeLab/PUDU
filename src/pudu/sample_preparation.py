@@ -23,6 +23,29 @@ class SamplePreparation(ABC):
                  use_temperature_module: bool = False,
                  temperature: int = 4,
                  **kwargs):
+        """
+        Initialize shared sample preparation hardware parameters.
+
+        Args:
+            test_labware: Opentrons labware definition string for the destination
+                plate (e.g. a flat-bottom 96-well plate for absorbance readings).
+            test_position: Deck slot string for the destination plate.
+            aspiration_rate: Aspiration speed as a fraction of the pipette's
+                maximum flow rate (``1.0`` = full speed).
+            dispense_rate: Dispense speed as a fraction of the pipette's maximum
+                flow rate.
+            tiprack_labware: Opentrons labware definition string for the tip rack.
+            tiprack_position: Deck slot string for the tip rack.
+            starting_tip: Well name of the first tip to use (e.g. ``'B1'``).
+                When ``None``, starts from ``'A1'``.
+            pipette: Opentrons pipette model string (e.g. ``'p300_single_gen2'``).
+            pipette_position: Mount side for the pipette (``'left'`` or ``'right'``).
+            use_temperature_module: If ``True``, load the source rack on a
+                temperature module instead of a plain tube rack.
+            temperature: Target temperature in °C for the temperature module.
+                Only used when ``use_temperature_module=True``.
+            **kwargs: Additional keyword arguments passed to subclasses.
+        """
         self.test_labware = test_labware
         self.test_position = test_position
         self.aspiration_rate = aspiration_rate
@@ -110,8 +133,12 @@ class SamplePreparation(ABC):
 
 class PlateSamples(SamplePreparation):
     """
-    Distributes multiple samples across a plate with replicates.
-    Each sample gets distributed to a specified number of wells.
+    Distribute multiple samples across a 96-well plate with column-grouped replicates.
+
+    Each sample is dispensed into ``replicates`` consecutive wells within the same
+    column group. Samples are loaded sequentially from a source tube rack (or
+    temperature module), and the plate layout is recorded in ``result_dict`` for
+    downstream analysis.
     """
 
     def __init__(self, samples: List[str],
@@ -124,6 +151,29 @@ class PlateSamples(SamplePreparation):
                  tube_rack_position: str = '3',
                  tube_rack_labware: str = 'opentrons_24_tuberack_nest_1.5ml_snapcap',
                  **kwargs):
+        """
+        Initialize PlateSamples protocol.
+
+        Args:
+            samples: Ordered list of sample names. Each name maps to one source
+                tube and one well group on the destination plate.
+            sample_volume: Volume to dispense into each replicate well, in µL.
+            sample_stock_volume: Volume of each sample stock tube, in µL. Used
+                for liquid tracking on the Opentrons deck visualiser.
+            replicates: Number of replicate wells per sample on the destination
+                plate.
+            starting_slot: 1-based index of the first column slot to use on the
+                destination plate. Allows pre-filling some slots before this
+                protocol runs.
+            temp_module_position: Deck slot string for the temperature module
+                (used when ``use_temperature_module=True``).
+            temp_module_labware: Opentrons labware definition string for the
+                aluminum block on the temperature module.
+            tube_rack_position: Deck slot string for the source tube rack.
+            tube_rack_labware: Opentrons labware definition string for the source
+                tube rack.
+            **kwargs: Passed to ``SamplePreparation.__init__``.
+        """
         super().__init__(**kwargs)
         self.samples = samples
         self.sample_volume = sample_volume
@@ -139,6 +189,21 @@ class PlateSamples(SamplePreparation):
         self.plate_layout = {}
 
     def run(self, protocol: protocol_api.ProtocolContext):
+        """
+        Execute the sample distribution protocol on the OT-2.
+
+        Loads source tubes, validates plate capacity, then distributes each
+        sample into ``replicates`` wells using the pipette ``distribute`` command
+        (single tip per sample). Results are stored in ``result_dict`` with keys
+        ``'source_positions'`` and ``'plate_layout'``.
+
+        Args:
+            protocol: Opentrons ``ProtocolContext`` provided by the OT-2 runtime.
+
+        Raises:
+            ValueError: If the number of samples exceeds source rack or plate
+                slot capacity.
+        """
         # Load labware
         tiprack, pipette, plate = self._load_standard_labware(protocol)
         source_rack = self._load_source_labware(
@@ -198,8 +263,16 @@ class PlateSamples(SamplePreparation):
 
 class PlateWithGradient(SamplePreparation):
     """
-    Creates serial dilution gradients of an inducer with a sample.
-    Implements proper well-to-well serial dilution.
+    Create a serial inducer-concentration gradient across a 96-well plate.
+
+    The first well in each replicate row receives a stock mixture of sample and
+    inducer at ``initial_concentration``. Each subsequent well is diluted by
+    ``dilution_factor`` through sequential well-to-well transfers, producing a
+    ``dilution_steps``-point gradient. The sample serves as the diluent.
+
+    Typical use case: dose-response characterisation of a genetic circuit where
+    the sample is a cell culture and the inducer is a small molecule (e.g. IPTG,
+    arabinose).
     """
 
     def __init__(self,
@@ -211,8 +284,8 @@ class PlateWithGradient(SamplePreparation):
                  replicates: int = 3,
                  starting_row: str = 'A',
                  final_well_volume: float = 200,
-                 initial_mix_ratio: float = 0.5,  # fraction of inducer in initial mix
-                 transfer_volume: float = 100,  # volume transferred in each dilution step
+                 initial_mix_ratio: float = 0.5,
+                 transfer_volume: float = 100,
                  sample_stock_volume: float = 1200,
                  inducer_stock_volume: float = 1200,
                  temp_module_position: str = '1',
@@ -220,7 +293,41 @@ class PlateWithGradient(SamplePreparation):
                  tube_rack_position: str = '3',
                  tube_rack_labware: str = 'opentrons_24_tuberack_nest_1.5ml_snapcap',
                  **kwargs):
+        """
+        Initialize PlateWithGradient protocol.
 
+        Args:
+            sample_name: Human-readable name for the sample (e.g. ``'DH5alpha_GFP'``).
+                Used for liquid tracking labels.
+            inducer_name: Human-readable name for the inducer (e.g. ``'IPTG'``).
+            initial_concentration: Inducer concentration in the first well, in
+                whatever units the user chooses (e.g. mM, ng/µL). Used only for
+                labelling ``concentration_map``; does not affect volumes.
+            dilution_factor: Factor by which concentration decreases at each step
+                (e.g. ``2.0`` for 2-fold dilutions).
+            dilution_steps: Number of dilution transfers after the initial well,
+                giving ``dilution_steps + 1`` total wells per replicate row.
+            replicates: Number of replicate rows on the plate.
+            starting_row: Letter of the first plate row to use (e.g. ``'A'``).
+            final_well_volume: Target total volume in each well after all additions,
+                in µL. The diluent (sample) pre-fill volume is
+                ``final_well_volume − transfer_volume``.
+            initial_mix_ratio: Fraction of ``final_well_volume`` that is inducer
+                in the first well (e.g. ``0.5`` → equal parts inducer and sample).
+            transfer_volume: Volume moved from each well to the next during the
+                serial dilution, in µL.
+            sample_stock_volume: Total volume of the sample stock tube, in µL.
+                Used for liquid tracking.
+            inducer_stock_volume: Total volume of the inducer stock tube, in µL.
+                Used for liquid tracking.
+            temp_module_position: Deck slot string for the temperature module.
+            temp_module_labware: Opentrons labware definition string for the
+                aluminum block on the temperature module.
+            tube_rack_position: Deck slot string for the source tube rack.
+            tube_rack_labware: Opentrons labware definition string for the source
+                tube rack.
+            **kwargs: Passed to ``SamplePreparation.__init__``.
+        """
         super().__init__(**kwargs)
         self.sample_name = sample_name
         self.inducer_name = inducer_name

@@ -1,18 +1,287 @@
 """
 Protocol Generator for PUDU
+============================
 
-Generates standalone Opentrons protocol files from JSON inputs.
-The generated protocols can be uploaded directly to the Opentrons App.
+Generates standalone Opentrons OT-2 protocol ``.py`` files from JSON inputs.
+The generated files can be uploaded directly to the Opentrons App or simulated
+on a laptop to verify the deck layout before running on the robot.
 
-Usage:
-    # Assembly protocols
-    python -m pudu.generate_protocol input.json [params.json] -o output.py --protocol-type assembly
+This module supports two usage modes:
 
-    # Transformation protocols
-    python -m pudu.generate_protocol input.json [params.json] -o output.py --protocol-type transformation
+* **Command-line** (recommended) — run as ``python -m pudu.generate_protocol``
+* **Python API** — call :func:`generate_protocol` programmatically from a script
+  or notebook (see the API section below)
 
-    # Plating protocols
-    python -m pudu.generate_protocol input.json [params.json] -o output.py --protocol-type plating
+
+Overview of the three protocol stages
+--------------------------------------
+
+A typical PUDU synthetic-biology workflow has three sequential stages that each
+produce a robot protocol file:
+
+1. **Assembly** — Golden Gate DNA assembly in a thermocycler.  Outputs
+   ``transformation_input.json`` (well locations of assembled products).
+2. **Transformation** — Heat-shock transformation of assembled DNA into competent
+   bacteria.  Outputs ``plating_input.json`` (thermocycler well locations of
+   transformed cultures).
+3. **Plating** — Serial dilution and spot-plating onto agar plates.
+
+
+Input file formats
+-------------------
+
+**Assembly input** (SBOL-style list of constructs)::
+
+    [
+        {
+            "Product":            "https://SBOL2Build.org/composite_1/1",
+            "Backbone":           "https://sbolcanvas.org/pSB1C3/1",
+            "PartsList": [
+                "https://sbolcanvas.org/J23101/1",
+                "https://sbolcanvas.org/B0034/1",
+                "https://sbolcanvas.org/GFP/1",
+                "https://sbolcanvas.org/B0015/1"
+            ],
+            "Restriction Enzyme": "https://SBOL2Build.org/BsaI/1"
+        }
+    ]
+
+**Transformation input** (list of strain/chassis/plasmid mappings)::
+
+    [
+        {
+            "Strain":   "https://SBOL2Build.org/strain_GFP/1",
+            "Chassis":  "https://sbolcanvas.org/DH5alpha/1",
+            "Plasmids": ["https://SBOL2Build.org/composite_1/1"]
+        }
+    ]
+
+**Plating input** (bacterium locations from transformation output)::
+
+    {
+        "bacterium_locations": {
+            "A1": "https://SBOL2Build.org/composite_1/1",
+            "B1": "https://SBOL2Build.org/composite_2/1"
+        }
+    }
+
+**Advanced parameters** (optional ``json_params`` file — any protocol type)::
+
+    {
+        "replicates": 2,
+        "volume_part": 3,
+        "initial_tip": "B1",
+        "protocol_name": "GFP_RFP_assembly"
+    }
+
+**Metadata** (optional ``--metadata`` file — any protocol type)::
+
+    {
+        "protocolName": "GFP RFP Assembly",
+        "author": "Oscar Rodriguez",
+        "description": "Loop assembly of GFP and RFP constructs",
+        "apiLevel": "2.21"
+    }
+
+All four keys are optional; omitted keys fall back to the defaults in
+``DEFAULT_METADATA``.
+
+
+Full automated OT-2 workflow (terminal commands)
+-------------------------------------------------
+
+Run all commands from the repository root (the directory containing ``src/``).
+
+**Step 1 — Generate the assembly protocol**::
+
+    python -m pudu.generate_protocol \\
+        scripts/manual/manual_assembly_input.json \\
+        -o assembly_protocol.py \\
+        --protocol-type assembly
+
+Pass a parameters file as the **second positional argument** to override
+defaults (volumes, replicates, starting tip, etc.)::
+
+    python -m pudu.generate_protocol \\
+        scripts/manual/manual_assembly_input.json \\
+        my_params.json \\
+        -o assembly_protocol.py \\
+        --protocol-type assembly
+
+Override the Opentrons metadata (protocol name shown in the app, author,
+API level) with ``--metadata``::
+
+    python -m pudu.generate_protocol \\
+        scripts/manual/manual_assembly_input.json \\
+        -o assembly_protocol.py \\
+        --protocol-type assembly \\
+        --metadata my_metadata.json
+
+Force a specific assembly subtype with ``--assembly-type`` (useful when
+auto-detection is ambiguous)::
+
+    python -m pudu.generate_protocol \\
+        scripts/manual/manual_assembly_input.json \\
+        -o domestication_protocol.py \\
+        --protocol-type assembly \\
+        --assembly-type Domestication
+
+**Step 1a — Simulate the assembly protocol to produce plasmid locations**::
+
+    opentrons_simulate assembly_protocol.py
+
+This writes ``transformation_input.json`` in the current directory.
+
+**Step 2 — Generate the transformation protocol**
+
+Without assembly output (plasmids loaded manually onto the temperature module)::
+
+    python -m pudu.generate_protocol \\
+        scripts/manual/manual_transformation_input.json \\
+        -o transformation_protocol.py \\
+        --protocol-type transformation
+
+With assembly output (plasmids sourced from the 96-well PCR plate at the
+exact well positions recorded by the assembly simulation)::
+
+    python -m pudu.generate_protocol \\
+        scripts/manual/manual_transformation_input.json \\
+        -o transformation_protocol.py \\
+        --protocol-type transformation \\
+        --plasmid-locations transformation_input.json
+
+**Step 2a — Simulate to produce bacteria locations**::
+
+    opentrons_simulate transformation_protocol.py
+
+This writes ``plating_input.json`` in the current directory.
+
+**Step 3 — Generate the plating protocol**::
+
+    python -m pudu.generate_protocol \\
+        plating_input.json \\
+        -o plating_protocol.py \\
+        --protocol-type plating
+
+**Step 3a — Simulate to verify the agar plate map**::
+
+    opentrons_simulate plating_protocol.py
+
+This writes ``plating_layout.json`` and ``plating_layout.xlsx`` showing which
+well on which agar plate receives which construct at which dilution.
+
+
+Manual (bench) protocol generation
+------------------------------------
+
+PUDU can also produce human-readable **Markdown** protocols for manual bench
+work, without any OT-2 involvement.
+
+**Manual assembly protocol**::
+
+    python scripts/manual/generate_manual_assembly_protocol.py \\
+        --input  scripts/manual/manual_assembly_input.json \\
+        --output scripts/manual/manual_assembly_protocol.md
+
+**Manual transformation protocol**::
+
+    python scripts/manual/generate_manual_transformation_protocol.py \\
+        --input  scripts/manual/manual_transformation_input.json \\
+        --output scripts/manual/manual_transformation_protocol.md
+
+**Manual plating protocol**::
+
+    python scripts/manual/generate_manual_plating_protocol.py \\
+        --input  scripts/manual/manual_plating_input.json \\
+        --output scripts/manual/manual_plating_protocol.md
+
+
+Python API usage
+-----------------
+
+You can call :func:`generate_protocol` directly from a script or Jupyter
+notebook and write the result yourself::
+
+    import json
+    from pudu.generate_protocol import generate_protocol, detect_protocol_type
+
+    with open("scripts/manual/manual_assembly_input.json") as f:
+        data = json.load(f)
+
+    protocol_type, assembly_subtype = detect_protocol_type(data)
+
+    code = generate_protocol(
+        protocol_data=data,
+        protocol_type=protocol_type,
+        assembly_subtype=assembly_subtype,
+        json_params={"replicates": 2, "volume_part": 3},
+    )
+
+    with open("assembly_protocol.py", "w") as f:
+        f.write(code)
+
+
+CLI flag reference
+-------------------
+
+Positional arguments (order matters, both must come before any flags):
+
+``input``
+    **Required.** Path to the primary protocol data JSON file (assembly list,
+    transformation list, or plating dict).
+
+``json_params``
+    **Optional.** Path to an advanced parameters JSON file.  Must be the
+    *second positional argument* — placed immediately after ``input`` and
+    before any ``--flag``.  Keys must match the ``__init__`` parameter names
+    of the target protocol class (see the parameter reference block appended
+    to every generated ``.py`` file for the full list).
+
+Named flags:
+
+``-o`` / ``--output``
+    **Required.** Destination path for the generated ``.py`` protocol file
+    (e.g. ``-o assembly_protocol.py``).
+
+``--protocol-type``
+    Choices: ``assembly``, ``transformation``, ``plating``.
+    When omitted, the type is auto-detected from the input JSON structure
+    (see *Auto-detect rules* below).
+
+``--assembly-type``
+    Choices: ``SBOL``, ``Manual``, ``Domestication``.
+    Only relevant when ``--protocol-type assembly`` is used.  When omitted,
+    the subtype is auto-detected from the assembly input keys.  Pass
+    explicitly when the input is ambiguous (e.g. a Domestication JSON whose
+    keys happen to overlap with SBOL format).
+
+``--plasmid-locations``
+    Path to the ``transformation_input.json`` produced by simulating an
+    assembly protocol.  When provided, the generated transformation protocol
+    reads DNA directly from the assembly output plate at its fixed well
+    positions instead of sequentially from the temperature module.  Only
+    applicable with ``--protocol-type transformation``.
+
+``--metadata``
+    Path to a JSON file with Opentrons protocol metadata.  Valid keys:
+    ``protocolName``, ``author``, ``description``, ``apiLevel``.  Any key
+    omitted here falls back to the default in ``DEFAULT_METADATA``.  The
+    metadata appears in the Opentrons App header and simulation output.
+
+
+Auto-detect rules
+------------------
+
+When ``--protocol-type`` is omitted, :func:`detect_protocol_type` inspects the
+JSON keys to guess the type:
+
+* List with ``"Product"`` / ``"Backbone"`` / ``"PartsList"`` / ``"Restriction Enzyme"`` → **SBOL assembly**
+* List with ``"receiver"`` key → **Manual/combinatorial assembly**
+* List with ``"parts"`` / ``"backbone"`` / ``"restriction_enzyme"`` keys → **Domestication assembly**
+* List with ``"Strain"`` / ``"Chassis"`` / ``"Plasmids"`` → **Transformation**
+* Dict with ``"bacterium_locations"`` key → **Plating**
+
+Pass ``--protocol-type`` explicitly when the auto-detection is ambiguous.
 """
 
 import json
@@ -305,18 +574,49 @@ def generate_protocol(
     plasmid_locations: Optional[Dict] = None
 ) -> str:
     """
-    Generate a complete Opentrons protocol file as a string.
+    Generate a complete Opentrons protocol file as a Python source string.
+
+    The returned string is a self-contained ``.py`` file that can be written
+    to disk and uploaded to the Opentrons App or passed to
+    ``opentrons_simulate``.  It contains:
+
+    * The protocol data embedded as a Python literal.
+    * An optional ``json_params`` dict (when provided) embedded as a literal.
+    * An optional ``plasmid_locations`` dict (transformation only).
+    * A ``metadata`` dict for the Opentrons App.
+    * A ``run()`` function that instantiates the correct PUDU class and calls
+      its ``.run()`` method.
+    * A commented parameter-reference block at the end listing every available
+      constructor parameter with its type and default value.
 
     Args:
-        protocol_data: Protocol data (list for assemblies, or dict for other protocols)
-        json_params: Optional advanced parameters dictionary
-        metadata: Optional metadata dictionary (merged with defaults)
-        protocol_type: Type of protocol ('assembly', 'transformation', 'plating')
-        assembly_subtype: Subtype for assembly protocols ('SBOL', 'Manual', 'Domestication')
-        plasmid_locations: Optional dict mapping plasmid URIs to well locations (from assembly output)
+        protocol_data: The primary protocol payload.  For assembly and
+            transformation protocols this is a list of dicts; for plating it
+            is a dict with a ``"bacterium_locations"`` key.
+        json_params: Dict of parameter overrides to embed in the generated
+            file.  Keys must match the ``__init__`` parameters of the target
+            protocol class.  These are passed as ``json_params=json_params``
+            in the generated constructor call.
+        metadata: Dict of Opentrons metadata keys to merge over the defaults
+            in ``DEFAULT_METADATA``.  Valid keys: ``protocolName``,
+            ``author``, ``description``, ``apiLevel``.
+        protocol_type: One of ``'assembly'``, ``'transformation'``, or
+            ``'plating'``.
+        assembly_subtype: Required when ``protocol_type='assembly'``.  One of
+            ``'SBOL'``, ``'Manual'``, or ``'Domestication'``.
+        plasmid_locations: Dict mapping plasmid URIs (strings) to lists of
+            well names, as produced by simulating an assembly protocol
+            (``transformation_input.json``).  When provided, the generated
+            transformation protocol sources DNA from the assembly output plate
+            at its fixed positions instead of sequentially from the temp
+            module.  Ignored for non-transformation protocol types.
 
     Returns:
-        Complete protocol file as a string
+        The complete protocol file as a Python source string.
+
+    Raises:
+        ValueError: If ``protocol_type`` is not recognised, or if
+            ``assembly_subtype`` is ``None`` when ``protocol_type='assembly'``.
     """
     # Get protocol configuration
     if protocol_type not in PROTOCOL_CONFIGS:
@@ -419,7 +719,14 @@ def generate_protocol(
     return '\n'.join(lines)
 
 def main():
-    """Command-line interface for protocol generation"""
+    """
+    Entry point for ``python -m pudu.generate_protocol``.
+
+    Parses command-line arguments, loads the input JSON files, calls
+    :func:`generate_protocol`, and writes the result to the output path.
+    See the module docstring for full usage, flag descriptions, and
+    copy-paste workflow examples.
+    """
     parser = argparse.ArgumentParser(
         description='Generate Opentrons protocol files from JSON inputs',
         formatter_class=argparse.RawDescriptionHelpFormatter,

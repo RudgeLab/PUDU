@@ -6,10 +6,39 @@ from opentrons import protocol_api
 
 class Plating():
     """
-    Creates a protocol for automated plating of transformed bacteria
+    Automated serial-dilution and spot-plating protocol for the Opentrons OT-2.
+
+    Takes transformed bacteria from a thermocycler plate, performs up to two
+    sequential 10× (or custom) dilutions in a dilution plate, and spots each
+    dilution onto an agar plate. Supports multiple replicates and automatically
+    distributes across two physical plates when colony counts exceed 96.
+
+    After simulation, writes a JSON and an Excel file mapping each agar-plate
+    well to the construct name, dilution ratio, and replicate number.
 
     Attributes:
-
+        volume_total_reaction: Volume of bacteria loaded in each thermocycler
+            source well, in µL. Used for liquid-tracking display only.
+        volume_bacteria_transfer: Volume transferred from each source well into
+            the dilution well, in µL.
+        volume_colony: Volume spotted from each dilution well onto the agar
+            plate per replicate, in µL.
+        dilution_factor: Serial dilution factor applied at each step (e.g. 10
+            for a 1:10 dilution). The LB volume pre-loaded into each dilution
+            well is ``volume_bacteria_transfer × (dilution_factor − 1)``.
+        volume_lb: Total LB volume in the stock tube, in µL. Used for liquid
+            tracking on the Opentrons deck visualiser.
+        replicates: Number of agar spots per construct per dilution step.
+        number_dilutions: Number of serial dilution steps to perform (max 2).
+        number_constructs: Number of unique constructs derived from
+            ``bacterium_locations``.
+        total_colonies: Total agar wells that will be plated
+            (``number_constructs × number_dilutions × replicates``).
+        max_colonies: Hard cap on ``total_colonies``; raises ``ValueError``
+            if exceeded.
+        bacterium_locations: Dict mapping thermocycler well names to construct
+            identifiers, e.g. ``{'A1': 'GFP_construct', 'B1': ['RFP', 'v2']}``.
+        protocol_name: Base name for output files (JSON and Excel).
     """
     def __init__(self,
                  plating_data: Optional[Dict] = None,
@@ -312,6 +341,21 @@ class Plating():
         return f"1/{factor_int}"
 
     def build_agar_plate_map(self) -> Dict:
+        """
+        Build a nested mapping of agar plate wells to construct metadata.
+
+        Returns a dict keyed by plate (``'plate_1'``, ``'plate_2'``) then by
+        dilution step (``'dilution_1'``, ``'dilution_2'``). Each dilution entry
+        contains ``'ratio'`` (e.g. ``'1/10'``) and ``'wells'``, a dict mapping
+        well names (e.g. ``'A1'``) to ``{'construct', 'source_well', 'replicate'}``.
+
+        When both dilutions fit on a single 96-well plate (≤ 48 wells per
+        dilution), they are placed in the top and bottom halves respectively.
+        When a dilution exceeds 48 wells, each step gets its own physical plate.
+
+        Returns:
+            Nested dict describing the complete agar plate layout.
+        """
         constructs = list(self.bacterium_locations.items())
         agar_wells_per = self.number_constructs * self.replicates
         plates: Dict = {}
@@ -356,15 +400,38 @@ class Plating():
         return plates
 
     def get_plates_json(self) -> Dict:
+        """Return the full agar plate map wrapped under an ``'agar_plates'`` key."""
         return {'agar_plates': self.build_agar_plate_map()}
 
     def write_plates_json(self, output_path: str) -> Dict:
+        """
+        Serialize the agar plate map to a JSON file and return the data dict.
+
+        Args:
+            output_path: Filesystem path for the output JSON file.
+
+        Returns:
+            The same dict that was written to disk.
+        """
         data = self.get_plates_json()
         with open(output_path, 'w') as f:
             json.dump(data, f, indent=2)
         return data
 
     def write_plates_excel(self, output_path: str) -> None:
+        """
+        Write a colour-coded Excel representation of the agar plate map.
+
+        Each physical plate becomes a 8 × 12 grid in the worksheet, with cells
+        colour-coded by dilution step (blue for dilution 1, orange for dilution 2)
+        and labelled with the construct name and replicate number.
+
+        Args:
+            output_path: Filesystem path for the output ``.xlsx`` file.
+
+        Raises:
+            ImportError: If ``xlsxwriter`` is not installed.
+        """
         try:
             import xlsxwriter
         except ImportError:
@@ -444,6 +511,30 @@ class Plating():
         workbook.close()
 
     def run(self, protocol: protocol_api.ProtocolContext):
+        """
+        Execute the automated plating protocol on the OT-2.
+
+        Deck layout (default positions):
+            - Slot 7/8/10/11: Thermocycler module (source bacteria in PCR plate)
+            - Slot 1: Large tip rack (200 µL, for LB distribution)
+            - Slot 9: Small tip rack (20 µL, for bacteria and agar transfers)
+            - Slot 4: Tube rack with LB stock tube
+            - Slot 2 (and 3 if needed): Dilution plate(s)
+            - Slot 5 (and 6 if needed): Agar plate(s)
+
+        Protocol steps:
+            1. Distribute LB into all dilution wells using a single large-pipette
+               tip (one aspiration height adjustment per 8-well chunk).
+            2. For each construct: transfer bacteria → dilution 1, mix, seed
+               dilution 2 (if requested), then spot dilution 1 onto agar.
+            3. With a fresh tip, spot dilution 2 onto agar.
+
+        On simulation, writes ``{protocol_name}.json`` and ``{protocol_name}.xlsx``
+        describing the agar plate layout.
+
+        Args:
+            protocol: Opentrons ``ProtocolContext`` provided by the OT-2 runtime.
+        """
         #Labware
         #Load the thermocycler module, its default location is on slots 7, 8, 10 and 11
         thermocycler = protocol.load_module('thermocyclerModuleV1')

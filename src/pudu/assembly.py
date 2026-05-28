@@ -58,6 +58,49 @@ class BaseAssembly(ABC):
                  water_testing: bool = False,
                  output_xlsx: bool = True,
                  protocol_name: str = ''):
+        """
+        Initialize shared assembly protocol parameters.
+
+        Parameters provided via ``json_params`` take precedence over defaults but are
+        overridden by any keyword argument that differs from its default value.
+
+        Args:
+            json_params: Optional dict of parameter overrides loaded from a JSON
+                config file. Keys must match the parameter names listed below.
+            volume_total_reaction: Total volume of each assembly reaction in µL.
+            volume_part: Volume of each DNA part (and backbone) added per reaction in µL.
+            volume_restriction_enzyme: Volume of restriction enzyme per reaction in µL.
+            volume_t4_dna_ligase: Volume of T4 DNA ligase per reaction in µL.
+            volume_t4_dna_ligase_buffer: Volume of T4 DNA ligase buffer per reaction in µL.
+            replicates: Number of reaction replicates per unique assembly combination.
+            thermocycler_starting_well: Zero-based index of the first well to use in the
+                thermocycler plate. Useful when chaining multiple protocols on one plate.
+            thermocycler_labware: Opentrons labware definition string for the thermocycler
+                plate.
+            temperature_module_labware: Opentrons labware definition string for the
+                aluminum block loaded on the temperature module.
+            temperature_module_position: Deck slot number (as a string) for the
+                temperature module.
+            tiprack_labware: Opentrons labware definition string for tip racks.
+            tiprack_positions: List of deck slot strings for tip racks. Defaults to
+                ``['2', '3', '4', '5', '6', '9']`` when ``None``.
+            pipette: Opentrons pipette model string (e.g. ``'p20_single_gen2'``).
+            pipette_position: Mount side for the pipette (``'left'`` or ``'right'``).
+            initial_tip: Well name of the first tip to use on the first rack (e.g.
+                ``'B1'``). When ``None``, starts from the first available tip (``'A1'``).
+            aspiration_rate: Aspiration speed as a fraction of the pipette's maximum
+                flow rate (``1.0`` = full speed). Lower values reduce bubble formation.
+            dispense_rate: Dispense speed as a fraction of the pipette's maximum flow
+                rate.
+            take_picture: If ``True``, capture an image at the start and end of the
+                protocol using the OT-2 camera.
+            take_video: If ``True``, record video for the duration of the protocol.
+            water_testing: If ``True``, skip temperature control and thermocycling so
+                the protocol can be simulated with water as a dry run.
+            output_xlsx: If ``True``, write an Excel file summarising the deck layout
+                during simulation.
+            protocol_name: Base name used for output files (e.g. the Excel workbook).
+        """
 
         kwargs_params = {
             'volume_total_reaction': volume_total_reaction,
@@ -369,6 +412,29 @@ class BaseAssembly(ABC):
                         mix_before: float = 0.0, mix_after: float = 0.0,
                         mix_reps: int = 3, new_tip: bool = True,
                         drop_tip: bool = True):
+        """
+        Aspirate from *source* and dispense into *dest* with optional mixing and tip management.
+
+        Automatically triggers a tip-rack batch swap when the current racks are exhausted
+        (see ``setup_tip_management``).
+
+        Args:
+            protocol: Opentrons ``ProtocolContext`` used for comments and labware moves.
+            pipette: Loaded pipette instrument object.
+            volume: Volume to transfer in µL.
+            source: Source well or location object.
+            dest: Destination well or location object.
+            asp_rate: Aspiration speed as a fraction of max flow rate.
+            disp_rate: Dispense speed as a fraction of max flow rate.
+            blow_out: If ``True``, blow out after dispensing to clear the tip.
+            touch_tip: If ``True``, touch the tip to the well wall after dispensing to
+                remove hanging droplets.
+            mix_before: If > 0, mix this volume at *source* before aspirating.
+            mix_after: If > 0, mix this volume at *dest* after dispensing.
+            mix_reps: Number of mix repetitions when ``mix_before`` or ``mix_after`` > 0.
+            new_tip: If ``True``, pick up a fresh tip before the transfer.
+            drop_tip: If ``True``, drop the tip after the transfer.
+        """
         if new_tip:
             if self._check_if_swap_needed():
                 self._perform_tip_rack_batch_swap(protocol)
@@ -605,7 +671,7 @@ class Domestication(BaseAssembly):
             assembly_data: Dict containing 'assemblies' key (new standardized approach)
             advanced_params: Optional advanced parameters
             assemblies: List of assembly dicts (backward compatibility)
-            *args, **kwargs: Passed to BaseAssembly
+            \*args, \*\*kwargs: Passed to BaseAssembly
         """
         # Handle parameter precedence: assembly_data <- assemblies kwarg
         if assembly_data is not None:
@@ -843,7 +909,7 @@ class ManualLoopAssembly(BaseAssembly):
             assembly_data: Dict containing 'assemblies' key (new standardized approach)
             json_params: Optional advanced parameters
             assemblies: List of assembly dicts (backward compatibility)
-            *args, **kwargs: Passed to BaseAssembly
+            \*args, \*\*kwargs: Passed to BaseAssembly
         """
         # Handle parameter precedence: assembly_data <- assemblies kwarg
         if assembly_data is not None:
@@ -1111,7 +1177,7 @@ class SBOLLoopAssembly(BaseAssembly):
             assembly_data: Dict containing 'assemblies' key (new standardized approach)
             advanced_params: Optional advanced parameters
             assemblies: List of assembly dicts (backward compatibility)
-            *args, **kwargs: Passed to BaseAssembly
+            \*args, \*\*kwargs: Passed to BaseAssembly
         """
         # Handle parameter precedence: assembly_data <- assemblies kwarg
         if assembly_data is not None:
