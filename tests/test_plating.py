@@ -428,6 +428,26 @@ class TestPlatingOutputs(unittest.TestCase):
         self.assertIn('dilution_1', plates['plate_1'])
         self.assertIn('dilution_2', plates['plate_2'])
 
+    def test_build_agar_plate_map_single_dilution_overflow(self):
+        """
+        When number_dilutions == 1 and number_constructs * replicates > 96,
+        wells should spill onto plate_2 rather than generating invalid well names.
+        """
+        locs = {f'W{i}': f'construct_{i}' for i in range(97)}
+        p = make_plating(locs, number_dilutions=1)
+        plates = p.build_agar_plate_map()
+        self.assertIn('plate_1', plates)
+        self.assertIn('plate_2', plates)
+        self.assertEqual(len(plates['plate_1']['dilution_1']['wells']), 96)
+        self.assertEqual(len(plates['plate_2']['dilution_1']['wells']), 1)
+        # overflow starts fresh at A1 on plate_2
+        self.assertIn('A1', plates['plate_2']['dilution_1']['wells'])
+        # no well name should exceed column 12
+        for plate in plates.values():
+            for dil in plate.values():
+                for well in dil['wells']:
+                    self.assertLessEqual(int(well[1:]), 12)
+
     def test_get_plates_json_top_level_key(self):
         p = make_plating(THREE_CONSTRUCTS, number_dilutions=2)
         data = p.get_plates_json()

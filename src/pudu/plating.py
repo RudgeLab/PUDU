@@ -317,25 +317,36 @@ class Plating():
         plates: Dict = {}
 
         for dilution_step in range(1, self.number_dilutions + 1):
-            if self.number_dilutions == 2 and agar_wells_per > 48:
-                plate_key = f'plate_{dilution_step}'
-                start_idx = 0
-            else:
-                plate_key = 'plate_1'
-                start_idx = 0 if dilution_step == 1 else 48
-
             ratio = self._dilution_ratio_label(dilution_step)
             dilution_key = f'dilution_{dilution_step}'
 
-            if plate_key not in plates:
-                plates[plate_key] = {}
-            plates[plate_key][dilution_key] = {'ratio': ratio, 'wells': {}}
+            if self.number_dilutions == 2 and agar_wells_per > 48:
+                # Each dilution gets its own plate starting at index 0
+                base_plate = dilution_step
+                base_idx = 0
+            else:
+                # Both dilutions share plate_1; dilution_2 starts at the halfway point
+                base_plate = 1
+                base_idx = 0 if dilution_step == 1 else 48
 
             for construct_idx, (source_well, construct_names) in enumerate(constructs):
                 name_str = self._format_construct_name(construct_names)
                 for replicate in range(self.replicates):
-                    well_idx = start_idx + construct_idx * self.replicates + replicate
-                    well_name = self._well_name_from_index(well_idx)
+                    absolute_idx = base_idx + construct_idx * self.replicates + replicate
+
+                    if absolute_idx < 96:
+                        plate_key = f'plate_{base_plate}'
+                        mapped_idx = absolute_idx
+                    else:
+                        plate_key = f'plate_{base_plate + 1}'
+                        mapped_idx = absolute_idx - 96
+
+                    if plate_key not in plates:
+                        plates[plate_key] = {}
+                    if dilution_key not in plates[plate_key]:
+                        plates[plate_key][dilution_key] = {'ratio': ratio, 'wells': {}}
+
+                    well_name = self._well_name_from_index(mapped_idx)
                     plates[plate_key][dilution_key]['wells'][well_name] = {
                         'construct': name_str,
                         'source_well': source_well,
