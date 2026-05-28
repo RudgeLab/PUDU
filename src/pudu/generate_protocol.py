@@ -95,7 +95,7 @@ Run all commands from the repository root (the directory containing ``src/``).
 **Step 1 — Generate the assembly protocol**::
 
     python -m pudu.generate_protocol \\
-        scripts/manual/manual_assembly_input.json \\
+        assembly_input.json \\
         -o assembly_protocol.py \\
         --protocol-type assembly
 
@@ -103,8 +103,8 @@ Pass a parameters file as the **second positional argument** to override
 defaults (volumes, replicates, starting tip, etc.)::
 
     python -m pudu.generate_protocol \\
-        scripts/manual/manual_assembly_input.json \\
-        my_params.json \\
+        assembly_input.json \\
+        params.json \\
         -o assembly_protocol.py \\
         --protocol-type assembly
 
@@ -112,16 +112,16 @@ Override the Opentrons metadata (protocol name shown in the app, author,
 API level) with ``--metadata``::
 
     python -m pudu.generate_protocol \\
-        scripts/manual/manual_assembly_input.json \\
+        assembly_input.json \\
         -o assembly_protocol.py \\
         --protocol-type assembly \\
-        --metadata my_metadata.json
+        --metadata metadata.json
 
 Force a specific assembly subtype with ``--assembly-type`` (useful when
 auto-detection is ambiguous)::
 
     python -m pudu.generate_protocol \\
-        scripts/manual/manual_assembly_input.json \\
+        assembly_input.json \\
         -o domestication_protocol.py \\
         --protocol-type assembly \\
         --assembly-type Domestication
@@ -137,7 +137,7 @@ This writes ``transformation_input.json`` in the current directory.
 Without assembly output (plasmids loaded manually onto the temperature module)::
 
     python -m pudu.generate_protocol \\
-        scripts/manual/manual_transformation_input.json \\
+        transformation_spec.json \\
         -o transformation_protocol.py \\
         --protocol-type transformation
 
@@ -145,7 +145,7 @@ With assembly output (plasmids sourced from the 96-well PCR plate at the
 exact well positions recorded by the assembly simulation)::
 
     python -m pudu.generate_protocol \\
-        scripts/manual/manual_transformation_input.json \\
+        transformation_spec.json \\
         -o transformation_protocol.py \\
         --protocol-type transformation \\
         --plasmid-locations transformation_input.json
@@ -180,19 +180,19 @@ work, without any OT-2 involvement.
 **Manual assembly protocol**::
 
     python scripts/manual/generate_manual_assembly_protocol.py \\
-        --input  scripts/manual/manual_assembly_input.json \\
+        --input  assembly_input.json \\
         --output scripts/manual/manual_assembly_protocol.md
 
 **Manual transformation protocol**::
 
     python scripts/manual/generate_manual_transformation_protocol.py \\
-        --input  scripts/manual/manual_transformation_input.json \\
+        --input  transformation_spec.json \\
         --output scripts/manual/manual_transformation_protocol.md
 
 **Manual plating protocol**::
 
     python scripts/manual/generate_manual_plating_protocol.py \\
-        --input  scripts/manual/manual_plating_input.json \\
+        --input  plating_input.json \\
         --output scripts/manual/manual_plating_protocol.md
 
 
@@ -205,7 +205,7 @@ notebook and write the result yourself::
     import json
     from pudu.generate_protocol import generate_protocol, detect_protocol_type
 
-    with open("scripts/manual/manual_assembly_input.json") as f:
+    with open("assembly_input.json") as f:
         data = json.load(f)
 
     protocol_type, assembly_subtype = detect_protocol_type(data)
