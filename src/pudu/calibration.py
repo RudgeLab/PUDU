@@ -8,7 +8,8 @@ class BaseCalibration(ABC):
     """
     Abstract base class for calibration protocols.
     Contains shared hardware setup, liquid handling, and serial dilution functionality.
-    Refer to: https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf
+    Reference: `iGEM 2022 InterLab Calibration Protocol
+    <https://old.igem.org/wiki/images/a/a4/InterLab_2022_-_Calibration_Protocol_v2.pdf>`_
     """
 
     def __init__(self,
@@ -28,7 +29,39 @@ class BaseCalibration(ABC):
                  take_picture: bool = False,
                  take_video: bool = False,
                  water_testing: bool = False):
+        """
+        Initialize shared calibration protocol parameters.
 
+        Args:
+            aspiration_rate: Aspiration speed as a fraction of the pipette's
+                maximum flow rate (``1.0`` = full speed). Lower values reduce
+                bubble formation with viscous calibrants.
+            dispense_rate: Dispense speed as a fraction of the pipette's maximum
+                flow rate.
+            tiprack_labware: Opentrons labware definition string for the tip rack.
+            tiprack_position: Deck slot string for the tip rack.
+            pipette: Opentrons pipette model string (e.g. ``'p300_single_gen2'``).
+            pipette_position: Mount side for the pipette (``'left'`` or ``'right'``).
+            calibration_plate_labware: Opentrons labware definition string for the
+                96-well calibration plate where serial dilutions are performed.
+            calibration_plate_position: Deck slot string for the calibration plate.
+            tube_rack_labware: Opentrons labware definition string for the 24-well
+                aluminum block / tube rack holding calibrant stocks and buffers.
+            tube_rack_position: Deck slot string for the tube rack.
+            use_falcon_tubes: If ``True``, PBS and water buffers are sourced from
+                50 mL Falcon tubes instead of 1.5 mL microtubes. Enables the
+                ``SmartPipette`` conical-tube height calculation for accurate
+                aspiration as the tube empties.
+            falcon_tube_rack_labware: Opentrons labware definition string for the
+                Falcon tube rack. Only used when ``use_falcon_tubes=True``.
+            falcon_tube_rack_position: Deck slot string for the Falcon tube rack.
+            take_picture: If ``True``, capture an image at the start and end of
+                the protocol.
+            take_video: If ``True``, record video for the duration of the protocol.
+            water_testing: If ``True``, skip any steps that require real reagents
+                (reserved for future dry-run support; not fully implemented in all
+                subclasses).
+        """
         self.aspiration_rate = aspiration_rate
         self.dispense_rate = dispense_rate
         self.tiprack_labware = tiprack_labware

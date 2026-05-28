@@ -166,10 +166,34 @@ class Camera:
 
 class SmartPipette:
     """
-    Wrapper for automatic volume tracking
+    Opentrons pipette wrapper that uses the API's liquid-tracking system to
+    compute safe aspiration heights for conical tubes.
+
+    For standard flat-bottom or round-bottom wells, ``SmartPipette`` behaves
+    identically to the underlying pipette. For conical tubes (detected by labware
+    name or the ``use`` flag), it queries the current liquid volume via
+    ``well.current_liquid_volume()`` and converts that to a millimetre height,
+    keeping the tip above the meniscus and away from the narrow tip of the cone.
+
+    This prevents the pipette tip from plunging into an empty tube or aspirating
+    air when a tube is nearly empty — a common failure mode in protocols that
+    dispense large total volumes from a single stock tube (e.g. LB distribution
+    during plating).
     """
 
     def __init__(self, pipette, protocol):
+        """
+        Initialize SmartPipette.
+
+        Args:
+            pipette: A loaded Opentrons pipette instrument object.
+            protocol: The active ``ProtocolContext``. Must support
+                ``define_liquid`` (API level ≥ 2.14).
+
+        Raises:
+            RuntimeError: If the protocol context does not expose liquid
+                tracking (API level too old).
+        """
         self.pipette = pipette
         self.protocol = protocol
         if not hasattr(protocol, 'define_liquid'):

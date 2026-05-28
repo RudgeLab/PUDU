@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Dict, List
 from dataclasses import dataclass
 from pudu import colors, SmartPipette
@@ -5,10 +6,39 @@ from opentrons import protocol_api
 
 class Plating():
     """
-    Creates a protocol for automated plating of transformed bacteria
+    Automated serial-dilution and spot-plating protocol for the Opentrons OT-2.
+
+    Takes transformed bacteria from a thermocycler plate, performs up to two
+    sequential 10× (or custom) dilutions in a dilution plate, and spots each
+    dilution onto an agar plate. Supports multiple replicates and automatically
+    distributes across two physical plates when colony counts exceed 96.
+
+    After simulation, writes a JSON and an Excel file mapping each agar-plate
+    well to the construct name, dilution ratio, and replicate number.
 
     Attributes:
-
+        volume_total_reaction: Volume of bacteria loaded in each thermocycler
+            source well, in µL. Used for liquid-tracking display only.
+        volume_bacteria_transfer: Volume transferred from each source well into
+            the dilution well, in µL.
+        volume_colony: Volume spotted from each dilution well onto the agar
+            plate per replicate, in µL.
+        dilution_factor: Serial dilution factor applied at each step (e.g. 10
+            for a 1:10 dilution). The LB volume pre-loaded into each dilution
+            well is ``volume_bacteria_transfer × (dilution_factor − 1)``.
+        volume_lb: Total LB volume in the stock tube, in µL. Used for liquid
+            tracking on the Opentrons deck visualiser.
+        replicates: Number of agar spots per construct per dilution step.
+        number_dilutions: Number of serial dilution steps to perform (max 2).
+        number_constructs: Number of unique constructs derived from
+            ``bacterium_locations``.
+        total_colonies: Total agar wells that will be plated
+            (``number_constructs × number_dilutions × replicates``).
+        max_colonies: Hard cap on ``total_colonies``; raises ``ValueError``
+            if exceeded.
+        bacterium_locations: Dict mapping thermocycler well names to construct
+            identifiers, e.g. ``{'A1': 'GFP_construct', 'B1': ['RFP', 'v2']}``.
+        protocol_name: Base name for output files (JSON and Excel).
     """
     def __init__(self,
                  plating_data: Optional[Dict] = None,
@@ -50,6 +80,7 @@ class Plating():
                  aspiration_rate: float = 0.5,
                  dispense_rate: float = 1,
                  bacterium_locations: Optional[Dict] = None,
+                 protocol_name: str = 'plating_layout',
                  **kwargs):
 
         # Collect kwargs for merging
@@ -85,7 +116,8 @@ class Plating():
             'lb_tube_position': lb_tube_position,
             'aspiration_rate': aspiration_rate,
             'dispense_rate': dispense_rate,
-            'bacterium_locations': bacterium_locations
+            'bacterium_locations': bacterium_locations,
+            'protocol_name': protocol_name,
         }
 
         kwargs_params.update(kwargs)
@@ -133,6 +165,7 @@ class Plating():
         self.bacterium_locations = self._merged_params['bacterium_locations']
         self.number_constructs = len(self.bacterium_locations)
         self.max_colonies = self._merged_params['max_colonies']
+        self.protocol_name = self._merged_params['protocol_name']
 
         self.total_colonies = self.number_constructs * self.number_dilutions * self.replicates
 
@@ -203,7 +236,8 @@ class Plating():
             'lb_tube_position': 0,
             'aspiration_rate': 0.5,
             'dispense_rate': 1,
-            'bacterium_locations': None
+            'bacterium_locations': None,
+            'protocol_name': 'plating_layout',
         }
 
         # Start with defaults
@@ -289,7 +323,218 @@ class Plating():
             layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
         return layout
 
+    @staticmethod
+    def _well_name_from_index(idx: int) -> str:
+        row = idx % 8
+        col = idx // 8
+        return f"{'ABCDEFGH'[row]}{col + 1}"
+
+    @staticmethod
+    def _format_construct_name(construct_names) -> str:
+        if isinstance(construct_names, (list, tuple)):
+            return ', '.join(str(x) for x in construct_names)
+        return str(construct_names)
+
+    def _dilution_ratio_label(self, dilution_step: int) -> str:
+        factor = self.dilution_factor ** dilution_step
+        factor_int = int(factor) if float(factor).is_integer() else factor
+        return f"1/{factor_int}"
+
+    def build_agar_plate_map(self) -> Dict:
+        """
+        Build a nested mapping of agar plate wells to construct metadata.
+
+        Returns a dict keyed by plate (``'plate_1'``, ``'plate_2'``) then by
+        dilution step (``'dilution_1'``, ``'dilution_2'``). Each dilution entry
+        contains ``'ratio'`` (e.g. ``'1/10'``) and ``'wells'``, a dict mapping
+        well names (e.g. ``'A1'``) to ``{'construct', 'source_well', 'replicate'}``.
+
+        When both dilutions fit on a single 96-well plate (≤ 48 wells per
+        dilution), they are placed in the top and bottom halves respectively.
+        When a dilution exceeds 48 wells, each step gets its own physical plate.
+
+        Returns:
+            Nested dict describing the complete agar plate layout.
+        """
+        constructs = list(self.bacterium_locations.items())
+        agar_wells_per = self.number_constructs * self.replicates
+        plates: Dict = {}
+
+        for dilution_step in range(1, self.number_dilutions + 1):
+            ratio = self._dilution_ratio_label(dilution_step)
+            dilution_key = f'dilution_{dilution_step}'
+
+            if self.number_dilutions == 2 and agar_wells_per > 48:
+                # Each dilution gets its own plate starting at index 0
+                base_plate = dilution_step
+                base_idx = 0
+            else:
+                # Both dilutions share plate_1; dilution_2 starts at the halfway point
+                base_plate = 1
+                base_idx = 0 if dilution_step == 1 else 48
+
+            for construct_idx, (source_well, construct_names) in enumerate(constructs):
+                name_str = self._format_construct_name(construct_names)
+                for replicate in range(self.replicates):
+                    absolute_idx = base_idx + construct_idx * self.replicates + replicate
+
+                    if absolute_idx < 96:
+                        plate_key = f'plate_{base_plate}'
+                        mapped_idx = absolute_idx
+                    else:
+                        plate_key = f'plate_{base_plate + 1}'
+                        mapped_idx = absolute_idx - 96
+
+                    if plate_key not in plates:
+                        plates[plate_key] = {}
+                    if dilution_key not in plates[plate_key]:
+                        plates[plate_key][dilution_key] = {'ratio': ratio, 'wells': {}}
+
+                    well_name = self._well_name_from_index(mapped_idx)
+                    plates[plate_key][dilution_key]['wells'][well_name] = {
+                        'construct': name_str,
+                        'source_well': source_well,
+                        'replicate': replicate + 1,
+                    }
+
+        return plates
+
+    def get_plates_json(self) -> Dict:
+        """Return the full agar plate map wrapped under an ``'agar_plates'`` key."""
+        return {'agar_plates': self.build_agar_plate_map()}
+
+    def write_plates_json(self, output_path: str) -> Dict:
+        """
+        Serialize the agar plate map to a JSON file and return the data dict.
+
+        Args:
+            output_path: Filesystem path for the output JSON file.
+
+        Returns:
+            The same dict that was written to disk.
+        """
+        data = self.get_plates_json()
+        with open(output_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        return data
+
+    def write_plates_excel(self, output_path: str) -> None:
+        """
+        Write a colour-coded Excel representation of the agar plate map.
+
+        Each physical plate becomes a 8 × 12 grid in the worksheet, with cells
+        colour-coded by dilution step (blue for dilution 1, orange for dilution 2)
+        and labelled with the construct name and replicate number.
+
+        Args:
+            output_path: Filesystem path for the output ``.xlsx`` file.
+
+        Raises:
+            ImportError: If ``xlsxwriter`` is not installed.
+        """
+        try:
+            import xlsxwriter
+        except ImportError:
+            raise ImportError("xlsxwriter is required. Install with: pip install xlsxwriter")
+
+        plates_data = self.build_agar_plate_map()
+        workbook = xlsxwriter.Workbook(output_path)
+        worksheet = workbook.add_worksheet('Agar Plates')
+
+        title_fmt = workbook.add_format({
+            'bold': True, 'font_size': 12,
+            'bg_color': '#4472C4', 'font_color': 'white',
+            'align': 'center', 'valign': 'vcenter', 'border': 1,
+        })
+        header_fmt = workbook.add_format({
+            'bold': True, 'bg_color': '#D9E1F2',
+            'align': 'center', 'valign': 'vcenter', 'border': 1,
+        })
+        well_fmts = {
+            1: workbook.add_format({
+                'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+                'bg_color': '#BDD7EE', 'border': 1,
+            }),
+            2: workbook.add_format({
+                'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+                'bg_color': '#FCE4D6', 'border': 1,
+            }),
+        }
+        empty_fmt = workbook.add_format({'bg_color': '#F2F2F2', 'border': 1})
+
+        worksheet.set_column(0, 0, 4)
+        worksheet.set_column(1, 12, 20)
+
+        current_row = 0
+
+        for plate_idx, (plate_key, dilutions) in enumerate(plates_data.items()):
+            if plate_idx > 0:
+                current_row += 3
+
+            plate_num = plate_key.split('_')[1]
+            ratio_parts = [
+                f"Dilution {dk.split('_')[1]}: {dd['ratio']}"
+                for dk, dd in dilutions.items()
+            ]
+            title = f"Plate {plate_num} · " + " | ".join(ratio_parts)
+
+            worksheet.merge_range(current_row, 0, current_row, 12, title, title_fmt)
+            worksheet.set_row(current_row, 20)
+            current_row += 1
+
+            worksheet.write(current_row, 0, '', header_fmt)
+            for col in range(1, 13):
+                worksheet.write(current_row, col, col, header_fmt)
+            current_row += 1
+
+            for row_letter in 'ABCDEFGH':
+                worksheet.write(current_row, 0, row_letter, header_fmt)
+                worksheet.set_row(current_row, 30)
+                for col_num in range(1, 13):
+                    well_name = f"{row_letter}{col_num}"
+                    cell_written = False
+                    for dilution_key, dilution_data in dilutions.items():
+                        if well_name in dilution_data['wells']:
+                            w = dilution_data['wells'][well_name]
+                            dilution_num = int(dilution_key.split('_')[1])
+                            well_fmt = well_fmts.get(dilution_num, well_fmts[1])
+                            label = w['construct'].split(', ')[0]
+                            if self.replicates > 1:
+                                label += f"\nR{w['replicate']}"
+                            worksheet.write(current_row, col_num, label, well_fmt)
+                            cell_written = True
+                            break
+                    if not cell_written:
+                        worksheet.write(current_row, col_num, '', empty_fmt)
+                current_row += 1
+
+        workbook.close()
+
     def run(self, protocol: protocol_api.ProtocolContext):
+        """
+        Execute the automated plating protocol on the OT-2.
+
+        Deck layout (default positions):
+            - Slot 7/8/10/11: Thermocycler module (source bacteria in PCR plate)
+            - Slot 1: Large tip rack (200 µL, for LB distribution)
+            - Slot 9: Small tip rack (20 µL, for bacteria and agar transfers)
+            - Slot 4: Tube rack with LB stock tube
+            - Slot 2 (and 3 if needed): Dilution plate(s)
+            - Slot 5 (and 6 if needed): Agar plate(s)
+
+        Protocol steps:
+            1. Distribute LB into all dilution wells using a single large-pipette
+               tip (one aspiration height adjustment per 8-well chunk).
+            2. For each construct: transfer bacteria → dilution 1, mix, seed
+               dilution 2 (if requested), then spot dilution 1 onto agar.
+            3. With a fresh tip, spot dilution 2 onto agar.
+
+        On simulation, writes ``{protocol_name}.json`` and ``{protocol_name}.xlsx``
+        describing the agar plate layout.
+
+        Args:
+            protocol: Opentrons ``ProtocolContext`` provided by the OT-2 runtime.
+        """
         #Labware
         #Load the thermocycler module, its default location is on slots 7, 8, 10 and 11
         thermocycler = protocol.load_module('thermocyclerModuleV1')
@@ -441,6 +686,17 @@ class Plating():
         protocol.comment("\n=== Plating protocol complete ===")
         protocol.comment(f"Plated {self.number_constructs} constructs with {self.replicates} replicates")
         protocol.comment(f"Created a total of {self.total_colonies} colonies")
+
+        if protocol.is_simulating():
+            try:
+                output_path = f'{self.protocol_name}.json'
+                self.write_plates_json(output_path)
+                protocol.comment(f"Generated {output_path}")
+                excel_path = f'{self.protocol_name}.xlsx'
+                self.write_plates_excel(excel_path)
+                protocol.comment(f"Generated {excel_path}")
+            except Exception as e:
+                protocol.comment(f"Could not export plating layout: {e}")
 
 
 @dataclass
