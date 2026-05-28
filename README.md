@@ -46,7 +46,7 @@ Run:
 
 This code can be executed in the terminal and in jupyter notebooks.
 
-For more details please refer to our Wiki (TODO) for installation instructions and developer guides.
+For more details please refer to our [documentation](https://pudu.readthedocs.io/en/latest/) for installation instructions and developer guides.
 
 ### OT-2 installation
 
@@ -62,7 +62,7 @@ then in the OT-2 terminal run:
 
 ## Documentation
 
- Please visit our documentation with API reference at Read the Docs (TODO)
+ Please visit our documentation with full API reference at [pudu.readthedocs.io](https://pudu.readthedocs.io/en/latest/)
 
 ## Tutorials
 
