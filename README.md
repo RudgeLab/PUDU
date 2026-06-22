@@ -2,8 +2,8 @@
 Welcome to the PUDU (Protocol Unified Design Unit) repository, our Python package for liquid handling robot control on Synthetic Biology workflows.
 
 
-<img src="https://github.com/RudgeLab/PUDU/blob/main/images/PUDU_Logo.png#gh-light-mode-only" alt="PUDU logo" width="250"/>
-<img src="https://github.com/RudgeLab/PUDU/blob/main/images/PUDU_Logo.png#gh-dark-mode-only" alt="PUDU night logo" width="250"/>
+<img src="https://github.com/MyersResearchGroup/PUDU/blob/main/images/PUDU_Logo.png#gh-light-mode-only" alt="PUDU logo" width="250"/>
+<img src="https://github.com/MyersResearchGroup/PUDU/blob/main/images/PUDU_Logo_dark.png#gh-dark-mode-only" alt="PUDU night logo" width="250"/>
 
 ## *The art of automated liquid handling*
 
@@ -46,7 +46,7 @@ Run:
 
 This code can be executed in the terminal and in jupyter notebooks.
 
-For more details please refer to our Wiki (TODO) for installation instructions and developer guides.
+For more details please refer to our [documentation](https://pudu.readthedocs.io/en/latest/) for installation instructions and developer guides.
 
 ### OT-2 installation
 
@@ -62,8 +62,24 @@ then in the OT-2 terminal run:
 
 ## Documentation
 
- Please visit our documentation with API reference at Read the Docs (TODO)
+ Please visit our documentation with full API reference at [pudu.readthedocs.io](https://pudu.readthedocs.io/en/latest/)
 
 ## Tutorials
 
 TODO
+
+## Manual Golden Gate protocol generation
+
+PUDU now supports generating a **human-readable manual Golden Gate protocol** from SBOL-style JSON input using `ManualAssembly`.
+
+- The class builds structured per-reaction records (product, backbone, ordered parts, enzyme, and calculated reagent volumes).
+- It renders a Markdown protocol suitable for lab use and future PDF conversion.
+- It does **not** generate OT-2 commands.
+
+Example script:
+
+```bash
+PYTHONPATH=src python scripts/generate_manual_assembly_protocol.py
+```
+
+This writes a protocol document to `scripts/manual_assembly_protocol.md`.

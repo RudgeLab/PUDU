@@ -1,0 +1,13 @@
+[
+    {
+        "Product": "https://SBOL2Build.org/composite_1/1",
+        "Backbone": "https://sbolcanvas.org/Cir_qxow/1",
+        "PartsList": [
+            "https://sbolcanvas.org/GFP/1",
+            "https://sbolcanvas.org/B0015/1",
+            "https://sbolcanvas.org/J23101/1",
+            "https://sbolcanvas.org/B0034/1"
+        ],
+        "Restriction Enzyme": "https://SBOL2Build.org/BsaI/1"
+    }
+]

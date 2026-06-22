@@ -4,19 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pudupy"
-version = "1.0.0b2"
+version = "1.0.0b9"
 description = "Protocol Unified Design Unit"
 readme = "README.md"
 requires-python = ">=3.7"
 license = {file = "LICENSE"}
 keywords = ["pudu", "lab", "automation", "opentrons", "synthetic biology"]
 authors = [
-  { name="Gonzalo Vidal", email="g.a.vidal-pena2@ncl.ac.uk" },
-  { name="Carolus Vitalis", email="carlos.vidal.c@ug.uchile.cl"},
-  { name="Matt Burridge", email="m.burridge1@newcastle.ac.uk"}
+  { name="Gonzalo Vidal", email="govi9038@colorado.edu" },
+  { name="Oscar Rodriguez", email="osro6012@colorado.edu"},
 ]
 maintainers = [
-  {name = "Gonzalo Vidal", email = "g.a.vidal-pena2@ncl.ac.uk"}
+  { name="Gonzalo Vidal", email="govi9038@colorado.edu" },
+  { name="Oscar Rodriguez", email="osro6012@colorado.edu"},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -25,15 +25,16 @@ classifiers = [
 ]
 
 dependencies = [
-  'opentrons',
+  "opentrons>=8.4.1",
+  "xlsxwriter>=3.2.5",
 ]
 
 [project.optional-dependencies]
 test = [
-  "pytest < 5.0.0",
-  "pytest-cov[all]"
+  "pytest >= 7.0.0",
+  "pytest-cov"
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/RudgeLab/PUDU"
-"Bug Tracker" = "https://github.com/RudgeLab/PUDU/issues"
+"Homepage" = "https://github.com/MyersResearchGroup/PUDU"
+"Bug Tracker" = "https://github.com/MyersResearchGroup/PUDU/issues"

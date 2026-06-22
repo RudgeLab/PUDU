@@ -1,0 +1,6 @@
+{
+    "protocolName": "Custom GFP/RFP Assembly",
+    "author": "Oscar Rodriguez",
+    "description": "Testing protocol generation with custom metadata",
+    "apiLevel": "2.21"
+}

@@ -1,0 +1,790 @@
+import json
+from typing import Optional, Dict, List
+from dataclasses import dataclass
+from pudu import colors, SmartPipette
+from opentrons import protocol_api
+
+class Plating():
+    """
+    Automated serial-dilution and spot-plating protocol for the Opentrons OT-2.
+
+    Takes transformed bacteria from a thermocycler plate, performs up to two
+    sequential 10× (or custom) dilutions in a dilution plate, and spots each
+    dilution onto an agar plate. Supports multiple replicates and automatically
+    distributes across two physical plates when colony counts exceed 96.
+
+    After simulation, writes a JSON and an Excel file mapping each agar-plate
+    well to the construct name, dilution ratio, and replicate number.
+
+    Attributes:
+        volume_total_reaction: Volume of bacteria loaded in each thermocycler
+            source well, in µL. Used for liquid-tracking display only.
+        volume_bacteria_transfer: Volume transferred from each source well into
+            the dilution well, in µL.
+        volume_colony: Volume spotted from each dilution well onto the agar
+            plate per replicate, in µL.
+        dilution_factor: Serial dilution factor applied at each step (e.g. 10
+            for a 1:10 dilution). The LB volume pre-loaded into each dilution
+            well is ``volume_bacteria_transfer × (dilution_factor − 1)``.
+        volume_lb: Total LB volume in the stock tube, in µL. Used for liquid
+            tracking on the Opentrons deck visualiser.
+        replicates: Number of agar spots per construct per dilution step.
+        number_dilutions: Number of serial dilution steps to perform (max 2).
+        number_constructs: Number of unique constructs derived from
+            ``bacterium_locations``.
+        total_colonies: Total agar wells that will be plated
+            (``number_constructs × number_dilutions × replicates``).
+        max_colonies: Hard cap on ``total_colonies``; raises ``ValueError``
+            if exceeded.
+        bacterium_locations: Dict mapping thermocycler well names to construct
+            identifiers, e.g. ``{'A1': 'GFP_construct', 'B1': ['RFP', 'v2']}``.
+        protocol_name: Base name for output files (JSON and Excel).
+    """
+    def __init__(self,
+                 plating_data: Optional[Dict] = None,
+                 json_params: Optional[Dict] = None,
+                 volume_total_reaction: float = 20,
+                 volume_bacteria_transfer: float = 2,
+                 volume_colony: float = 4,
+                 dilution_factor: float = 10,
+                 volume_lb: float = 10000,
+                 replicates: int = 1,
+                 number_dilutions: int = 2,
+                 max_colonies: int = 192,
+
+                 thermocycler_starting_well: int = 0,
+                 thermocycler_labware: str = 'biorad_96_wellplate_200ul_pcr',
+
+                 small_tiprack: str = 'opentrons_96_filtertiprack_20ul',
+                 small_tiprack_position: str = '9',
+                 initial_small_tip: Optional[str] = None,
+                 large_tiprack: str = 'opentrons_96_filtertiprack_200ul',
+                 large_tiprack_position: str = '1',
+                 initial_large_tip: Optional[str] = None,
+                 small_pipette: str = 'p20_single_gen2',
+                 small_pipette_position: str = 'left',
+                 large_pipette: str = 'p300_single_gen2',
+                 large_pipette_position: str = 'right',
+
+                 dilution_plate: str = 'nest_96_wellplate_100ul_pcr_full_skirt',
+                 dilution_plate_position1: str = '2',
+                 dilution_plate_position2: str = '3',
+                 # agar_plate: str = 'nunc_omnitray_96grid',
+                 agar_plate: str = 'nest_96_wellplate_100ul_pcr_full_skirt',
+                 agar_plate_position1: str = '5',
+                 agar_plate_position2: str = '6',
+                 tube_rack: str = 'opentrons_15_tuberack_falcon_15ml_conical',
+                 tube_rack_position: str = '4',
+                 lb_tube_position: int = 0,
+
+                 aspiration_rate: float = 0.5,
+                 dispense_rate: float = 1,
+                 bacterium_locations: Optional[Dict] = None,
+                 protocol_name: str = 'plating_layout',
+                 **kwargs):
+
+        # Collect kwargs for merging
+        kwargs_params = {
+            'volume_total_reaction': volume_total_reaction,
+            'volume_bacteria_transfer': volume_bacteria_transfer,
+            'volume_colony': volume_colony,
+            'dilution_factor': dilution_factor,
+            'volume_lb': volume_lb,
+            'replicates': replicates,
+            'number_dilutions': number_dilutions,
+            'max_colonies': max_colonies,
+            'thermocycler_starting_well': thermocycler_starting_well,
+            'thermocycler_labware': thermocycler_labware,
+            'small_tiprack': small_tiprack,
+            'small_tiprack_position': small_tiprack_position,
+            'initial_small_tip': initial_small_tip,
+            'large_tiprack': large_tiprack,
+            'large_tiprack_position': large_tiprack_position,
+            'initial_large_tip': initial_large_tip,
+            'small_pipette': small_pipette,
+            'small_pipette_position': small_pipette_position,
+            'large_pipette': large_pipette,
+            'large_pipette_position': large_pipette_position,
+            'dilution_plate': dilution_plate,
+            'dilution_plate_position1': dilution_plate_position1,
+            'dilution_plate_position2': dilution_plate_position2,
+            'agar_plate': agar_plate,
+            'agar_plate_position1': agar_plate_position1,
+            'agar_plate_position2': agar_plate_position2,
+            'tube_rack': tube_rack,
+            'tube_rack_position': tube_rack_position,
+            'lb_tube_position': lb_tube_position,
+            'aspiration_rate': aspiration_rate,
+            'dispense_rate': dispense_rate,
+            'bacterium_locations': bacterium_locations,
+            'protocol_name': protocol_name,
+        }
+
+        kwargs_params.update(kwargs)
+
+        self._merged_params = self._merge_params(plating_data, json_params, kwargs_params)
+
+        if self._merged_params.get('bacterium_locations') is None:
+            raise ValueError("Must input bacterium_locations (either via plating_data, advanced_params, or bacterium_locations parameter)")
+
+        self.volume_total_reaction = self._merged_params['volume_total_reaction']
+        self.volume_bacteria_transfer = self._merged_params['volume_bacteria_transfer']
+        self.volume_colony = self._merged_params['volume_colony']
+        self.dilution_factor = self._merged_params['dilution_factor']
+        self.volume_lb_transfer = self.volume_bacteria_transfer * (self.dilution_factor - 1)
+        # Mix volume is capped 1 µL below the total dilution well volume so the pipette
+        # never tries to aspirate more than is physically present. Also bounded by the
+        # p20 maximum (19 µL).
+        self.mix_volume = min(19, self.volume_lb_transfer + self.volume_bacteria_transfer - 1)
+        self.volume_lb = self._merged_params['volume_lb']
+        self.replicates = self._merged_params['replicates']
+        self.number_dilutions = self._merged_params['number_dilutions']
+        self.thermocycler_starting_well = self._merged_params['thermocycler_starting_well']
+        self.thermocycler_labware = self._merged_params['thermocycler_labware']
+        self.small_tiprack = self._merged_params['small_tiprack']
+        self.small_tiprack_position = self._merged_params['small_tiprack_position']
+        self.initial_small_tip = self._merged_params['initial_small_tip']
+        self.large_tiprack = self._merged_params['large_tiprack']
+        self.large_tiprack_position = self._merged_params['large_tiprack_position']
+        self.initial_large_tip = self._merged_params['initial_large_tip']
+        self.small_pipette = self._merged_params['small_pipette']
+        self.small_pipette_position = self._merged_params['small_pipette_position']
+        self.large_pipette = self._merged_params['large_pipette']
+        self.large_pipette_position = self._merged_params['large_pipette_position']
+        self.dilution_plate = self._merged_params['dilution_plate']
+        self.dilution_plate_position1 = self._merged_params['dilution_plate_position1']
+        self.dilution_plate_position2 = self._merged_params['dilution_plate_position2']
+        self.agar_plate = self._merged_params['agar_plate']
+        self.agar_plate_position1 = self._merged_params['agar_plate_position1']
+        self.agar_plate_position2 = self._merged_params['agar_plate_position2']
+        self.tube_rack = self._merged_params['tube_rack']
+        self.tube_rack_position = self._merged_params['tube_rack_position']
+        self.lb_tube_position = self._merged_params['lb_tube_position']
+        self.aspiration_rate = self._merged_params['aspiration_rate']
+        self.dispense_rate = self._merged_params['dispense_rate']
+        self.bacterium_locations = self._merged_params['bacterium_locations']
+        self.number_constructs = len(self.bacterium_locations)
+        self.max_colonies = self._merged_params['max_colonies']
+        self.protocol_name = self._merged_params['protocol_name']
+
+        self.total_colonies = self.number_constructs * self.number_dilutions * self.replicates
+
+        if self.total_colonies > self.max_colonies:
+            raise ValueError(f"Protocol only supports a max of {self.max_colonies} colonies")
+        if self.replicates > 8:
+            raise ValueError("Protocol only supports a max of 8 replicates")
+        if self.number_dilutions > 2:
+            raise ValueError("Protocol currently supports a max of 2 dilutions")
+
+        # Each dilution well must hold enough volume for all agar platings plus seeding the next
+        # dilution step. Check before any labware is loaded so errors surface early.
+        volume_dilution_well = self.volume_bacteria_transfer * self.dilution_factor
+        volumes_needed = self.volume_colony * self.replicates + (
+            self.volume_bacteria_transfer if self.number_dilutions > 1 else 0
+        )
+        if volumes_needed > volume_dilution_well:
+            raise ValueError(
+                f"Dilution well volume ({volume_dilution_well:.1f} µL) is insufficient: "
+                f"plating {self.replicates} replicates × {self.volume_colony} µL"
+                + (f" + {self.volume_bacteria_transfer} µL to seed next dilution" if self.number_dilutions > 1 else "")
+                + f" requires {volumes_needed:.1f} µL. "
+                f"Increase dilution_factor or reduce replicates/volume_colony."
+            )
+
+    def _merge_params(self, plating_data: Optional[Dict], json_params: Optional[Dict], kwargs_params: Dict) -> Dict:
+        """
+        Merge parameters with precedence: defaults <- plating_data <- json_params <- kwargs
+
+        Args:
+            plating_data: Optional dict containing protocol data (bacterium_locations)
+            json_params: Optional dict containing configuration parameters
+            kwargs_params: Dict of parameters passed as kwargs
+
+        Returns:
+            Merged parameter dictionary
+        """
+        # Define defaults for all valid parameters
+        valid_params = {
+            'volume_total_reaction': 20,
+            'volume_bacteria_transfer': 2,
+            'volume_colony': 4,
+            'dilution_factor': 10,
+            'volume_lb': 10000,
+            'replicates': 1,
+            'number_dilutions': 2,
+            'max_colonies': 192,
+            'thermocycler_starting_well': 0,
+            'thermocycler_labware': 'biorad_96_wellplate_200ul_pcr',
+            'small_tiprack': 'opentrons_96_filtertiprack_20ul',
+            'small_tiprack_position': '9',
+            'initial_small_tip': None,
+            'large_tiprack': 'opentrons_96_filtertiprack_200ul',
+            'large_tiprack_position': '1',
+            'initial_large_tip': None,
+            'small_pipette': 'p20_single_gen2',
+            'small_pipette_position': 'left',
+            'large_pipette': 'p300_single_gen2',
+            'large_pipette_position': 'right',
+            'dilution_plate': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'dilution_plate_position1': '2',
+            'dilution_plate_position2': '3',
+            'agar_plate': 'nest_96_wellplate_100ul_pcr_full_skirt',
+            'agar_plate_position1': '5',
+            'agar_plate_position2': '6',
+            'tube_rack': 'opentrons_15_tuberack_falcon_15ml_conical',
+            'tube_rack_position': '4',
+            'lb_tube_position': 0,
+            'aspiration_rate': 0.5,
+            'dispense_rate': 1,
+            'bacterium_locations': None,
+            'protocol_name': 'plating_layout',
+        }
+
+        # Start with defaults
+        merged = valid_params.copy()
+
+        # Apply plating_data (if provided)
+        if plating_data is not None:
+            self._validate_param_structure(plating_data, valid_params, 'plating_data')
+            merged.update(plating_data)
+
+        # Apply json_params (if provided)
+        if json_params is not None:
+            self._validate_param_structure(json_params, valid_params, 'json_params')
+            merged.update(json_params)
+
+        # Apply kwargs (highest precedence) - only if they differ from defaults
+        for key, value in kwargs_params.items():
+            if key in valid_params:
+                # Only override if the value is explicitly different from the default
+                if value != valid_params[key]:
+                    merged[key] = value
+
+        return merged
+
+    def _validate_param_structure(self, params: Dict, valid_params: Dict, param_name: str):
+        """
+        Validate that all parameters in the dict are recognized.
+
+        Args:
+            params: Dictionary to validate
+            valid_params: Dictionary of valid parameter names
+            param_name: Name of the parameter dict (for error messages)
+
+        Raises:
+            ValueError: If unknown parameters are found
+        """
+        unknown_params = set(params.keys()) - set(valid_params.keys())
+        if unknown_params:
+            raise ValueError(
+                f"Unknown parameters in {param_name}: {unknown_params}.\n"
+                f"Valid parameters are: {set(valid_params.keys())}"
+            )
+
+    def calculate_plate_layout(self, protocol, plate1, plate2=None, wells_per_dilution=None):
+        """
+        Calculate the layout for wells on a plate with dynamic expansion across two plates.
+
+        Args:
+            protocol: Protocol context (used for comments)
+            plate1: Primary labware object
+            plate2: Optional secondary labware object, required when wells_per_dilution > 48
+            wells_per_dilution: Number of wells needed per dilution step. Defaults to
+                number_constructs * replicates (original behaviour). Pass
+                number_constructs for dilution plates and number_constructs * replicates
+                for agar plates.
+
+        Returns:
+            dict with plate assignments and well positions keyed by 'dilution_1' / 'dilution_2'
+        """
+        if wells_per_dilution is None:
+            wells_per_dilution = self.number_constructs * self.replicates
+
+        layout = {
+            'dilution_1': {'plate': 1, 'wells': []},
+            'dilution_2': {'plate': 1, 'wells': []} if self.number_dilutions == 2 else None
+        }
+
+        if self.number_dilutions == 2 and wells_per_dilution > 48:
+            if plate2 is None:
+                raise ValueError("Two plates required but plate2 not provided")
+            # Each dilution step gets its own plate
+            layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
+            layout['dilution_2']['plate'] = 2
+            layout['dilution_2']['wells'] = plate2.wells()[:wells_per_dilution]
+            protocol.comment(f"Using 2 plates: {wells_per_dilution} wells per dilution exceeds single-plate half capacity")
+        elif self.number_dilutions == 2 and wells_per_dilution <= 48:
+            # Both dilution steps fit on one plate (each in one half)
+            layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
+            layout['dilution_2']['wells'] = plate1.wells()[48:48 + wells_per_dilution]
+            protocol.comment(f"Using one plate: {wells_per_dilution} wells per dilution fits in each half")
+        else:
+            # Single dilution step
+            layout['dilution_1']['wells'] = plate1.wells()[:wells_per_dilution]
+        return layout
+
+    @staticmethod
+    def _well_name_from_index(idx: int) -> str:
+        row = idx % 8
+        col = idx // 8
+        return f"{'ABCDEFGH'[row]}{col + 1}"
+
+    @staticmethod
+    def _format_construct_name(construct_names) -> str:
+        if isinstance(construct_names, (list, tuple)):
+            return ', '.join(str(x) for x in construct_names)
+        return str(construct_names)
+
+    def _dilution_ratio_label(self, dilution_step: int) -> str:
+        factor = self.dilution_factor ** dilution_step
+        factor_int = int(factor) if float(factor).is_integer() else factor
+        return f"1/{factor_int}"
+
+    def build_agar_plate_map(self) -> Dict:
+        """
+        Build a nested mapping of agar plate wells to construct metadata.
+
+        Returns a dict keyed by plate (``'plate_1'``, ``'plate_2'``) then by
+        dilution step (``'dilution_1'``, ``'dilution_2'``). Each dilution entry
+        contains ``'ratio'`` (e.g. ``'1/10'``) and ``'wells'``, a dict mapping
+        well names (e.g. ``'A1'``) to ``{'construct', 'source_well', 'replicate'}``.
+
+        When both dilutions fit on a single 96-well plate (≤ 48 wells per
+        dilution), they are placed in the top and bottom halves respectively.
+        When a dilution exceeds 48 wells, each step gets its own physical plate.
+
+        Returns:
+            Nested dict describing the complete agar plate layout.
+        """
+        constructs = list(self.bacterium_locations.items())
+        agar_wells_per = self.number_constructs * self.replicates
+        plates: Dict = {}
+
+        for dilution_step in range(1, self.number_dilutions + 1):
+            ratio = self._dilution_ratio_label(dilution_step)
+            dilution_key = f'dilution_{dilution_step}'
+
+            if self.number_dilutions == 2 and agar_wells_per > 48:
+                # Each dilution gets its own plate starting at index 0
+                base_plate = dilution_step
+                base_idx = 0
+            else:
+                # Both dilutions share plate_1; dilution_2 starts at the halfway point
+                base_plate = 1
+                base_idx = 0 if dilution_step == 1 else 48
+
+            for construct_idx, (source_well, construct_names) in enumerate(constructs):
+                name_str = self._format_construct_name(construct_names)
+                for replicate in range(self.replicates):
+                    absolute_idx = base_idx + construct_idx * self.replicates + replicate
+
+                    if absolute_idx < 96:
+                        plate_key = f'plate_{base_plate}'
+                        mapped_idx = absolute_idx
+                    else:
+                        plate_key = f'plate_{base_plate + 1}'
+                        mapped_idx = absolute_idx - 96
+
+                    if plate_key not in plates:
+                        plates[plate_key] = {}
+                    if dilution_key not in plates[plate_key]:
+                        plates[plate_key][dilution_key] = {'ratio': ratio, 'wells': {}}
+
+                    well_name = self._well_name_from_index(mapped_idx)
+                    plates[plate_key][dilution_key]['wells'][well_name] = {
+                        'construct': name_str,
+                        'source_well': source_well,
+                        'replicate': replicate + 1,
+                    }
+
+        return plates
+
+    def get_plates_json(self) -> Dict:
+        """Return the full agar plate map wrapped under an ``'agar_plates'`` key."""
+        return {'agar_plates': self.build_agar_plate_map()}
+
+    def write_plates_json(self, output_path: str) -> Dict:
+        """
+        Serialize the agar plate map to a JSON file and return the data dict.
+
+        Args:
+            output_path: Filesystem path for the output JSON file.
+
+        Returns:
+            The same dict that was written to disk.
+        """
+        data = self.get_plates_json()
+        with open(output_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        return data
+
+    def write_plates_excel(self, output_path: str) -> None:
+        """
+        Write a colour-coded Excel representation of the agar plate map.
+
+        Each physical plate becomes a 8 × 12 grid in the worksheet, with cells
+        colour-coded by dilution step (blue for dilution 1, orange for dilution 2)
+        and labelled with the construct name and replicate number.
+
+        Args:
+            output_path: Filesystem path for the output ``.xlsx`` file.
+
+        Raises:
+            ImportError: If ``xlsxwriter`` is not installed.
+        """
+        try:
+            import xlsxwriter
+        except ImportError:
+            raise ImportError("xlsxwriter is required. Install with: pip install xlsxwriter")
+
+        plates_data = self.build_agar_plate_map()
+        workbook = xlsxwriter.Workbook(output_path)
+        worksheet = workbook.add_worksheet('Agar Plates')
+
+        title_fmt = workbook.add_format({
+            'bold': True, 'font_size': 12,
+            'bg_color': '#4472C4', 'font_color': 'white',
+            'align': 'center', 'valign': 'vcenter', 'border': 1,
+        })
+        header_fmt = workbook.add_format({
+            'bold': True, 'bg_color': '#D9E1F2',
+            'align': 'center', 'valign': 'vcenter', 'border': 1,
+        })
+        well_fmts = {
+            1: workbook.add_format({
+                'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+                'bg_color': '#BDD7EE', 'border': 1,
+            }),
+            2: workbook.add_format({
+                'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+                'bg_color': '#FCE4D6', 'border': 1,
+            }),
+        }
+        empty_fmt = workbook.add_format({'bg_color': '#F2F2F2', 'border': 1})
+
+        worksheet.set_column(0, 0, 4)
+        worksheet.set_column(1, 12, 20)
+
+        current_row = 0
+
+        for plate_idx, (plate_key, dilutions) in enumerate(plates_data.items()):
+            if plate_idx > 0:
+                current_row += 3
+
+            plate_num = plate_key.split('_')[1]
+            ratio_parts = [
+                f"Dilution {dk.split('_')[1]}: {dd['ratio']}"
+                for dk, dd in dilutions.items()
+            ]
+            title = f"Plate {plate_num} · " + " | ".join(ratio_parts)
+
+            worksheet.merge_range(current_row, 0, current_row, 12, title, title_fmt)
+            worksheet.set_row(current_row, 20)
+            current_row += 1
+
+            worksheet.write(current_row, 0, '', header_fmt)
+            for col in range(1, 13):
+                worksheet.write(current_row, col, col, header_fmt)
+            current_row += 1
+
+            for row_letter in 'ABCDEFGH':
+                worksheet.write(current_row, 0, row_letter, header_fmt)
+                worksheet.set_row(current_row, 30)
+                for col_num in range(1, 13):
+                    well_name = f"{row_letter}{col_num}"
+                    cell_written = False
+                    for dilution_key, dilution_data in dilutions.items():
+                        if well_name in dilution_data['wells']:
+                            w = dilution_data['wells'][well_name]
+                            dilution_num = int(dilution_key.split('_')[1])
+                            well_fmt = well_fmts.get(dilution_num, well_fmts[1])
+                            label = w['construct'].split(', ')[0]
+                            if self.replicates > 1:
+                                label += f"\nR{w['replicate']}"
+                            worksheet.write(current_row, col_num, label, well_fmt)
+                            cell_written = True
+                            break
+                    if not cell_written:
+                        worksheet.write(current_row, col_num, '', empty_fmt)
+                current_row += 1
+
+        workbook.close()
+
+    def run(self, protocol: protocol_api.ProtocolContext):
+        """
+        Execute the automated plating protocol on the OT-2.
+
+        Deck layout (default positions):
+            - Slot 7/8/10/11: Thermocycler module (source bacteria in PCR plate)
+            - Slot 1: Large tip rack (200 µL, for LB distribution)
+            - Slot 9: Small tip rack (20 µL, for bacteria and agar transfers)
+            - Slot 4: Tube rack with LB stock tube
+            - Slot 2 (and 3 if needed): Dilution plate(s)
+            - Slot 5 (and 6 if needed): Agar plate(s)
+
+        Protocol steps:
+            1. Distribute LB into all dilution wells using a single large-pipette
+               tip (one aspiration height adjustment per 8-well chunk).
+            2. For each construct: transfer bacteria → dilution 1, mix, seed
+               dilution 2 (if requested), then spot dilution 1 onto agar.
+            3. With a fresh tip, spot dilution 2 onto agar.
+
+        On simulation, writes ``{protocol_name}.json`` and ``{protocol_name}.xlsx``
+        describing the agar plate layout.
+
+        Args:
+            protocol: Opentrons ``ProtocolContext`` provided by the OT-2 runtime.
+        """
+        #Labware
+        #Load the thermocycler module, its default location is on slots 7, 8, 10 and 11
+        thermocycler = protocol.load_module('thermocyclerModuleV1')
+        thermocycler_plate = thermocycler.load_labware(self.thermocycler_labware)
+        #Load the tipracks
+        small_tiprack = protocol.load_labware(self.small_tiprack, self.small_tiprack_position)
+        large_tiprack = protocol.load_labware(self.large_tiprack, self.large_tiprack_position)
+        #Load the pipettes
+        small_pipette = protocol.load_instrument(self.small_pipette, self.small_pipette_position, tip_racks=[small_tiprack])
+        if self.initial_small_tip:
+            small_pipette.starting_tip = small_tiprack[self.initial_small_tip]
+        large_pipette = protocol.load_instrument(self.large_pipette, self.large_pipette_position, tip_racks=[large_tiprack])
+        if self.initial_large_tip:
+            large_pipette.starting_tip = large_tiprack[self.initial_large_tip]
+        #SmartPipette Wrapper to avoid dunking into the LB
+        smart_pipette = SmartPipette(large_pipette,protocol)
+        #Load the tube rack
+        tube_rack = protocol.load_labware(self.tube_rack, self.tube_rack_position)
+        lb_tube = tube_rack.wells()[self.lb_tube_position]
+        #load liquids
+        liquid_broth = protocol.define_liquid(
+            name="liquid_broth",
+            description="Liquid broth for dilutions",
+            display_color="#D2B48C"
+        )
+        lb_tube.load_liquid(liquid = liquid_broth, volume = self.volume_lb)
+        # Load bacteria into thermocycler wells
+        for i, (well_position, construct_names) in enumerate(self.bacterium_locations.items()):
+            liquid_bacteria = protocol.define_liquid(
+                name="transformed_bacteria",
+                description=f"{construct_names}",
+                display_color=colors[i%len(colors)]
+            )
+            well = thermocycler_plate[well_position]
+            well.load_liquid(liquid=liquid_bacteria, volume=self.volume_total_reaction)
+
+        # Load dilution plates — one well per construct per dilution step
+        dilution_plate1 = protocol.load_labware(self.dilution_plate, self.dilution_plate_position1)
+
+        # Validate that the dilution well can physically hold the full dilution volume
+        dilution_well_max = dilution_plate1.wells()[0].max_volume
+        volume_dilution_well = self.volume_bacteria_transfer * self.dilution_factor
+        if volume_dilution_well > dilution_well_max:
+            raise ValueError(
+                f"Dilution factor {self.dilution_factor} with {self.volume_bacteria_transfer} µL bacteria transfer "
+                f"requires {volume_dilution_well:.1f} µL per well, but '{self.dilution_plate}' wells hold "
+                f"only {dilution_well_max:.1f} µL. Reduce dilution_factor or switch to a larger dilution plate."
+            )
+        if self.number_constructs * self.number_dilutions > len(dilution_plate1.wells()):
+            dilution_plate2 = protocol.load_labware(self.dilution_plate, self.dilution_plate_position2)
+            dilution_layout = self.calculate_plate_layout(protocol, dilution_plate1, dilution_plate2,
+                                                          wells_per_dilution=self.number_constructs)
+        else:
+            dilution_layout = self.calculate_plate_layout(protocol, dilution_plate1,
+                                                          wells_per_dilution=self.number_constructs)
+
+        # Load agar plates — one well per construct per replicate per dilution step
+        agar_plate1 = protocol.load_labware(self.agar_plate, self.agar_plate_position1)
+        if self.total_colonies > len(agar_plate1.wells()):
+            agar_plate2 = protocol.load_labware(self.agar_plate, self.agar_plate_position2)
+            agar_layout = self.calculate_plate_layout(protocol, agar_plate1, agar_plate2,
+                                                      wells_per_dilution=self.number_constructs * self.replicates)
+        else:
+            agar_layout = self.calculate_plate_layout(protocol, agar_plate1,
+                                                      wells_per_dilution=self.number_constructs * self.replicates)
+
+
+        thermocycler.set_block_temperature(4)
+        thermocycler.open_lid()
+
+        #Load the Liquid Broth into the dilution wells
+        protocol.comment("\n=== Step 1: Distributing LB to dilution wells ===")
+        # Get all wells that will receive LB (both dilutions if applicable)
+        all_dilution_wells = dilution_layout['dilution_1']['wells'][:]
+        if self.number_dilutions == 2 and dilution_layout['dilution_2']:
+            all_dilution_wells.extend(dilution_layout['dilution_2']['wells'])
+        # Distribute LB using a single tip for the entire step
+        # Process in chunks of 8 wells to update aspiration height as the tube empties
+        chunk_size = 8
+        large_pipette.pick_up_tip()
+        for i in range(0, len(all_dilution_wells), chunk_size):
+            chunk_wells = all_dilution_wells[i:i + chunk_size]
+
+            # Get current aspiration location before each chunk
+            aspiration_location = smart_pipette.get_aspiration_location(lb_tube)
+            protocol.comment(f"Distributing to wells {i + 1}-{min(i + chunk_size, len(all_dilution_wells))}")
+
+            # Distribute without picking up a new tip each chunk
+            large_pipette.distribute(
+                volume=self.volume_lb_transfer,
+                source=aspiration_location,
+                dest=chunk_wells,
+                disposal_volume=4,
+                new_tip='never'
+            )
+
+            # Load liquid tracking for dilution wells
+            for well in chunk_wells:
+                well.load_liquid(liquid=liquid_broth, volume=self.volume_lb_transfer)
+        large_pipette.drop_tip()
+
+        #Transfer bacteria to first dilution and process
+        protocol.comment("\n=== Step 2: Transferring bacteria and plating ===")
+
+        for construct_idx, (construct_position, construct_names) in enumerate(self.bacterium_locations.items()):
+            source_well = thermocycler_plate[construct_position]
+            dilution1_well = dilution_layout['dilution_1']['wells'][construct_idx]
+
+            protocol.comment(f"\nProcessing construct {construct_idx + 1}: {construct_names}")
+
+            # === Tip 1: set up dilutions + plate all dilution-1 replicates ===
+            small_pipette.pick_up_tip()
+
+            # Transfer bacteria → dilution1, mix
+            small_pipette.aspirate(self.volume_bacteria_transfer, source_well, rate=self.aspiration_rate)
+            small_pipette.dispense(self.volume_bacteria_transfer, dilution1_well, rate=self.dispense_rate)
+            small_pipette.mix(repetitions=5, volume=self.mix_volume, location=dilution1_well)
+
+            if self.number_dilutions == 2:
+                dilution2_well = dilution_layout['dilution_2']['wells'][construct_idx]
+                # Seed dilution2 first (before any agar aspirations from dilution1)
+                small_pipette.aspirate(self.volume_bacteria_transfer, dilution1_well, rate=self.aspiration_rate)
+                small_pipette.dispense(self.volume_bacteria_transfer, dilution2_well, rate=self.dispense_rate)
+                small_pipette.mix(repetitions=5, volume=self.mix_volume, location=dilution2_well)
+
+            # Plate all dilution-1 replicates
+            for replicate in range(self.replicates):
+                agar1_well = agar_layout['dilution_1']['wells'][construct_idx * self.replicates + replicate]
+                small_pipette.aspirate(self.volume_colony, dilution1_well, rate=self.aspiration_rate)
+                small_pipette.dispense(self.volume_colony, agar1_well.top(-8), rate=self.dispense_rate)
+                small_pipette.blow_out()
+
+            small_pipette.drop_tip()
+
+            # === Tip 2: plate all dilution-2 replicates with a clean tip ===
+            if self.number_dilutions == 2:
+                small_pipette.pick_up_tip()
+                for replicate in range(self.replicates):
+                    agar2_well = agar_layout['dilution_2']['wells'][construct_idx * self.replicates + replicate]
+                    small_pipette.aspirate(self.volume_colony, dilution2_well, rate=self.aspiration_rate)
+                    small_pipette.dispense(self.volume_colony, agar2_well.top(-8), rate=self.dispense_rate)
+                    small_pipette.blow_out()
+                small_pipette.drop_tip()
+
+        # Close thermocycler lid
+        # thermocycler.close_lid()
+        # thermocycler.deactivate_block()
+
+        protocol.comment("\n=== Plating protocol complete ===")
+        protocol.comment(f"Plated {self.number_constructs} constructs with {self.replicates} replicates")
+        protocol.comment(f"Created a total of {self.total_colonies} colonies")
+
+        if protocol.is_simulating():
+            try:
+                output_path = f'{self.protocol_name}.json'
+                self.write_plates_json(output_path)
+                protocol.comment(f"Generated {output_path}")
+                excel_path = f'{self.protocol_name}.xlsx'
+                self.write_plates_excel(excel_path)
+                protocol.comment(f"Generated {excel_path}")
+            except Exception as e:
+                protocol.comment(f"Could not export plating layout: {e}")
+
+
+@dataclass
+class ManualPlatingRecord:
+    source_well: str
+    construct_name: str
+
+
+class ManualPlating:
+    """Manual counterpart of automated plating protocol."""
+
+    def __init__(self,
+                 plating_data: Optional[Dict] = None,
+                 bacterium_locations: Optional[Dict] = None,
+                 volume_bacteria_transfer: float = 2,
+                 volume_colony: float = 4,
+                 volume_lb_transfer: float = 18,
+                 replicates: int = 1,
+                 number_dilutions: int = 2):
+        if plating_data is not None:
+            if bacterium_locations is None:
+                bacterium_locations = plating_data.get("bacterium_locations")
+            volume_bacteria_transfer = plating_data.get("volume_bacteria_transfer", volume_bacteria_transfer)
+            volume_colony = plating_data.get("volume_colony", volume_colony)
+            volume_lb_transfer = plating_data.get("volume_lb_transfer", volume_lb_transfer)
+            replicates = plating_data.get("replicates", replicates)
+            number_dilutions = plating_data.get("number_dilutions", number_dilutions)
+        if not isinstance(bacterium_locations, dict) or not bacterium_locations:
+            raise ValueError("bacterium_locations must be a non-empty dictionary")
+
+        self.bacterium_locations = bacterium_locations
+        self.volume_bacteria_transfer = volume_bacteria_transfer
+        self.volume_colony = volume_colony
+        self.volume_lb_transfer = volume_lb_transfer
+        self.replicates = replicates
+        self.number_dilutions = number_dilutions
+        self.records: List[ManualPlatingRecord] = []
+
+    def process_bacterium_locations(self):
+        self.records = [
+            ManualPlatingRecord(source_well=well, construct_name=str(name))
+            for well, name in self.bacterium_locations.items()
+        ]
+        return self.records
+
+    def render_markdown(self) -> str:
+        if not self.records:
+            self.process_bacterium_locations()
+
+        lines = [
+            "# Manual Plating Protocol",
+            "",
+            "## Overview",
+            "This protocol describes manual dilution and plating of transformed bacteria from thermocycler wells.",
+            "",
+            "## Setup",
+            f"- Source cultures: {len(self.records)}",
+            f"- Dilutions per construct: {self.number_dilutions}",
+            f"- Replicates per dilution: {self.replicates}",
+            f"- Bacteria transfer volume: {self.volume_bacteria_transfer} uL",
+            f"- LB transfer volume: {self.volume_lb_transfer} uL",
+            f"- Plating volume: {self.volume_colony} uL",
+            "",
+            "## Source Cultures",
+            "",
+            "| Thermocycler well | Construct |",
+            "| --- | --- |",
+        ]
+        for record in self.records:
+            lines.append(f"| {record.source_well} | {record.construct_name} |")
+
+        lines.extend([
+            "",
+            "## Manual Steps",
+            "1. Label dilution tubes/plate wells for each construct and each dilution.",
+            f"2. For each dilution well, pre-load {self.volume_lb_transfer} uL LB medium.",
+            f"3. Add {self.volume_bacteria_transfer} uL bacteria from each source well into dilution 1 and mix.",
+            "4. If a second dilution is required, transfer from dilution 1 into dilution 2 and mix.",
+            f"5. Spot or spread {self.volume_colony} uL from each dilution onto selective agar.",
+            "6. Incubate plates under strain-appropriate conditions until colonies are visible.",
+            "",
+            "## Notes",
+            "- Use fresh sterile tips between constructs and dilution steps.",
+            "- Keep mapping between source wells and plated positions for colony tracking.",
+            "",
+        ])
+        return "\n".join(lines)
+
+    def write_markdown(self, output_path: str):
+        with open(output_path, "w", encoding="utf-8") as handle:
+            handle.write(self.render_markdown())

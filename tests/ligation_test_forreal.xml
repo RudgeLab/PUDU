@@ -1,0 +1,627 @@
+<rdf:RDF xmlns:brick="https://brickschema.org/schema/Brick#" xmlns:csvw="http://www.w3.org/ns/csvw#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcam="http://purl.org/dc/dcam/" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:geo="http://www.opengis.net/ont/geosparql#" xmlns:odrl="http://www.w3.org/ns/odrl/2/" xmlns:org="http://www.w3.org/ns/org#" xmlns:prof="http://www.w3.org/ns/dx/prof/" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:qb="http://purl.org/linked-data/cube#" xmlns:schema="https://schema.org/" xmlns:sh="http://www.w3.org/ns/shacl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:sosa="http://www.w3.org/ns/sosa/" xmlns:ssn="http://www.w3.org/ns/ssn/" xmlns:time="http://www.w3.org/2006/time#" xmlns:vann="http://purl.org/vocab/vann/" xmlns:void="http://rdfs.org/ns/void#" xmlns:wgs="https://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:sbol="http://sbols.org/v2#">
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/1">
+    <sbol:version>1</sbol:version>
+    <sbol:sequence rdf:resource="http://examples.org/Sequence/UJHDBOTD_backbone_seq/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>UJHDBOTD_backbone</sbol:displayId>
+    <sbol:role rdf:resource="https://identifiers.org/SO:0000755"/>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_backbone"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/fusion_sites_annotation/1">
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/fusion_sites_annotation/three_prime_fusion_site_location/1">
+            <sbol:version>1</sbol:version>
+            <sbol:end>2203</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>2200</sbol:start>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/fusion_sites_annotation/three_prime_fusion_site_location"/>
+            <sbol:displayId>three_prime_fusion_site_location</sbol:displayId>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:role rdf:resource="https://identifiers.org/SO:0000366"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/fusion_sites_annotation"/>
+        <sbol:displayId>fusion_sites_annotation</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/fusion_sites_annotation/five_prime_fusion_site_location/1">
+            <sbol:version>1</sbol:version>
+            <sbol:end>4</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>1</sbol:start>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/fusion_sites_annotation/five_prime_fusion_site_location"/>
+            <sbol:displayId>five_prime_fusion_site_location</sbol:displayId>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/1">
+    <sbol:version>1</sbol:version>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/fusion_sites_annotation/1">
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/fusion_sites_annotation/three_prime_fusion_site_location/1">
+            <sbol:version>1</sbol:version>
+            <sbol:start>722</sbol:start>
+            <sbol:displayId>three_prime_fusion_site_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/fusion_sites_annotation/three_prime_fusion_site_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:end>725</sbol:end>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:displayId>fusion_sites_annotation</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/fusion_sites_annotation"/>
+        <sbol:role rdf:resource="https://identifiers.org/SO:0000366"/>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/fusion_sites_annotation/five_prime_fusion_site_location/1">
+            <sbol:version>1</sbol:version>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/fusion_sites_annotation/five_prime_fusion_site_location"/>
+            <sbol:displayId>five_prime_fusion_site_location</sbol:displayId>
+            <sbol:end>4</sbol:end>
+            <sbol:start>1</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:version>1</sbol:version>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:role rdf:resource="https://identifiers.org/SO:0000915"/>
+    <sbol:sequence rdf:resource="http://examples.org/Sequence/UJHDBOTD_106_part_extract_seq/1"/>
+    <sbol:displayId>UJHDBOTD_106_part_extract</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/1">
+    <sbol:role rdf:resource="https://identifiers.org/SO:0000915"/>
+    <sbol:displayId>UJHDBOTD_70_part_extract</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/fusion_sites_annotation/1">
+        <sbol:displayId>fusion_sites_annotation</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/fusion_sites_annotation"/>
+        <sbol:role rdf:resource="https://identifiers.org/SO:0000366"/>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/fusion_sites_annotation/five_prime_fusion_site_location/1">
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>five_prime_fusion_site_location</sbol:displayId>
+            <sbol:end>4</sbol:end>
+            <sbol:start>1</sbol:start>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/fusion_sites_annotation/five_prime_fusion_site_location"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/fusion_sites_annotation/three_prime_fusion_site_location/1">
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>three_prime_fusion_site_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/fusion_sites_annotation/three_prime_fusion_site_location"/>
+            <sbol:start>40</sbol:start>
+            <sbol:end>43</sbol:end>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="http://examples.org/Sequence/UJHDBOTD_70_part_extract_seq/1"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/1">
+    <sbol:role rdf:resource="https://identifiers.org/SO:0000915"/>
+    <sbol:version>1</sbol:version>
+    <sbol:sequence rdf:resource="http://examples.org/Sequence/UJHDBOTD_45_part_extract_seq/1"/>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract"/>
+    <sbol:displayId>UJHDBOTD_45_part_extract</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/fusion_sites_annotation/1">
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/fusion_sites_annotation/three_prime_fusion_site_location/1">
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/fusion_sites_annotation/three_prime_fusion_site_location"/>
+            <sbol:displayId>three_prime_fusion_site_location</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:end>29</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>26</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/fusion_sites_annotation/five_prime_fusion_site_location/1">
+            <sbol:end>4</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>1</sbol:start>
+            <sbol:displayId>five_prime_fusion_site_location</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/fusion_sites_annotation/five_prime_fusion_site_location"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:role rdf:resource="https://identifiers.org/SO:0000366"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>fusion_sites_annotation</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/fusion_sites_annotation"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/1">
+    <sbol:displayId>UJHDBOTD_134_part_extract</sbol:displayId>
+    <sbol:role rdf:resource="https://identifiers.org/SO:0000915"/>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract"/>
+    <sbol:sequence rdf:resource="http://examples.org/Sequence/UJHDBOTD_134_part_extract_seq/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/fusion_sites_annotation/1">
+        <sbol:role rdf:resource="https://identifiers.org/SO:0000366"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>fusion_sites_annotation</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/fusion_sites_annotation/three_prime_fusion_site_location/1">
+            <sbol:start>134</sbol:start>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/fusion_sites_annotation/three_prime_fusion_site_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:end>137</sbol:end>
+            <sbol:displayId>three_prime_fusion_site_location</sbol:displayId>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:location>
+          <sbol:Range rdf:about="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/fusion_sites_annotation/five_prime_fusion_site_location/1">
+            <sbol:start>1</sbol:start>
+            <sbol:end>4</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>five_prime_fusion_site_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/fusion_sites_annotation/five_prime_fusion_site_location"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/fusion_sites_annotation"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/BsaI/1">
+    <dcterms:title>BsaI</dcterms:title>
+    <sbol:version>1</sbol:version>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#Protein"/>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/BsaI"/>
+    <prov:wasDerivedFrom rdf:resource="http://rebase.neb.com/rebase/enz/BsaI.html"/>
+    <dcterms:description>Restriction enzyme BsaI from REBASE.</dcterms:description>
+    <sbol:displayId>BsaI</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/1">
+    <sbol:component>
+      <sbol:Component rdf:about="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_70_part_extract/1">
+        <sbol:displayId>UJHDBOTD_70_part_extract</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_70_part_extract"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:version>1</sbol:version>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000804"/>
+    <sbol:component>
+      <sbol:Component rdf:about="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_backbone/1">
+        <sbol:displayId>UJHDBOTD_backbone</sbol:displayId>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_backbone"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequence rdf:resource="http://examples.org/Sequence/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45_seq/1"/>
+    <sbol:displayId>composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45</sbol:displayId>
+    <sbol:component>
+      <sbol:Component rdf:about="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_45_part_extract/1">
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_45_part_extract</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_45_part_extract"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_106_part_extract/1">
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/1"/>
+        <sbol:displayId>UJHDBOTD_106_part_extract</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_106_part_extract"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:component>
+      <sbol:Component rdf:about="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_134_part_extract/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_134_part_extract</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/1"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45/UJHDBOTD_134_part_extract"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ComponentDefinition/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45"/>
+    <dcterms:title>composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45</dcterms:title>
+  </sbol:ComponentDefinition>
+  <sbol:Sequence rdf:about="http://examples.org/Sequence/UJHDBOTD_backbone_seq/1">
+    <sbol:displayId>UJHDBOTD_backbone_seq</sbol:displayId>
+    <sbol:elements>cgctgcatgaagagcctgcagtccggcaaaaaagggcaaggtgtcaccaccctgccctttttctttaaaaccgaaaagattacttcgcgttatgcaggcttcctcgctcactgactcgctgcgctcggtcgttcggctgcggcgagcggtatcagctcactcaaaggcggtaatacggttatccacagaatcaggggataacgcaggaaagaacatgtgagcaaaaggccagcaaaaggccaggaaccgtaaaaaggccgcgttgctggcgtttttccacaggctccgcccccctgacgagcatcacaaaaatcgacgctcaagtcagaggtggcgaaacccgacaggactataaagataccaggcgtttccccctggaagctccctcgtgcgctctcctgttccgaccctgccgcttaccggatacctgtccgcctttctcccttcgggaagcgtggcgctttctcatagctcacgctgtaggtatctcagttcggtgtaggtcgttcgctccaagctgggctgtgtgcacgaaccccccgttcagcccgaccgctgcgccttatccggtaactatcgtcttgagtccaacccggtaagacacgacttatcgccactggcagcagccactggtaacaggattagcagagcgaggtatgtaggcggtgctacagagttcttgaagtggtggcctaactacggctacactagaagaacagtatttggtatctgcgctctgctgaagccagttaccttcggaaaaagagttggtagctcttgatccggcaaacaaaccaccgctggtagcggtggtttttttgtttgcaagcagcagattacgcgcagaaaaaaaggatctcaagaagatcctttgatcttttctacggggtctgacgctcagtggaacgaaaactcacgttaagggattttggtcatgagattatcaaaaaggatcttcacctagatccttttaaattaaaaatgaagttttaaatcaatctaaagtatatatgagtaaacttggtctgacagctcgagtcccgtcaagtcagcgtaatgctctgccagtgttacaaccaattaaccaattctgattagaaaaactcatcgagcatcaaatgaaactgcaatttattcatatcaggattatcaataccatatttttgaaaaagccgtttctgtaatgaaggagaaaactcaccgaggcagttccataggatggcaagatcctggtatcggtctgcgattccgactcgtccaacatcaatacaacctattaatttcccctcgtcaaaaataaggttatcaagtgagaaatcaccatgagtgacgactgaatccggtgagaatggcaaaagcttatgcatttctttccagacttgttcaacaggccagccattacgctcgtcatcaaaatcactcgcatcaaccaaaccgttattcattcgtgattgcgcctgagcgagacgaaatacgcgatcgctgttaaaaggacaattacaaacaggaatcgaatgcaaccggcgcaggaacactgccagcgcatcaacaatattttcacctgaatcaggatattcttctaatacctggaatgctgttttcccggggatcgcagtggtgagtaaccatgcatcatcaggagtacggataaaatgcttgatggtcggaagaggcataaattccgtcagccagtttagtctgaccatctcatctgtaacatcattggcaacgctacctttgccatgtttcagaaacaactctggcgcatcgggcttcccatacaatcgatagattgtcgcacctgattgcccgacattatcgcgagcccatttatacccatataaatcagcatccatgttggaatttaatcgcggcctggagcaagacgtttcccgttgaatatggctcataacaccccttgtattactgtttatgtaagcagacagttttattgttcatgatgatatatttttatcttgtgcaatgtaacatcagagattttgagacacaacgtggctttgttgaataaatcgaacttttgctgagttgaaggatcagctcgagtgccacctgacgtctaagaaaccattattatcatgacattaacctataaaaataggcgtatcacgaggcagaatttcagataaaaaaaatccttagctttcgctaaggatgatttctggaattcgctcttcaatgggag</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/Sequence/UJHDBOTD_backbone_seq"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="http://examples.org/Sequence/UJHDBOTD_106_part_extract_seq/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>UJHDBOTD_106_part_extract_seq</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/Sequence/UJHDBOTD_106_part_extract_seq"/>
+    <sbol:elements>aatggtgagcaagggcgaggagctgttcaccggggtggtgcccatcctggtcgagctggacggcgacgtaaacggccacaagttcagcgtgtccggcgagggcgagggcgatgccacctacggcaagctgaccctgaagttcatctgcaccaccggcaagctgcccgtgccctggcccaccctcgtgaccaccttcagctacggcgtgcagtgcttcagccgctaccccgaccacatgaagcagcacgacttcttcaagtccgccatgcccgaaggctacgtccaggagcgcaccatcttcttcaaggacgacggcaactacaagacccgcgccgaggtgaagttcgagggcgacaccctggtgaaccgcatcgagctgaagggcatcgacttcaaggaggacggcaacatcctggggcacaagctggagtacaactacaacagccacaacgtctatatcatggccgacaagcagaagaacggcatcaaggtgaacttcaagatccgccacaacatcgaggacggcagcgtgcagctcgccgaccactaccagcagaacacccccatcggcgacggccccgtgctgctgcccgacaaccactacctgagcacccagtccgccctgagcaaagaccccaacgagaagcgcgatcacatggtcctgctggagttcgtgaccgccgccgggatcactcacggcatggacgagctgtacaagtaagctt</sbol:elements>
+    <sbol:version>1</sbol:version>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="http://examples.org/Sequence/UJHDBOTD_70_part_extract_seq/1">
+    <sbol:displayId>UJHDBOTD_70_part_extract_seq</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>GGAGtttacagctagctcagtcctaggtattatgctagcTACT</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/Sequence/UJHDBOTD_70_part_extract_seq"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="http://examples.org/Sequence/UJHDBOTD_45_part_extract_seq/1">
+    <sbol:elements>TACTagagaaagaggagaaatactaaatg</sbol:elements>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/Sequence/UJHDBOTD_45_part_extract_seq"/>
+    <sbol:displayId>UJHDBOTD_45_part_extract_seq</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="http://examples.org/Sequence/UJHDBOTD_134_part_extract_seq/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/Sequence/UJHDBOTD_134_part_extract_seq"/>
+    <sbol:displayId>UJHDBOTD_134_part_extract_seq</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>gcttccaggcatcaaataaaacgaaaggctcagtcgaaagactgggcctttcgttttatctgttgtttgtcggtgaacgctctctactagagtcacactggctcaccttcgggtgggcctttctgcgtttatacgct</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="http://examples.org/Sequence/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45_seq/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>aatggtgagcaagggcgaggagctgttcaccggggtggtgcccatcctggtcgagctggacggcgacgtaaacggccacaagttcagcgtgtccggcgagggcgagggcgatgccacctacggcaagctgaccctgaagttcatctgcaccaccggcaagctgcccgtgccctggcccaccctcgtgaccaccttcagctacggcgtgcagtgcttcagccgctaccccgaccacatgaagcagcacgacttcttcaagtccgccatgcccgaaggctacgtccaggagcgcaccatcttcttcaaggacgacggcaactacaagacccgcgccgaggtgaagttcgagggcgacaccctggtgaaccgcatcgagctgaagggcatcgacttcaaggaggacggcaacatcctggggcacaagctggagtacaactacaacagccacaacgtctatatcatggccgacaagcagaagaacggcatcaaggtgaacttcaagatccgccacaacatcgaggacggcagcgtgcagctcgccgaccactaccagcagaacacccccatcggcgacggccccgtgctgctgcccgacaaccactacctgagcacccagtccgccctgagcaaagaccccaacgagaagcgcgatcacatggtcctgctggagttcgtgaccgccgccgggatcactcacggcatggacgagctgtacaagtaagcttccaggcatcaaataaaacgaaaggctcagtcgaaagactgggcctttcgttttatctgttgtttgtcggtgaacgctctctactagagtcacactggctcaccttcgggtgggcctttctgcgtttatacgctgcatgaagagcctgcagtccggcaaaaaagggcaaggtgtcaccaccctgccctttttctttaaaaccgaaaagattacttcgcgttatgcaggcttcctcgctcactgactcgctgcgctcggtcgttcggctgcggcgagcggtatcagctcactcaaaggcggtaatacggttatccacagaatcaggggataacgcaggaaagaacatgtgagcaaaaggccagcaaaaggccaggaaccgtaaaaaggccgcgttgctggcgtttttccacaggctccgcccccctgacgagcatcacaaaaatcgacgctcaagtcagaggtggcgaaacccgacaggactataaagataccaggcgtttccccctggaagctccctcgtgcgctctcctgttccgaccctgccgcttaccggatacctgtccgcctttctcccttcgggaagcgtggcgctttctcatagctcacgctgtaggtatctcagttcggtgtaggtcgttcgctccaagctgggctgtgtgcacgaaccccccgttcagcccgaccgctgcgccttatccggtaactatcgtcttgagtccaacccggtaagacacgacttatcgccactggcagcagccactggtaacaggattagcagagcgaggtatgtaggcggtgctacagagttcttgaagtggtggcctaactacggctacactagaagaacagtatttggtatctgcgctctgctgaagccagttaccttcggaaaaagagttggtagctcttgatccggcaaacaaaccaccgctggtagcggtggtttttttgtttgcaagcagcagattacgcgcagaaaaaaaggatctcaagaagatcctttgatcttttctacggggtctgacgctcagtggaacgaaaactcacgttaagggattttggtcatgagattatcaaaaaggatcttcacctagatccttttaaattaaaaatgaagttttaaatcaatctaaagtatatatgagtaaacttggtctgacagctcgagtcccgtcaagtcagcgtaatgctctgccagtgttacaaccaattaaccaattctgattagaaaaactcatcgagcatcaaatgaaactgcaatttattcatatcaggattatcaataccatatttttgaaaaagccgtttctgtaatgaaggagaaaactcaccgaggcagttccataggatggcaagatcctggtatcggtctgcgattccgactcgtccaacatcaatacaacctattaatttcccctcgtcaaaaataaggttatcaagtgagaaatcaccatgagtgacgactgaatccggtgagaatggcaaaagcttatgcatttctttccagacttgttcaacaggccagccattacgctcgtcatcaaaatcactcgcatcaaccaaaccgttattcattcgtgattgcgcctgagcgagacgaaatacgcgatcgctgttaaaaggacaattacaaacaggaatcgaatgcaaccggcgcaggaacactgccagcgcatcaacaatattttcacctgaatcaggatattcttctaatacctggaatgctgttttcccggggatcgcagtggtgagtaaccatgcatcatcaggagtacggataaaatgcttgatggtcggaagaggcataaattccgtcagccagtttagtctgaccatctcatctgtaacatcattggcaacgctacctttgccatgtttcagaaacaactctggcgcatcgggcttcccatacaatcgatagattgtcgcacctgattgcccgacattatcgcgagcccatttatacccatataaatcagcatccatgttggaatttaatcgcggcctggagcaagacgtttcccgttgaatatggctcataacaccccttgtattactgtttatgtaagcagacagttttattgttcatgatgatatatttttatcttgtgcaatgtaacatcagagattttgagacacaacgtggctttgttgaataaatcgaacttttgctgagttgaaggatcagctcgagtgccacctgacgtctaagaaaccattattatcatgacattaacctataaaaataggcgtatcacgaggcagaatttcagataaaaaaaatccttagctttcgctaaggatgatttctggaattcgctcttcaatgGGAGtttacagctagctcagtcctaggtattatgctagcTACTagagaaagaggagaaatacta</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/Sequence/composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45_seq"/>
+    <sbol:displayId>composite_1_UJHDBOTD_106_UJHDBOTD_134_UJHDBOTD_backbone_UJHDBOTD_70_UJHDBOTD_45_seq</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:ModuleDefinition rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/1">
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_reaction_component/1">
+        <sbol:displayId>UJHDBOTD_134_reaction_component</sbol:displayId>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_reaction_component"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_product_component/1">
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_product_component"/>
+        <sbol:displayId>UJHDBOTD_106_product_component</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_106_part_extract/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme/1">
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>BsaI_enzyme</sbol:displayId>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/BsaI/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_reactant_component/1">
+        <sbol:displayId>UJHDBOTD_45_reactant_component</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_reactant_component"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/1">
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/UJHDBOTD_70_reactant_participation/1">
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/UJHDBOTD_70_reactant_participation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_70_reactant_participation</sbol:displayId>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_reaction_component/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/restriction/1">
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme/1"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/restriction"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/UJHDBOTD_70_product_participation/1">
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_asssembly_plan_interaction/UJHDBOTD_70_product_participation"/>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_product_component/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:displayId>UJHDBOTD_70_product_participation</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>UJHDBOTD_70_asssembly_plan_interaction</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:type rdf:resource="https://identifiers.org/SBO:0000178"/>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/1">
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/restriction/1">
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/restriction"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme/1"/>
+            <sbol:displayId>restriction</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:type rdf:resource="https://identifiers.org/SBO:0000178"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/UJHDBOTD_106_reactant_participation/1">
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/UJHDBOTD_106_reactant_participation"/>
+            <sbol:displayId>UJHDBOTD_106_reactant_participation</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_reaction_component/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/UJHDBOTD_106_product_participation/1">
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_product_component/1"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_106_product_participation</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_asssembly_plan_interaction/UJHDBOTD_106_product_participation"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>UJHDBOTD_106_asssembly_plan_interaction</sbol:displayId>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_reactant_component/1">
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_reactant_component"/>
+        <sbol:displayId>UJHDBOTD_backbone_reactant_component</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan"/>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_reactant_component/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_reactant_component"/>
+        <sbol:displayId>UJHDBOTD_70_reactant_component</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_product_component/1">
+        <sbol:displayId>UJHDBOTD_134_product_component</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_134_part_extract/1"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_product_component"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_reaction_component/1">
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_reaction_component"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_106_reaction_component</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/1">
+        <sbol:type rdf:resource="https://identifiers.org/SBO:0000178"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/UJHDBOTD_45_reactant_participation/1">
+            <sbol:displayId>UJHDBOTD_45_reactant_participation</sbol:displayId>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_reaction_component/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/UJHDBOTD_45_reactant_participation"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>UJHDBOTD_45_asssembly_plan_interaction</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/UJHDBOTD_45_product_participation/1">
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/UJHDBOTD_45_product_participation"/>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_product_component/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_45_product_participation</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/restriction/1">
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme/1"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_asssembly_plan_interaction/restriction"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>restriction</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:version>1</sbol:version>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_reactant_component/1">
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_reactant_component"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:displayId>UJHDBOTD_134_reactant_component</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_reaction_component/1">
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:displayId>UJHDBOTD_70_reaction_component</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_reaction_component"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:version>1</sbol:version>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_reactant_component/1">
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_106_reactant_component</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_106_reactant_component"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:displayId>bb_assembly_plan</sbol:displayId>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_product_component/1">
+        <sbol:displayId>UJHDBOTD_45_product_component</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_45_part_extract/1"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_product_component"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/1">
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/restriction/1">
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/restriction"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme/1"/>
+            <sbol:displayId>restriction</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:type rdf:resource="https://identifiers.org/SBO:0000178"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/UJHDBOTD_134_reactant_participation/1">
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/UJHDBOTD_134_reactant_participation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_reaction_component/1"/>
+            <sbol:displayId>UJHDBOTD_134_reactant_participation</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/UJHDBOTD_134_product_participation/1">
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_134_product_participation</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_asssembly_plan_interaction/UJHDBOTD_134_product_participation"/>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_134_product_component/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>UJHDBOTD_134_asssembly_plan_interaction</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_product_component/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_70_product_component</sbol:displayId>
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_70_part_extract/1"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_70_product_component"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/1">
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/UJHDBOTD_backbone_reactant_participation/1">
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_reaction_component/1"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/UJHDBOTD_backbone_reactant_participation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_backbone_reactant_participation</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/restriction/1">
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/restriction"/>
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/BsaI_enzyme/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:type rdf:resource="https://identifiers.org/SBO:0000178"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/UJHDBOTD_backbone_product_participation/1">
+            <sbol:participant rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_product_component/1"/>
+            <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/asssembly_plan_interaction/UJHDBOTD_backbone_product_participation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:displayId>UJHDBOTD_backbone_product_participation</sbol:displayId>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>asssembly_plan_interaction</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_reaction_component/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_backbone_reaction_component</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_reaction_component"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_product_component/1">
+        <sbol:definition rdf:resource="http://examples.org/ComponentDefinition/UJHDBOTD_backbone/1"/>
+        <sbol:displayId>UJHDBOTD_backbone_product_component</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_backbone_product_component"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_reaction_component/1">
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_45_reaction_component</sbol:displayId>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:persistentIdentity rdf:resource="http://examples.org/ModuleDefinition/bb_assembly_plan/UJHDBOTD_45_reaction_component"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+  </sbol:ModuleDefinition>
+</rdf:RDF>

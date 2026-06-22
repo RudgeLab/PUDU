@@ -1,0 +1,328 @@
+<?xml version="1.0" ?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sbol="http://sbols.org/v2#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:om="http://www.ontology-of-units-of-measure.org/resource/om-2/" xmlns:SBOLCanvas="https://sbolcanvas.org/">
+  <sbol:ModuleDefinition rdf:about="https://sbolcanvas.org/module1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/module1"/>
+    <sbol:displayId>module1</sbol:displayId>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://sbolcanvas.org/module1/XJK9paob_2">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/module1/XJK9paob_2"/>
+        <sbol:displayId>XJK9paob_2</sbol:displayId>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/XJK9paob/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#inout"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+  </sbol:ModuleDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_bWtJ/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_bWtJ"/>
+    <sbol:displayId>Scar_bWtJ</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <dcterms:title>Scar</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_bWtJ_sequence"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_dAK6/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_dAK6"/>
+    <sbol:displayId>Scar_dAK6</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <dcterms:title>Scar</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_dAK6_sequence"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Pro_zVcE/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Pro_zVcE"/>
+    <sbol:displayId>Pro_zVcE</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <dcterms:title>Pro</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000167"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Pro_zVcE_sequence"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Cir_wQ7v/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Cir_wQ7v"/>
+    <sbol:displayId>Cir_wQ7v</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <dcterms:title>Cir</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000755"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Cir_wQ7v_sequence"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/XJK9paob/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob"/>
+    <sbol:displayId>XJK9paob</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <dcterms:title> </dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:type rdf:resource="http://identifiers.org/so/SO:0000988"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000110"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://sbolcanvas.org/XJK9paob/Scar_dAK6_4/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_dAK6_4"/>
+        <sbol:displayId>Scar_dAK6_4</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/Scar_dAK6/1"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://sbolcanvas.org/XJK9paob/Pro_zVcE_3/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/Pro_zVcE_3"/>
+        <sbol:displayId>Pro_zVcE_3</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/Pro_zVcE/1"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://sbolcanvas.org/XJK9paob/Scar_bWtJ_2/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_bWtJ_2"/>
+        <sbol:displayId>Scar_bWtJ_2</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/Scar_bWtJ/1"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://sbolcanvas.org/XJK9paob/Cir_wQ7v_5/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/Cir_wQ7v_5"/>
+        <sbol:displayId>Cir_wQ7v_5</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/Cir_wQ7v/1"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation2/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation2"/>
+        <sbol:displayId>XJK9paobAnnotation2</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation2/location2/1">
+            <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation2/location2"/>
+            <sbol:displayId>location2</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:start>12</sbol:start>
+            <sbol:end>15</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_dAK6_4/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation3/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation3"/>
+        <sbol:displayId>XJK9paobAnnotation3</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation3/location3/1">
+            <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation3/location3"/>
+            <sbol:displayId>location3</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:start>16</sbol:start>
+            <sbol:end>39</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://sbolcanvas.org/XJK9paob/Cir_wQ7v_5/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation1/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation1"/>
+        <sbol:displayId>XJK9paobAnnotation1</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation1/location1/1">
+            <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation1/location1"/>
+            <sbol:displayId>location1</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:start>5</sbol:start>
+            <sbol:end>11</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://sbolcanvas.org/XJK9paob/Pro_zVcE_3/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation0/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation0"/>
+        <sbol:displayId>XJK9paobAnnotation0</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation0/location0/1">
+            <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobAnnotation0/location0"/>
+            <sbol:displayId>location0</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:start>1</sbol:start>
+            <sbol:end>4</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_bWtJ_2/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceConstraint>
+      <sbol:SequenceConstraint rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobConstraint1/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobConstraint1"/>
+        <sbol:displayId>XJK9paobConstraint1</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:restriction rdf:resource="http://sbols.org/v2#precedes"/>
+        <sbol:subject rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_bWtJ_2/1"/>
+        <sbol:object rdf:resource="https://sbolcanvas.org/XJK9paob/Pro_zVcE_3/1"/>
+      </sbol:SequenceConstraint>
+    </sbol:sequenceConstraint>
+    <sbol:sequenceConstraint>
+      <sbol:SequenceConstraint rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobConstraint2/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobConstraint2"/>
+        <sbol:displayId>XJK9paobConstraint2</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:restriction rdf:resource="http://sbols.org/v2#precedes"/>
+        <sbol:subject rdf:resource="https://sbolcanvas.org/XJK9paob/Pro_zVcE_3/1"/>
+        <sbol:object rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_dAK6_4/1"/>
+      </sbol:SequenceConstraint>
+    </sbol:sequenceConstraint>
+    <sbol:sequenceConstraint>
+      <sbol:SequenceConstraint rdf:about="https://sbolcanvas.org/XJK9paob/XJK9paobConstraint3/1">
+        <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob/XJK9paobConstraint3"/>
+        <sbol:displayId>XJK9paobConstraint3</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:restriction rdf:resource="http://sbols.org/v2#precedes"/>
+        <sbol:subject rdf:resource="https://sbolcanvas.org/XJK9paob/Scar_dAK6_4/1"/>
+        <sbol:object rdf:resource="https://sbolcanvas.org/XJK9paob/Cir_wQ7v_5/1"/>
+      </sbol:SequenceConstraint>
+    </sbol:sequenceConstraint>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/XJK9paob_sequence"/>
+  </sbol:ComponentDefinition>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_bWtJ_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_bWtJ_sequence"/>
+    <sbol:displayId>Scar_bWtJ_sequence</sbol:displayId>
+    <sbol:elements>AAAA</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/XJK9paob_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob_sequence"/>
+    <sbol:displayId>XJK9paob_sequence</sbol:displayId>
+    <sbol:elements>AAAATTTTTTTCCCCGGGGGGGGGGGGGGGGGGGGGGGG</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Pro_zVcE_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Pro_zVcE_sequence"/>
+    <sbol:displayId>Pro_zVcE_sequence</sbol:displayId>
+    <sbol:elements>TTTTTTT</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_dAK6_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_dAK6_sequence"/>
+    <sbol:displayId>Scar_dAK6_sequence</sbol:displayId>
+    <sbol:elements>CCCC</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Cir_wQ7v_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Cir_wQ7v_sequence"/>
+    <sbol:displayId>Cir_wQ7v_sequence</sbol:displayId>
+    <sbol:elements>GGGGGGGGGGGGGGGGGGGGGGGG</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <SBOLCanvas:Layout rdf:about="https://sbolcanvas.org/Pro_zVcE_Layout">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Pro_zVcE_Layout"/>
+    <sbol:displayId>Pro_zVcE_Layout</sbol:displayId>
+    <SBOLCanvas:objectRef rdf:resource="https://sbolcanvas.org/Pro_zVcE/1"/>
+  </SBOLCanvas:Layout>
+  <SBOLCanvas:Layout rdf:about="https://sbolcanvas.org/Scar_bWtJ_Layout">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_bWtJ_Layout"/>
+    <sbol:displayId>Scar_bWtJ_Layout</sbol:displayId>
+    <SBOLCanvas:objectRef rdf:resource="https://sbolcanvas.org/Scar_bWtJ/1"/>
+  </SBOLCanvas:Layout>
+  <SBOLCanvas:Layout rdf:about="https://sbolcanvas.org/module1_Layout">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/module1_Layout"/>
+    <sbol:displayId>module1_Layout</sbol:displayId>
+    <SBOLCanvas:objectRef rdf:resource="https://sbolcanvas.org/module1"/>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/module1_Layout/NodeGlyph_2">
+        <SBOLCanvas:x>640.0</SBOLCanvas:x>
+        <SBOLCanvas:y>310.0</SBOLCanvas:y>
+        <SBOLCanvas:width>152.0</SBOLCanvas:width>
+        <SBOLCanvas:height>100.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>XJK9paob_2</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:XJK9paob_Reference rdf:resource="https://sbolcanvas.org/XJK9paob_Layout"/>
+  </SBOLCanvas:Layout>
+  <SBOLCanvas:Layout rdf:about="https://sbolcanvas.org/Cir_wQ7v_Layout">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Cir_wQ7v_Layout"/>
+    <sbol:displayId>Cir_wQ7v_Layout</sbol:displayId>
+    <SBOLCanvas:objectRef rdf:resource="https://sbolcanvas.org/Cir_wQ7v/1"/>
+  </SBOLCanvas:Layout>
+  <SBOLCanvas:Layout rdf:about="https://sbolcanvas.org/Scar_dAK6_Layout">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_dAK6_Layout"/>
+    <sbol:displayId>Scar_dAK6_Layout</sbol:displayId>
+    <SBOLCanvas:objectRef rdf:resource="https://sbolcanvas.org/Scar_dAK6/1"/>
+  </SBOLCanvas:Layout>
+  <SBOLCanvas:Layout rdf:about="https://sbolcanvas.org/XJK9paob_Layout">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/XJK9paob_Layout"/>
+    <sbol:displayId>XJK9paob_Layout</sbol:displayId>
+    <SBOLCanvas:objectRef rdf:resource="https://sbolcanvas.org/XJK9paob/1"/>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/XJK9paob_Layout/NodeGlyph_2">
+        <SBOLCanvas:x>640.0</SBOLCanvas:x>
+        <SBOLCanvas:y>310.0</SBOLCanvas:y>
+        <SBOLCanvas:width>152.0</SBOLCanvas:width>
+        <SBOLCanvas:height>100.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>container</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/XJK9paob_Layout/NodeGlyph_3">
+        <SBOLCanvas:x>0.0</SBOLCanvas:x>
+        <SBOLCanvas:y>50.0</SBOLCanvas:y>
+        <SBOLCanvas:width>152.0</SBOLCanvas:width>
+        <SBOLCanvas:height>1.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>backbone</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/XJK9paob_Layout/NodeGlyph_19">
+        <SBOLCanvas:x>1.0</SBOLCanvas:x>
+        <SBOLCanvas:y>0.0</SBOLCanvas:y>
+        <SBOLCanvas:width>50.0</SBOLCanvas:width>
+        <SBOLCanvas:height>100.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>Scar_bWtJ_2</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:Scar_bWtJ_Reference rdf:resource="https://sbolcanvas.org/Scar_bWtJ_Layout"/>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/XJK9paob_Layout/NodeGlyph_4">
+        <SBOLCanvas:x>51.0</SBOLCanvas:x>
+        <SBOLCanvas:y>0.0</SBOLCanvas:y>
+        <SBOLCanvas:width>50.0</SBOLCanvas:width>
+        <SBOLCanvas:height>100.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>Pro_zVcE_3</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:Pro_zVcE_Reference rdf:resource="https://sbolcanvas.org/Pro_zVcE_Layout"/>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/XJK9paob_Layout/NodeGlyph_22">
+        <SBOLCanvas:x>101.0</SBOLCanvas:x>
+        <SBOLCanvas:y>0.0</SBOLCanvas:y>
+        <SBOLCanvas:width>50.0</SBOLCanvas:width>
+        <SBOLCanvas:height>100.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>Scar_dAK6_4</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:Scar_dAK6_Reference rdf:resource="https://sbolcanvas.org/Scar_dAK6_Layout"/>
+    <SBOLCanvas:nodeGlyph>
+      <SBOLCanvas:NodeGlyph rdf:about="https://sbolcanvas.org/XJK9paob_Layout/NodeGlyph_16">
+        <SBOLCanvas:x>151.0</SBOLCanvas:x>
+        <SBOLCanvas:y>0.0</SBOLCanvas:y>
+        <SBOLCanvas:width>1.0</SBOLCanvas:width>
+        <SBOLCanvas:height>100.0</SBOLCanvas:height>
+        <SBOLCanvas:displayId>Cir_wQ7v_5</SBOLCanvas:displayId>
+      </SBOLCanvas:NodeGlyph>
+    </SBOLCanvas:nodeGlyph>
+    <SBOLCanvas:Cir_wQ7v_Reference rdf:resource="https://sbolcanvas.org/Cir_wQ7v_Layout"/>
+  </SBOLCanvas:Layout>
+</rdf:RDF>

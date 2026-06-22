@@ -1,0 +1,1580 @@
+<rdf:RDF xmlns:brick="https://brickschema.org/schema/Brick#" xmlns:csvw="http://www.w3.org/ns/csvw#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcam="http://purl.org/dc/dcam/" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:geo="http://www.opengis.net/ont/geosparql#" xmlns:odrl="http://www.w3.org/ns/odrl/2/" xmlns:org="http://www.w3.org/ns/org#" xmlns:prof="http://www.w3.org/ns/dx/prof/" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:qb="http://purl.org/linked-data/cube#" xmlns:schema="https://schema.org/" xmlns:sh="http://www.w3.org/ns/shacl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:sosa="http://www.w3.org/ns/sosa/" xmlns:ssn="http://www.w3.org/ns/ssn/" xmlns:time="http://www.w3.org/2006/time#" xmlns:vann="http://purl.org/vocab/vann/" xmlns:void="http://rdfs.org/ns/void#" xmlns:wgs="https://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:sbol="http://sbols.org/v2#">
+  <sbol:ModuleDefinition rdf:about="https://SBOL2Build.org/testassem/1">
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_106_reactant/1">
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_reactant"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_106_reactant</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_70_digestion_interaction</sbol:displayId>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/restriction/1">
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/restriction"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/BsaI_enzyme/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/UJHDBOTD_70_product/1">
+            <sbol:version>1</sbol:version>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/UJHDBOTD_70_product"/>
+            <sbol:displayId>UJHDBOTD_70_product</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_product/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/UJHDBOTD_70_reactant/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_interaction/UJHDBOTD_70_reactant"/>
+            <sbol:displayId>UJHDBOTD_70_reactant</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_reactant/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:type rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000178"/>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/1">
+        <sbol:type rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000178"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/UJHDBOTD_106_product/1">
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_product/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/UJHDBOTD_106_product"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_106_product</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>UJHDBOTD_106_digestion_interaction</sbol:displayId>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/restriction/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/restriction"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/BsaI_enzyme/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/UJHDBOTD_106_reactant/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_interaction/UJHDBOTD_106_reactant"/>
+            <sbol:displayId>UJHDBOTD_106_reactant</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_reactant/1"/>
+            <sbol:version>1</sbol:version>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:version>1</sbol:version>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/1">
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/restriction/1">
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/BsaI_enzyme/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/restriction"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/UJHDBOTD_backbone_reactant/1">
+            <sbol:displayId>UJHDBOTD_backbone_reactant</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_reactant/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/UJHDBOTD_backbone_reactant"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:version>1</sbol:version>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/UJHDBOTD_backbone_product/1">
+            <sbol:version>1</sbol:version>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_digestion_product/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction/UJHDBOTD_backbone_product"/>
+            <sbol:displayId>UJHDBOTD_backbone_product</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>UJHDBOTD_digestion_interaction</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_digestion_interaction"/>
+        <sbol:type rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000178"/>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:displayId>testassem</sbol:displayId>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/1">
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/ligation/1">
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>ligation</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/T4_Ligase/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/ligation"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_extracted_backbone_ligation/1">
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_digestion_product/1"/>
+            <sbol:displayId>UJHDBOTD_extracted_backbone_ligation</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_extracted_backbone_ligation"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_106_extracted_part_ligation/1">
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_106_extracted_part_ligation</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_product/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_106_extracted_part_ligation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_134_extracted_part_ligation/1">
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_134_extracted_part_ligation</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_134_extracted_part_ligation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_product/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/composite_1_product/1">
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/composite_1/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/composite_1_product"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>composite_1_product</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction"/>
+        <sbol:type rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000695"/>
+        <sbol:version>1</sbol:version>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_70_extracted_part_ligation/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_70_extracted_part_ligation"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_70_extracted_part_ligation</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_product/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:displayId>composite_1_ligation_interaction</sbol:displayId>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_45_extracted_part_ligation/1">
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_product/1"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1_ligation_interaction/UJHDBOTD_45_extracted_part_ligation"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_45_extracted_part_ligation</sbol:displayId>
+          </sbol:Participation>
+        </sbol:participation>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:version>1</sbol:version>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_product/1">
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_digestion_product"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_70_digestion_product</sbol:displayId>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/BsaI_enzyme/1">
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>BsaI_enzyme</sbol:displayId>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/BsaI/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/BsaI_enzyme"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_product/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_45_digestion_product</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_product"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_digestion_product/1">
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_digestion_product"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/1"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_backbone_digestion_product</sbol:displayId>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/1">
+        <sbol:displayId>UJHDBOTD_45_digestion_interaction</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction"/>
+        <sbol:version>1</sbol:version>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/UJHDBOTD_45_reactant/1">
+            <sbol:displayId>UJHDBOTD_45_reactant</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/UJHDBOTD_45_reactant"/>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_reactant/1"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:type rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000178"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/restriction/1">
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/restriction"/>
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/BsaI_enzyme/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/UJHDBOTD_45_product/1">
+            <sbol:displayId>UJHDBOTD_45_product</sbol:displayId>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_product/1"/>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_digestion_interaction/UJHDBOTD_45_product"/>
+          </sbol:Participation>
+        </sbol:participation>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/composite_1/1">
+        <sbol:displayId>composite_1</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/composite_1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/composite_1/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_product/1">
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_product"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>UJHDBOTD_134_digestion_product</sbol:displayId>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_70_reactant/1">
+        <sbol:version>1</sbol:version>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_70_reactant"/>
+        <sbol:displayId>UJHDBOTD_70_reactant</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_reactant/1">
+        <sbol:version>1</sbol:version>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_backbone_reactant"/>
+        <sbol:displayId>UJHDBOTD_backbone_reactant</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem"/>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/T4_Ligase/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>T4_Ligase</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/T4_Ligase"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/T4_Ligase/1"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_45_reactant/1">
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_45_reactant</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_45_reactant"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_product/1">
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:displayId>UJHDBOTD_106_digestion_product</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_106_digestion_product"/>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+    <sbol:interaction>
+      <sbol:Interaction rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction"/>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/UJHDBOTD_134_reactant/1">
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000010"/>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_reactant/1"/>
+            <sbol:displayId>UJHDBOTD_134_reactant</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/UJHDBOTD_134_reactant"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/UJHDBOTD_134_product/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/UJHDBOTD_134_product"/>
+            <sbol:displayId>UJHDBOTD_134_product</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000011"/>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_product/1"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:participation>
+          <sbol:Participation rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/restriction/1">
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>restriction</sbol:displayId>
+            <sbol:participant rdf:resource="https://SBOL2Build.org/testassem/BsaI_enzyme/1"/>
+            <sbol:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000019"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_digestion_interaction/restriction"/>
+          </sbol:Participation>
+        </sbol:participation>
+        <sbol:version>1</sbol:version>
+        <sbol:type rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000178"/>
+        <sbol:displayId>UJHDBOTD_134_digestion_interaction</sbol:displayId>
+      </sbol:Interaction>
+    </sbol:interaction>
+    <sbol:functionalComponent>
+      <sbol:FunctionalComponent rdf:about="https://SBOL2Build.org/testassem/UJHDBOTD_134_reactant/1">
+        <sbol:direction rdf:resource="http://sbols.org/v2#none"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/testassem/UJHDBOTD_134_reactant"/>
+        <sbol:displayId>UJHDBOTD_134_reactant</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:FunctionalComponent>
+    </sbol:functionalComponent>
+  </sbol:ModuleDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/BsaI/1">
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>BsaI</sbol:displayId>
+    <dcterms:title>BsaI</dcterms:title>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/BsaI"/>
+    <dcterms:description>Restriction enzyme BsaI from REBASE.</dcterms:description>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#Protein"/>
+    <prov:wasDerivedFrom rdf:resource="http://rebase.neb.com/rebase/enz/BsaI.html"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/1">
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_three_prime_oh_component/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_three_prime_oh_component"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh/1"/>
+        <sbol:displayId>UJHDBOTD_70_three_prime_oh_component</sbol:displayId>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/five_prime_overhang/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/five_prime_overhang"/>
+        <sbol:version>1</sbol:version>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_five_prime_oh_component/1"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/five_prime_overhang/five_prime_oh_location/1">
+            <sbol:start>1</sbol:start>
+            <sbol:displayId>five_prime_oh_location</sbol:displayId>
+            <sbol:end>4</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/five_prime_overhang/five_prime_oh_location"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:displayId>five_prime_overhang</sbol:displayId>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:role rdf:resource="https://identifiers.org/so/SO:0000915"/>
+    <sbol:displayId>UJHDBOTD_70_extracted_part</sbol:displayId>
+    <sbol:type rdf:resource="http://identifiers.org/so/SO:0000987"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/three_prime_overhang/1">
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/three_prime_overhang/three_prime_oh_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/three_prime_overhang/three_prime_oh_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:end>43</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>three_prime_oh_location</sbol:displayId>
+            <sbol:start>40</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_three_prime_oh_component/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>three_prime_overhang</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/three_prime_overhang"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part_seq/1"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_five_prime_oh_component/1">
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_70_five_prime_oh_component</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_five_prime_oh_component"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_part/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/J23101_3/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_70_part</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_part"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_part/UJHDBOTD_70_part_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/UJHDBOTD_70_part/UJHDBOTD_70_part_location"/>
+            <sbol:displayId>UJHDBOTD_70_part_location</sbol:displayId>
+            <sbol:end>39</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:version>1</sbol:version>
+            <sbol:start>5</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/J23101_3/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part/J23101_3"/>
+        <sbol:displayId>J23101_3</sbol:displayId>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/J23101/1"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh/1">
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh_sequence/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>UJHDBOTD_70_three_prime_oh</sbol:displayId>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_B/1"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001933"/>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_B/1">
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>Scar_B</sbol:displayId>
+    <dcterms:title>Scar_B</dcterms:title>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_B"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_B_sequence"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/J23101/1">
+    <sbol:version>1</sbol:version>
+    <dcterms:title>J23101</dcterms:title>
+    <sbol:displayId>J23101</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/J23101_sequence"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/J23101"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000167"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh/1">
+    <sbol:version>1</sbol:version>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001932"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_A/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh_sequence/1"/>
+    <sbol:displayId>UJHDBOTD_70_five_prime_oh</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_A/1">
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:displayId>Scar_A</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_A_sequence"/>
+    <dcterms:title>Scar_A</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_A"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/1">
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_part/1">
+        <sbol:version>1</sbol:version>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/B0034_3/1"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_part/UJHDBOTD_45_part_location/1">
+            <sbol:displayId>UJHDBOTD_45_part_location</sbol:displayId>
+            <sbol:end>25</sbol:end>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_part/UJHDBOTD_45_part_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>5</sbol:start>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:displayId>UJHDBOTD_45_part</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_part"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:displayId>UJHDBOTD_45_extracted_part</sbol:displayId>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+    <sbol:role rdf:resource="https://identifiers.org/so/SO:0000915"/>
+    <sbol:type rdf:resource="http://identifiers.org/so/SO:0000987"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part_seq/1"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_five_prime_oh_component/1">
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_five_prime_oh_component"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_45_five_prime_oh_component</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/three_prime_overhang/1">
+        <sbol:version>1</sbol:version>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_three_prime_oh_component/1"/>
+        <sbol:displayId>three_prime_overhang</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/three_prime_overhang"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/three_prime_overhang/three_prime_oh_location/1">
+            <sbol:start>26</sbol:start>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/three_prime_overhang/three_prime_oh_location"/>
+            <sbol:displayId>three_prime_oh_location</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:end>29</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:version>1</sbol:version>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/five_prime_overhang/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_five_prime_oh_component/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>five_prime_overhang</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/five_prime_overhang/five_prime_oh_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/five_prime_overhang/five_prime_oh_location"/>
+            <sbol:start>1</sbol:start>
+            <sbol:displayId>five_prime_oh_location</sbol:displayId>
+            <sbol:end>4</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/five_prime_overhang"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_three_prime_oh_component/1">
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh/1"/>
+        <sbol:displayId>UJHDBOTD_45_three_prime_oh_component</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/UJHDBOTD_45_three_prime_oh_component"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/B0034_3/1">
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/B0034/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>B0034_3</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part/B0034_3"/>
+      </sbol:Component>
+    </sbol:component>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh/1">
+    <sbol:version>1</sbol:version>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>UJHDBOTD_45_five_prime_oh</sbol:displayId>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh_sequence/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001932"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_B/1"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh/1">
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh"/>
+    <sbol:displayId>UJHDBOTD_45_three_prime_oh</sbol:displayId>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh_sequence/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001933"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_C/1"/>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_C/1">
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_C_sequence"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>Scar_C</sbol:displayId>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_C"/>
+    <dcterms:title>Scar_C</dcterms:title>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/B0034/1">
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000139"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/B0034"/>
+    <dcterms:title>B0034</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/B0034_sequence"/>
+    <sbol:displayId>B0034</sbol:displayId>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/1">
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/GFP_3/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/GFP_3"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/GFP/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>GFP_3</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_part/1">
+        <sbol:displayId>UJHDBOTD_106_part</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_part"/>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/GFP_3/1"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_part/UJHDBOTD_106_part_location/1">
+            <sbol:start>5</sbol:start>
+            <sbol:end>721</sbol:end>
+            <sbol:displayId>UJHDBOTD_106_part_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_part/UJHDBOTD_106_part_location"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:version>1</sbol:version>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/three_prime_overhang/1">
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/three_prime_overhang"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/three_prime_overhang/three_prime_oh_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/three_prime_overhang/three_prime_oh_location"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>three_prime_oh_location</sbol:displayId>
+            <sbol:end>725</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>722</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_three_prime_oh_component/1"/>
+        <sbol:displayId>three_prime_overhang</sbol:displayId>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:displayId>UJHDBOTD_106_extracted_part</sbol:displayId>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+    <sbol:version>1</sbol:version>
+    <sbol:role rdf:resource="https://identifiers.org/so/SO:0000915"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_five_prime_oh_component/1">
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>UJHDBOTD_106_five_prime_oh_component</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_five_prime_oh_component"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:type rdf:resource="http://identifiers.org/so/SO:0000987"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_three_prime_oh_component/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_three_prime_oh_component"/>
+        <sbol:displayId>UJHDBOTD_106_three_prime_oh_component</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh/1"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part_seq/1"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/five_prime_overhang/1">
+        <sbol:displayId>five_prime_overhang</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/five_prime_overhang/five_prime_oh_location/1">
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>five_prime_oh_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/five_prime_overhang/five_prime_oh_location"/>
+            <sbol:end>4</sbol:end>
+            <sbol:start>1</sbol:start>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:version>1</sbol:version>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/UJHDBOTD_106_five_prime_oh_component/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part/five_prime_overhang"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/GFP/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/GFP"/>
+    <sbol:version>1</sbol:version>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>GFP</sbol:displayId>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/GFP_sequence"/>
+    <dcterms:title>GFP</dcterms:title>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000316"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh/1">
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_C/1"/>
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>UJHDBOTD_106_five_prime_oh</sbol:displayId>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001932"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh_sequence/1"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh/1">
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh_sequence/1"/>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_D/1"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001933"/>
+    <sbol:displayId>UJHDBOTD_106_three_prime_oh</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_D/1">
+    <sbol:version>1</sbol:version>
+    <dcterms:title>Scar_D</dcterms:title>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_D_sequence"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_D"/>
+    <sbol:displayId>Scar_D</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/1">
+    <sbol:version>1</sbol:version>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_five_prime_oh_component/1">
+        <sbol:displayId>UJHDBOTD_134_five_prime_oh_component</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_five_prime_oh_component"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part_seq/1"/>
+    <sbol:displayId>UJHDBOTD_134_extracted_part</sbol:displayId>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_three_prime_oh_component/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_three_prime_oh_component"/>
+        <sbol:displayId>UJHDBOTD_134_three_prime_oh_component</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh/1"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:type rdf:resource="http://identifiers.org/so/SO:0000987"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/B0015_3/1">
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/B0015_3"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/B0015/1"/>
+        <sbol:displayId>B0015_3</sbol:displayId>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/five_prime_overhang/1">
+        <sbol:displayId>five_prime_overhang</sbol:displayId>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_five_prime_oh_component/1"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/five_prime_overhang/five_prime_oh_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/five_prime_overhang/five_prime_oh_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>five_prime_oh_location</sbol:displayId>
+            <sbol:end>4</sbol:end>
+            <sbol:start>1</sbol:start>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/five_prime_overhang"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_part/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_part"/>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/B0015_3/1"/>
+        <sbol:displayId>UJHDBOTD_134_part</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_part/UJHDBOTD_134_part_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_part/UJHDBOTD_134_part_location"/>
+            <sbol:end>133</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>UJHDBOTD_134_part_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>5</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+    <sbol:role rdf:resource="https://identifiers.org/so/SO:0000915"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/three_prime_overhang/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/three_prime_overhang"/>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/UJHDBOTD_134_three_prime_oh_component/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>three_prime_overhang</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/three_prime_overhang/three_prime_oh_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part/three_prime_overhang/three_prime_oh_location"/>
+            <sbol:displayId>three_prime_oh_location</sbol:displayId>
+            <sbol:end>137</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>134</sbol:start>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/B0015/1">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/B0015"/>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/B0015_sequence"/>
+    <dcterms:title>B0015</dcterms:title>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:version>1</sbol:version>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000141"/>
+    <sbol:displayId>B0015</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh/1">
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>UJHDBOTD_134_three_prime_oh</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh_sequence/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001933"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_F/1"/>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Scar_F/1">
+    <sbol:displayId>Scar_F</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:version>1</sbol:version>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Scar_F_sequence"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <dcterms:title>Scar_F</dcterms:title>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_F"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh/1">
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>UJHDBOTD_134_five_prime_oh</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh_sequence/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001932"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_D/1"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/1">
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_three_prime_oh_component/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_three_prime_oh_component"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh/1"/>
+        <sbol:displayId>UJHDBOTD_159_three_prime_oh_component</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_backbone/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_backbone"/>
+        <sbol:displayId>UJHDBOTD_159_backbone</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_backbone/UJHDBOTD_159_backbone_location/1">
+            <sbol:displayId>UJHDBOTD_159_backbone_location</sbol:displayId>
+            <sbol:start>5</sbol:start>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_backbone/UJHDBOTD_159_backbone_location"/>
+            <sbol:version>1</sbol:version>
+            <sbol:end>2199</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/Cir_qxow_5/1"/>
+        <sbol:version>1</sbol:version>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/UJHDBOTD/1"/>
+    <sbol:role rdf:resource="https://identifiers.org/so/SO:0000755"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_five_prime_oh_component/1">
+        <sbol:displayId>UJHDBOTD_159_five_prime_oh_component</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_five_prime_oh_component"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/three_prime_overhang/1">
+        <sbol:displayId>three_prime_overhang</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/three_prime_overhang/three_prime_oh_location/1">
+            <sbol:start>2200</sbol:start>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>three_prime_oh_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/three_prime_overhang/three_prime_oh_location"/>
+            <sbol:end>2203</sbol:end>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_three_prime_oh_component/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/three_prime_overhang"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/five_prime_overhang/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/UJHDBOTD_159_five_prime_oh_component/1"/>
+        <sbol:displayId>five_prime_overhang</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/five_prime_overhang/five_prime_oh_location/1">
+            <sbol:start>1</sbol:start>
+            <sbol:displayId>five_prime_oh_location</sbol:displayId>
+            <sbol:end>4</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/five_prime_overhang/five_prime_oh_location"/>
+            <sbol:version>1</sbol:version>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/five_prime_overhang"/>
+        <sbol:version>1</sbol:version>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/Cir_qxow_5/1">
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone/Cir_qxow_5"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/Cir_qxow/1"/>
+        <sbol:displayId>Cir_qxow_5</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:displayId>UJHDBOTD_extracted_backbone</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone_seq/1"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh/1">
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh"/>
+    <sbol:displayId>UJHDBOTD_159_five_prime_oh</sbol:displayId>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001932"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh_sequence/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_F/1"/>
+    <sbol:version>1</sbol:version>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://sbolcanvas.org/Cir_qxow/1">
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Cir_qxow"/>
+    <dcterms:title>Cir</dcterms:title>
+    <sbol:sequence rdf:resource="https://sbolcanvas.org/Cir_qxow_sequence"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000755"/>
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>Cir_qxow</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh/1">
+    <sbol:version>1</sbol:version>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001933"/>
+    <sbol:displayId>UJHDBOTD_159_three_prime_oh</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh_sequence/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_A/1"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/T4_Ligase/1">
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/T4_Ligase"/>
+    <sbol:displayId>T4_Ligase</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#Protein"/>
+    <dcterms:title>T4_Ligase</dcterms:title>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/Ligation_Scar_A/1">
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/Ligation_Scar_A_sequence/1"/>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh/1"/>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:displayId>Ligation_Scar_A</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_A"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/Ligation_Scar_B/1">
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh/1"/>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh/1"/>
+    <sbol:version>1</sbol:version>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_B"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/Ligation_Scar_B_sequence/1"/>
+    <sbol:displayId>Ligation_Scar_B</sbol:displayId>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/Ligation_Scar_C/1">
+    <sbol:displayId>Ligation_Scar_C</sbol:displayId>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh/1"/>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/Ligation_Scar_C_sequence/1"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_C"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/Ligation_Scar_D/1">
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh/1"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:displayId>Ligation_Scar_D</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_D"/>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh/1"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/Ligation_Scar_D_sequence/1"/>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/Ligation_Scar_E/1">
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0001953"/>
+    <sbol:displayId>Ligation_Scar_E</sbol:displayId>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh/1"/>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/Ligation_Scar_E_sequence/1"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_E"/>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh/1"/>
+  </sbol:ComponentDefinition>
+  <sbol:ComponentDefinition rdf:about="https://SBOL2Build.org/composite_1/1">
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/Cir_qxow_5_annotation/1">
+        <sbol:version>1</sbol:version>
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/Cir_qxow/1"/>
+        <sbol:displayId>Cir_qxow_5_annotation</sbol:displayId>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Cir_qxow_5_annotation"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/Cir_qxow_5_annotation/Cir_qxow_5_location/1">
+            <sbol:end>2199</sbol:end>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>Cir_qxow_5_location</sbol:displayId>
+            <sbol:start>5</sbol:start>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Cir_qxow_5_annotation/Cir_qxow_5_location"/>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:type rdf:resource="http://www.biopax.org/release/biopax-level3.owl#DnaRegion"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/Cir_qxow/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Cir_qxow"/>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>Cir_qxow</sbol:displayId>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/Cir_qxow/1"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequence rdf:resource="https://SBOL2Build.org/composite_1_seq/1"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_D_annotation/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_D/1"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_D_annotation/Ligation_Scar_D_location/1">
+            <sbol:start>2264</sbol:start>
+            <sbol:end>2267</sbol:end>
+            <sbol:displayId>Ligation_Scar_D_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:version>1</sbol:version>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_D_annotation/Ligation_Scar_D_location"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_D_annotation"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>Ligation_Scar_D_annotation</sbol:displayId>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:displayId>composite_1</sbol:displayId>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/J23101_3_annotation/1">
+        <sbol:displayId>J23101_3_annotation</sbol:displayId>
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/J23101/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/J23101_3_annotation"/>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/J23101_3_annotation/J23101_3_location/1">
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:end>2238</sbol:end>
+            <sbol:start>2204</sbol:start>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>J23101_3_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/J23101_3_annotation/J23101_3_location"/>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_C_annotation/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_C_annotation"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_C_annotation/Ligation_Scar_C_location/1">
+            <sbol:displayId>Ligation_Scar_C_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:end>2242</sbol:end>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_C_annotation/Ligation_Scar_C_location"/>
+            <sbol:version>1</sbol:version>
+            <sbol:start>2239</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>Ligation_Scar_C_annotation</sbol:displayId>
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_C/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/GFP/1">
+        <sbol:displayId>GFP</sbol:displayId>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/GFP/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/GFP"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/B0015/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/B0015"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/B0015/1"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>B0015</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_B/1">
+        <sbol:definition rdf:resource="https://SBOL2Build.org/Ligation_Scar_B/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_B"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>Ligation_Scar_B</sbol:displayId>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/B0034_3_annotation/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/B0034/1"/>
+        <sbol:displayId>B0034_3_annotation</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/B0034_3_annotation/B0034_3_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/B0034_3_annotation/B0034_3_location"/>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>B0034_3_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:start>2243</sbol:start>
+            <sbol:end>2263</sbol:end>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/B0034_3_annotation"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/J23101/1">
+        <sbol:displayId>J23101</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/J23101"/>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/J23101/1"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_B_annotation/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_B/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_B_annotation"/>
+        <sbol:version>1</sbol:version>
+        <sbol:displayId>Ligation_Scar_B_annotation</sbol:displayId>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_B_annotation/Ligation_Scar_B_location/1">
+            <sbol:end>2203</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>Ligation_Scar_B_location</sbol:displayId>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_B_annotation/Ligation_Scar_B_location"/>
+            <sbol:start>2200</sbol:start>
+          </sbol:Range>
+        </sbol:location>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:version>1</sbol:version>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/B0015_3_annotation/1">
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/B0015_3_annotation/B0015_3_location/1">
+            <sbol:start>2989</sbol:start>
+            <sbol:end>3117</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:displayId>B0015_3_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/B0015_3_annotation/B0015_3_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/B0015_3_annotation"/>
+        <sbol:displayId>B0015_3_annotation</sbol:displayId>
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/B0015/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:role rdf:resource="http://identifiers.org/so/SO:0000804"/>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_E_annotation/1">
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_E/1"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_E_annotation/Ligation_Scar_E_location/1">
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_E_annotation/Ligation_Scar_E_location"/>
+            <sbol:start>2985</sbol:start>
+            <sbol:displayId>Ligation_Scar_E_location</sbol:displayId>
+            <sbol:end>2988</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_E_annotation"/>
+        <sbol:displayId>Ligation_Scar_E_annotation</sbol:displayId>
+        <sbol:version>1</sbol:version>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_A_annotation/1">
+        <sbol:displayId>Ligation_Scar_A_annotation</sbol:displayId>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_A_annotation"/>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_A_annotation/Ligation_Scar_A_location/1">
+            <sbol:start>1</sbol:start>
+            <sbol:end>4</sbol:end>
+            <sbol:version>1</sbol:version>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+            <sbol:displayId>Ligation_Scar_A_location</sbol:displayId>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_A_annotation/Ligation_Scar_A_location"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_A/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <sbol:type rdf:resource="http://identifiers.org/so/SO:0000988"/>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/B0034/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/B0034"/>
+        <sbol:version>1</sbol:version>
+        <sbol:definition rdf:resource="https://sbolcanvas.org/B0034/1"/>
+        <sbol:displayId>B0034</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:sequenceAnnotation>
+      <sbol:SequenceAnnotation rdf:about="https://SBOL2Build.org/composite_1/GFP_3_annotation/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/GFP_3_annotation"/>
+        <sbol:version>1</sbol:version>
+        <sbol:location>
+          <sbol:Range rdf:about="https://SBOL2Build.org/composite_1/GFP_3_annotation/GFP_3_location/1">
+            <sbol:end>2984</sbol:end>
+            <sbol:displayId>GFP_3_location</sbol:displayId>
+            <sbol:version>1</sbol:version>
+            <sbol:start>2268</sbol:start>
+            <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/GFP_3_annotation/GFP_3_location"/>
+            <sbol:orientation rdf:resource="http://sbols.org/v2#inline"/>
+          </sbol:Range>
+        </sbol:location>
+        <sbol:displayId>GFP_3_annotation</sbol:displayId>
+        <sbol:component rdf:resource="https://SBOL2Build.org/composite_1/GFP/1"/>
+      </sbol:SequenceAnnotation>
+    </sbol:sequenceAnnotation>
+    <dcterms:title>composite_1</dcterms:title>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_D/1">
+        <sbol:displayId>Ligation_Scar_D</sbol:displayId>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/Ligation_Scar_D/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_D"/>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_C/1">
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_C"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/Ligation_Scar_C/1"/>
+        <sbol:version>1</sbol:version>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:displayId>Ligation_Scar_C</sbol:displayId>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_A/1">
+        <sbol:definition rdf:resource="https://SBOL2Build.org/Ligation_Scar_A/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_A"/>
+        <sbol:displayId>Ligation_Scar_A</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+    <sbol:component>
+      <sbol:Component rdf:about="https://SBOL2Build.org/composite_1/Ligation_Scar_E/1">
+        <sbol:displayId>Ligation_Scar_E</sbol:displayId>
+        <sbol:access rdf:resource="http://sbols.org/v2#public"/>
+        <sbol:definition rdf:resource="https://SBOL2Build.org/Ligation_Scar_E/1"/>
+        <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1/Ligation_Scar_E"/>
+        <sbol:version>1</sbol:version>
+      </sbol:Component>
+    </sbol:component>
+  </sbol:ComponentDefinition>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_70_extracted_part_seq/1">
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_extracted_part_seq"/>
+    <sbol:displayId>UJHDBOTD_70_extracted_part_seq</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:elements>GGAGtttacagctagctcagtcctaggtattatgctagcTACT</sbol:elements>
+    <sbol:version>1</sbol:version>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh_sequence/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_three_prime_oh_sequence"/>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_B_sequence"/>
+    <sbol:displayId>UJHDBOTD_70_three_prime_oh_sequence</sbol:displayId>
+    <sbol:elements>TACT</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_B_sequence">
+    <sbol:displayId>Scar_B_sequence</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_B_sequence"/>
+    <sbol:elements>TACT</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/J23101_sequence">
+    <sbol:displayId>J23101_sequence</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/J23101_sequence"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:elements>tttacagctagctcagtcctaggtattatgctagc</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh_sequence/1">
+    <sbol:elements>GGAG</sbol:elements>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_A_sequence"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_70_five_prime_oh_sequence"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>UJHDBOTD_70_five_prime_oh_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_A_sequence">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_A_sequence"/>
+    <sbol:displayId>Scar_A_sequence</sbol:displayId>
+    <sbol:elements>GGAG</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_45_extracted_part_seq/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>TACTagagaaagaggagaaatactaaatg</sbol:elements>
+    <sbol:displayId>UJHDBOTD_45_extracted_part_seq</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_extracted_part_seq"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh_sequence/1">
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_B_sequence"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_five_prime_oh_sequence"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>UJHDBOTD_45_five_prime_oh_sequence</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>TACT</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh_sequence/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>UJHDBOTD_45_three_prime_oh_sequence</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_45_three_prime_oh_sequence"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_C_sequence"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>aatg</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_C_sequence">
+    <sbol:displayId>Scar_C_sequence</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_C_sequence"/>
+    <sbol:elements>aatg</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/B0034_sequence">
+    <sbol:displayId>B0034_sequence</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/B0034_sequence"/>
+    <sbol:elements>agagaaagaggagaaatacta</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_106_extracted_part_seq/1">
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_extracted_part_seq"/>
+    <sbol:displayId>UJHDBOTD_106_extracted_part_seq</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>aatggtgagcaagggcgaggagctgttcaccggggtggtgcccatcctggtcgagctggacggcgacgtaaacggccacaagttcagcgtgtccggcgagggcgagggcgatgccacctacggcaagctgaccctgaagttcatctgcaccaccggcaagctgcccgtgccctggcccaccctcgtgaccaccttcagctacggcgtgcagtgcttcagccgctaccccgaccacatgaagcagcacgacttcttcaagtccgccatgcccgaaggctacgtccaggagcgcaccatcttcttcaaggacgacggcaactacaagacccgcgccgaggtgaagttcgagggcgacaccctggtgaaccgcatcgagctgaagggcatcgacttcaaggaggacggcaacatcctggggcacaagctggagtacaactacaacagccacaacgtctatatcatggccgacaagcagaagaacggcatcaaggtgaacttcaagatccgccacaacatcgaggacggcagcgtgcagctcgccgaccactaccagcagaacacccccatcggcgacggccccgtgctgctgcccgacaaccactacctgagcacccagtccgccctgagcaaagaccccaacgagaagcgcgatcacatggtcctgctggagttcgtgaccgccgccgggatcactcacggcatggacgagctgtacaagtaagctt</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/GFP_sequence">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/GFP_sequence"/>
+    <sbol:displayId>GFP_sequence</sbol:displayId>
+    <sbol:elements>gtgagcaagggcgaggagctgttcaccggggtggtgcccatcctggtcgagctggacggcgacgtaaacggccacaagttcagcgtgtccggcgagggcgagggcgatgccacctacggcaagctgaccctgaagttcatctgcaccaccggcaagctgcccgtgccctggcccaccctcgtgaccaccttcagctacggcgtgcagtgcttcagccgctaccccgaccacatgaagcagcacgacttcttcaagtccgccatgcccgaaggctacgtccaggagcgcaccatcttcttcaaggacgacggcaactacaagacccgcgccgaggtgaagttcgagggcgacaccctggtgaaccgcatcgagctgaagggcatcgacttcaaggaggacggcaacatcctggggcacaagctggagtacaactacaacagccacaacgtctatatcatggccgacaagcagaagaacggcatcaaggtgaacttcaagatccgccacaacatcgaggacggcagcgtgcagctcgccgaccactaccagcagaacacccccatcggcgacggccccgtgctgctgcccgacaaccactacctgagcacccagtccgccctgagcaaagaccccaacgagaagcgcgatcacatggtcctgctggagttcgtgaccgccgccgggatcactcacggcatggacgagctgtacaagtaa</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh_sequence/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_C_sequence"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_five_prime_oh_sequence"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>aatg</sbol:elements>
+    <sbol:displayId>UJHDBOTD_106_five_prime_oh_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh_sequence/1">
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_D_sequence"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>UJHDBOTD_106_three_prime_oh_sequence</sbol:displayId>
+    <sbol:elements>gctt</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_106_three_prime_oh_sequence"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_D_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_D_sequence"/>
+    <sbol:displayId>Scar_D_sequence</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:elements>gctt</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_134_extracted_part_seq/1">
+    <sbol:displayId>UJHDBOTD_134_extracted_part_seq</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>gcttccaggcatcaaataaaacgaaaggctcagtcgaaagactgggcctttcgttttatctgttgtttgtcggtgaacgctctctactagagtcacactggctcaccttcgggtgggcctttctgcgtttatacgct</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_extracted_part_seq"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/B0015_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/B0015_sequence"/>
+    <sbol:elements>ccaggcatcaaataaaacgaaaggctcagtcgaaagactgggcctttcgttttatctgttgtttgtcggtgaacgctctctactagagtcacactggctcaccttcgggtgggcctttctgcgtttata</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>B0015_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh_sequence/1">
+    <sbol:elements>cgct</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_F_sequence"/>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_three_prime_oh_sequence"/>
+    <sbol:displayId>UJHDBOTD_134_three_prime_oh_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Scar_F_sequence">
+    <sbol:elements>cgct</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Scar_F_sequence"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>Scar_F_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh_sequence/1">
+    <sbol:displayId>UJHDBOTD_134_five_prime_oh_sequence</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_D_sequence"/>
+    <sbol:elements>gctt</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_134_five_prime_oh_sequence"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_extracted_backbone_seq/1">
+    <sbol:elements>cgctgcatgaagagcctgcagtccggcaaaaaagggcaaggtgtcaccaccctgccctttttctttaaaaccgaaaagattacttcgcgttatgcaggcttcctcgctcactgactcgctgcgctcggtcgttcggctgcggcgagcggtatcagctcactcaaaggcggtaatacggttatccacagaatcaggggataacgcaggaaagaacatgtgagcaaaaggccagcaaaaggccaggaaccgtaaaaaggccgcgttgctggcgtttttccacaggctccgcccccctgacgagcatcacaaaaatcgacgctcaagtcagaggtggcgaaacccgacaggactataaagataccaggcgtttccccctggaagctccctcgtgcgctctcctgttccgaccctgccgcttaccggatacctgtccgcctttctcccttcgggaagcgtggcgctttctcatagctcacgctgtaggtatctcagttcggtgtaggtcgttcgctccaagctgggctgtgtgcacgaaccccccgttcagcccgaccgctgcgccttatccggtaactatcgtcttgagtccaacccggtaagacacgacttatcgccactggcagcagccactggtaacaggattagcagagcgaggtatgtaggcggtgctacagagttcttgaagtggtggcctaactacggctacactagaagaacagtatttggtatctgcgctctgctgaagccagttaccttcggaaaaagagttggtagctcttgatccggcaaacaaaccaccgctggtagcggtggtttttttgtttgcaagcagcagattacgcgcagaaaaaaaggatctcaagaagatcctttgatcttttctacggggtctgacgctcagtggaacgaaaactcacgttaagggattttggtcatgagattatcaaaaaggatcttcacctagatccttttaaattaaaaatgaagttttaaatcaatctaaagtatatatgagtaaacttggtctgacagctcgagtcccgtcaagtcagcgtaatgctctgccagtgttacaaccaattaaccaattctgattagaaaaactcatcgagcatcaaatgaaactgcaatttattcatatcaggattatcaataccatatttttgaaaaagccgtttctgtaatgaaggagaaaactcaccgaggcagttccataggatggcaagatcctggtatcggtctgcgattccgactcgtccaacatcaatacaacctattaatttcccctcgtcaaaaataaggttatcaagtgagaaatcaccatgagtgacgactgaatccggtgagaatggcaaaagcttatgcatttctttccagacttgttcaacaggccagccattacgctcgtcatcaaaatcactcgcatcaaccaaaccgttattcattcgtgattgcgcctgagcgagacgaaatacgcgatcgctgttaaaaggacaattacaaacaggaatcgaatgcaaccggcgcaggaacactgccagcgcatcaacaatattttcacctgaatcaggatattcttctaatacctggaatgctgttttcccggggatcgcagtggtgagtaaccatgcatcatcaggagtacggataaaatgcttgatggtcggaagaggcataaattccgtcagccagtttagtctgaccatctcatctgtaacatcattggcaacgctacctttgccatgtttcagaaacaactctggcgcatcgggcttcccatacaatcgatagattgtcgcacctgattgcccgacattatcgcgagcccatttatacccatataaatcagcatccatgttggaatttaatcgcggcctggagcaagacgtttcccgttgaatatggctcataacaccccttgtattactgtttatgtaagcagacagttttattgttcatgatgatatatttttatcttgtgcaatgtaacatcagagattttgagacacaacgtggctttgttgaataaatcgaacttttgctgagttgaaggatcagctcgagtgccacctgacgtctaagaaaccattattatcatgacattaacctataaaaataggcgtatcacgaggcagaatttcagataaaaaaaatccttagctttcgctaaggatgatttctggaattcgctcttcaatgggag</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_extracted_backbone_seq"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>UJHDBOTD_extracted_backbone_seq</sbol:displayId>
+    <sbol:version>1</sbol:version>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh_sequence/1">
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_F_sequence"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>cgct</sbol:elements>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_five_prime_oh_sequence"/>
+    <sbol:displayId>UJHDBOTD_159_five_prime_oh_sequence</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://sbolcanvas.org/Cir_qxow_sequence">
+    <sbol:persistentIdentity rdf:resource="https://sbolcanvas.org/Cir_qxow_sequence"/>
+    <sbol:displayId>Cir_qxow_sequence</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:elements>gcatgaagagcctgcagtccggcaaaaaagggcaaggtgtcaccaccctgccctttttctttaaaaccgaaaagattacttcgcgttatgcaggcttcctcgctcactgactcgctgcgctcggtcgttcggctgcggcgagcggtatcagctcactcaaaggcggtaatacggttatccacagaatcaggggataacgcaggaaagaacatgtgagcaaaaggccagcaaaaggccaggaaccgtaaaaaggccgcgttgctggcgtttttccacaggctccgcccccctgacgagcatcacaaaaatcgacgctcaagtcagaggtggcgaaacccgacaggactataaagataccaggcgtttccccctggaagctccctcgtgcgctctcctgttccgaccctgccgcttaccggatacctgtccgcctttctcccttcgggaagcgtggcgctttctcatagctcacgctgtaggtatctcagttcggtgtaggtcgttcgctccaagctgggctgtgtgcacgaaccccccgttcagcccgaccgctgcgccttatccggtaactatcgtcttgagtccaacccggtaagacacgacttatcgccactggcagcagccactggtaacaggattagcagagcgaggtatgtaggcggtgctacagagttcttgaagtggtggcctaactacggctacactagaagaacagtatttggtatctgcgctctgctgaagccagttaccttcggaaaaagagttggtagctcttgatccggcaaacaaaccaccgctggtagcggtggtttttttgtttgcaagcagcagattacgcgcagaaaaaaaggatctcaagaagatcctttgatcttttctacggggtctgacgctcagtggaacgaaaactcacgttaagggattttggtcatgagattatcaaaaaggatcttcacctagatccttttaaattaaaaatgaagttttaaatcaatctaaagtatatatgagtaaacttggtctgacagctcgagtcccgtcaagtcagcgtaatgctctgccagtgttacaaccaattaaccaattctgattagaaaaactcatcgagcatcaaatgaaactgcaatttattcatatcaggattatcaataccatatttttgaaaaagccgtttctgtaatgaaggagaaaactcaccgaggcagttccataggatggcaagatcctggtatcggtctgcgattccgactcgtccaacatcaatacaacctattaatttcccctcgtcaaaaataaggttatcaagtgagaaatcaccatgagtgacgactgaatccggtgagaatggcaaaagcttatgcatttctttccagacttgttcaacaggccagccattacgctcgtcatcaaaatcactcgcatcaaccaaaccgttattcattcgtgattgcgcctgagcgagacgaaatacgcgatcgctgttaaaaggacaattacaaacaggaatcgaatgcaaccggcgcaggaacactgccagcgcatcaacaatattttcacctgaatcaggatattcttctaatacctggaatgctgttttcccggggatcgcagtggtgagtaaccatgcatcatcaggagtacggataaaatgcttgatggtcggaagaggcataaattccgtcagccagtttagtctgaccatctcatctgtaacatcattggcaacgctacctttgccatgtttcagaaacaactctggcgcatcgggcttcccatacaatcgatagattgtcgcacctgattgcccgacattatcgcgagcccatttatacccatataaatcagcatccatgttggaatttaatcgcggcctggagcaagacgtttcccgttgaatatggctcataacaccccttgtattactgtttatgtaagcagacagttttattgttcatgatgatatatttttatcttgtgcaatgtaacatcagagattttgagacacaacgtggctttgttgaataaatcgaacttttgctgagttgaaggatcagctcgagtgccacctgacgtctaagaaaccattattatcatgacattaacctataaaaataggcgtatcacgaggcagaatttcagataaaaaaaatccttagctttcgctaaggatgatttctggaattcgctcttcaatg</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh_sequence/1">
+    <prov:wasDerivedFrom rdf:resource="https://sbolcanvas.org/Scar_A_sequence"/>
+    <sbol:displayId>UJHDBOTD_159_three_prime_oh_sequence</sbol:displayId>
+    <sbol:elements>ggag</sbol:elements>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/UJHDBOTD_159_three_prime_oh_sequence"/>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/Ligation_Scar_A_sequence/1">
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_A_sequence"/>
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>Ligation_Scar_A_sequence</sbol:displayId>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:elements>cgct</sbol:elements>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/Ligation_Scar_B_sequence/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:elements>ggag</sbol:elements>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_B_sequence"/>
+    <sbol:displayId>Ligation_Scar_B_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/Ligation_Scar_C_sequence/1">
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_C_sequence"/>
+    <sbol:version>1</sbol:version>
+    <sbol:elements>TACT</sbol:elements>
+    <sbol:displayId>Ligation_Scar_C_sequence</sbol:displayId>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/Ligation_Scar_D_sequence/1">
+    <sbol:displayId>Ligation_Scar_D_sequence</sbol:displayId>
+    <sbol:elements>aatg</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_D_sequence"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/Ligation_Scar_E_sequence/1">
+    <sbol:elements>gctt</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:displayId>Ligation_Scar_E_sequence</sbol:displayId>
+    <sbol:version>1</sbol:version>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/Ligation_Scar_E_sequence"/>
+  </sbol:Sequence>
+  <sbol:Sequence rdf:about="https://SBOL2Build.org/composite_1_seq/1">
+    <sbol:elements>cgctgcatgaagagcctgcagtccggcaaaaaagggcaaggtgtcaccaccctgccctttttctttaaaaccgaaaagattacttcgcgttatgcaggcttcctcgctcactgactcgctgcgctcggtcgttcggctgcggcgagcggtatcagctcactcaaaggcggtaatacggttatccacagaatcaggggataacgcaggaaagaacatgtgagcaaaaggccagcaaaaggccaggaaccgtaaaaaggccgcgttgctggcgtttttccacaggctccgcccccctgacgagcatcacaaaaatcgacgctcaagtcagaggtggcgaaacccgacaggactataaagataccaggcgtttccccctggaagctccctcgtgcgctctcctgttccgaccctgccgcttaccggatacctgtccgcctttctcccttcgggaagcgtggcgctttctcatagctcacgctgtaggtatctcagttcggtgtaggtcgttcgctccaagctgggctgtgtgcacgaaccccccgttcagcccgaccgctgcgccttatccggtaactatcgtcttgagtccaacccggtaagacacgacttatcgccactggcagcagccactggtaacaggattagcagagcgaggtatgtaggcggtgctacagagttcttgaagtggtggcctaactacggctacactagaagaacagtatttggtatctgcgctctgctgaagccagttaccttcggaaaaagagttggtagctcttgatccggcaaacaaaccaccgctggtagcggtggtttttttgtttgcaagcagcagattacgcgcagaaaaaaaggatctcaagaagatcctttgatcttttctacggggtctgacgctcagtggaacgaaaactcacgttaagggattttggtcatgagattatcaaaaaggatcttcacctagatccttttaaattaaaaatgaagttttaaatcaatctaaagtatatatgagtaaacttggtctgacagctcgagtcccgtcaagtcagcgtaatgctctgccagtgttacaaccaattaaccaattctgattagaaaaactcatcgagcatcaaatgaaactgcaatttattcatatcaggattatcaataccatatttttgaaaaagccgtttctgtaatgaaggagaaaactcaccgaggcagttccataggatggcaagatcctggtatcggtctgcgattccgactcgtccaacatcaatacaacctattaatttcccctcgtcaaaaataaggttatcaagtgagaaatcaccatgagtgacgactgaatccggtgagaatggcaaaagcttatgcatttctttccagacttgttcaacaggccagccattacgctcgtcatcaaaatcactcgcatcaaccaaaccgttattcattcgtgattgcgcctgagcgagacgaaatacgcgatcgctgttaaaaggacaattacaaacaggaatcgaatgcaaccggcgcaggaacactgccagcgcatcaacaatattttcacctgaatcaggatattcttctaatacctggaatgctgttttcccggggatcgcagtggtgagtaaccatgcatcatcaggagtacggataaaatgcttgatggtcggaagaggcataaattccgtcagccagtttagtctgaccatctcatctgtaacatcattggcaacgctacctttgccatgtttcagaaacaactctggcgcatcgggcttcccatacaatcgatagattgtcgcacctgattgcccgacattatcgcgagcccatttatacccatataaatcagcatccatgttggaatttaatcgcggcctggagcaagacgtttcccgttgaatatggctcataacaccccttgtattactgtttatgtaagcagacagttttattgttcatgatgatatatttttatcttgtgcaatgtaacatcagagattttgagacacaacgtggctttgttgaataaatcgaacttttgctgagttgaaggatcagctcgagtgccacctgacgtctaagaaaccattattatcatgacattaacctataaaaataggcgtatcacgaggcagaatttcagataaaaaaaatccttagctttcgctaaggatgatttctggaattcgctcttcaatgGGAGtttacagctagctcagtcctaggtattatgctagcTACTagagaaagaggagaaatactaaatggtgagcaagggcgaggagctgttcaccggggtggtgcccatcctggtcgagctggacggcgacgtaaacggccacaagttcagcgtgtccggcgagggcgagggcgatgccacctacggcaagctgaccctgaagttcatctgcaccaccggcaagctgcccgtgccctggcccaccctcgtgaccaccttcagctacggcgtgcagtgcttcagccgctaccccgaccacatgaagcagcacgacttcttcaagtccgccatgcccgaaggctacgtccaggagcgcaccatcttcttcaaggacgacggcaactacaagacccgcgccgaggtgaagttcgagggcgacaccctggtgaaccgcatcgagctgaagggcatcgacttcaaggaggacggcaacatcctggggcacaagctggagtacaactacaacagccacaacgtctatatcatggccgacaagcagaagaacggcatcaaggtgaacttcaagatccgccacaacatcgaggacggcagcgtgcagctcgccgaccactaccagcagaacacccccatcggcgacggccccgtgctgctgcccgacaaccactacctgagcacccagtccgccctgagcaaagaccccaacgagaagcgcgatcacatggtcctgctggagttcgtgaccgccgccgggatcactcacggcatggacgagctgtacaagtaagcttccaggcatcaaataaaacgaaaggctcagtcgaaagactgggcctttcgttttatctgttgtttgtcggtgaacgctctctactagagtcacactggctcaccttcgggtgggcctttctgcgtttata</sbol:elements>
+    <sbol:encoding rdf:resource="http://www.chem.qmul.ac.uk/iubmb/misc/naseq.html"/>
+    <sbol:version>1</sbol:version>
+    <sbol:displayId>composite_1_seq</sbol:displayId>
+    <sbol:persistentIdentity rdf:resource="https://SBOL2Build.org/composite_1_seq"/>
+  </sbol:Sequence>
+</rdf:RDF>

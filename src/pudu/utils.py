@@ -1,113 +1,335 @@
+import subprocess
+import time
+from typing import Optional
 
-
-thermo_wells = [
-'A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12',
-'B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B12',
-'C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12',
-'D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12',
-'E1','E2','E3','E4','E5','E6','E7','E8','E9','E10','E11','E12',
-'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
-'G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G11','G12',
-'H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','H11','H12'
+colors = [
+    "#4040BF",   # Blue
+    "#BF4040",   # Red
+    "#40BF40",   # Green
+    "#A640BF",   # Purple
+    "#BFBF40",   # Yellow
+    "#BF7340",   # Orange
+    "#40BFBF",   # Cyan
+    "#BF40A6",   # Magenta
+    "#73BF40",   # Lime green
+    "#4073BF",   # Blue-cyan
+    "#BF8C40",   # Orange-yellow
+    "#40BF73",   # Green-cyan
+    "#7340BF",   # Blue-purple
+    "#A6BF40",   # Yellow-green
+    "#BF5940",   # Red-orange
+    "#40A6BF",   # Cyan-blue
+    "#BF4073",   # Red-purple
+    "#59BF40",   # Green
+    "#BFA640",   # Orange-yellow
+    "#40BFA6",   # Cyan-green
+    "#8CBF40",   # Yellow-green
+    "#40BF59",   # Green
+    "#40BF8C",   # Green-cyan
+    "#BF40A6"    # Purple-magenta
 ]
 
-temp_wells = [
-'A1','A2','A3','A4','A5','A6',
-'B1','B2','B3','B4','B5','B6',
-'C1','C2','C3','C4','C5','C6',
-'D1','D2','D3','D4','D5','D6'
-]
+class Camera:
+    """
+    Camera class for handling picture and video capture during Opentrons protocols.
 
-plate_96_wells = [
-'A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12',
-'B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B12',
-'C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12',
-'D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12',
-'E1','E2','E3','E4','E5','E6','E7','E8','E9','E10','E11','E12',
-'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
-'G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G11','G12',
-'H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','H11','H12'
-]
+    This class encapsulates all camera functionality including:
+    - Taking snapshots at specific protocol steps
+    - Recording video during protocol execution
+    - Handling simulation mode gracefully
+    - Managing ffmpeg processes
+    """
 
-def liquid_transfer(pipette, volume, source, destination, asp_rate:float=0.5, disp_rate:float=1.0, blow_out:bool=True, touch_tip:bool=False, mix_before:float=0.0, mix_after:float=0.0, mix_reps:int=3, new_tip:bool=True, drop_tip:bool=True):
-    if new_tip:
-        pipette.pick_up_tip()
-    if mix_before > 0:
-        pipette.mix(mix_reps, mix_before, source)
-    pipette.aspirate(volume, source, rate=asp_rate)
-    pipette.dispense(volume, destination, rate=disp_rate)
-    if mix_after > 0:
-        pipette.mix(mix_reps, mix_after, destination)
-    if blow_out: 
-        pipette.blow_out()
-    if touch_tip:
-        pipette.touch_tip()
-    if drop_tip:
-        pipette.drop_tip() 
+    def __init__(self, video_size: str = "320x240", picture_size: str = "640x480",
+                 video_device: str = "/dev/video0", storage_path: str = "/data/user_storage"):
+        """
+        Initialize Camera with configuration options.
 
-#Define slots, to allocate 4 samples in each slot, lasts slots allocate in the border where border effects apply
-slot_1 = ['A2', 'B2', 'C2', 'D2']
-slot_2 = ['A3', 'B3', 'C3', 'D3']
-slot_3 = ['A4', 'B4', 'C4', 'D4']
-slot_4 = ['A5', 'B5', 'C5', 'D5']
-slot_5 = ['A6', 'B6', 'C6', 'D6']
-slot_6 = ['A7', 'B7', 'C7', 'D7']
-slot_7 = ['A8', 'B8', 'C8', 'D8']
-slot_8 = ['A9', 'B9', 'C9', 'D9']
-slot_9 = ['A10', 'B10', 'C10', 'D10']
-slot_10 = ['A11', 'B11', 'C11', 'D11']
-slot_11 = ['E2', 'F2', 'G2', 'H2']
-slot_12 = ['E3', 'F3', 'G3', 'H3']
-slot_13 = ['E4', 'F4', 'G4', 'H4']
-slot_14 = ['E5', 'F5', 'G5', 'H5']
-slot_15 = ['E6', 'F6', 'G6', 'H6']
-slot_16 = ['E7', 'F7', 'G7', 'H7']
-slot_17 = ['E8', 'F8', 'G8', 'H8']
-slot_18 = ['E9', 'F9', 'G9', 'H9']
-slot_19 = ['E10', 'F10', 'G10', 'H10']
-slot_20 = ['E11', 'F11', 'G11', 'H11']
-slot_21 = ['A1', 'B1', 'C1', 'D1']
-slot_22 = ['E1', 'F1', 'G1', 'H1']
-slot_23 = ['A12', 'B12', 'C12', 'D12']
-slot_24 = ['E12', 'F12', 'G12', 'H12']
+        Args:
+            video_size: Resolution for video recording (default: "320x240")
+            picture_size: Resolution for picture capture (default: "640x480")
+            video_device: Video device path (default: "/dev/video0")
+            storage_path: Path where media files will be saved (default: "/data/user_storage")
+        """
+        self.video_size = video_size
+        self.picture_size = picture_size
+        self.video_device = video_device
+        self.storage_path = storage_path
+        self._active_video_process: Optional[subprocess.Popen] = None
 
-slots = [slot_1, slot_2, slot_3, slot_4, slot_5, slot_6, slot_7, slot_8, slot_9, slot_10, slot_11, slot_12, slot_13, slot_14, slot_15, slot_16, slot_17, slot_18, slot_19, slot_20, slot_21, slot_22, slot_23, slot_24]
+    def cleanup_ffmpeg_processes(self) -> None:
+        """Clean up any running ffmpeg processes using killall."""
+        try:
+            subprocess.run(['killall', 'ffmpeg'], capture_output=True, check=False)
+        except Exception:
+            pass  # Fail silently if cleanup doesn't work
 
-#define rows
-row_a = ['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12']
-row_b = ['B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B12']
-row_c = ['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12']
-row_d = ['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12']
-row_e = ['E1','E2','E3','E4','E5','E6','E7','E8','E9','E10','E11','E12']
-row_f = ['F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12']
-row_g = ['G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G11','G12']
-row_h = ['H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','H11','H12']
+    def capture_picture(self, protocol, when: str = "image") -> None:
+        """
+        Take a picture at a specific protocol step.
 
-rows = [row_a, row_b, row_c, row_d, row_e, row_f, row_g, row_h] 
+        Args:
+            protocol: Opentrons protocol context
+            when: Description of when the picture was taken (used in filename)
 
-#define columns        
-col_1 = ['A1','B1','C1','D1','E1','F1','G1','H1']
-col_2 = ['A2','B2','C2','D2','E2','F2','G2','H2']
-col_3 = ['A3','B3','C3','D3','E3','F3','G3','H3']
-col_4 = ['A4','B4','C4','D4','E4','F4','G4','H4']
-col_5 = ['A5','B5','C5','D5','E5','F5','G5','H5']
-col_6 = ['A6','B6','C6','D6','E6','F6','G6','H6']
-col_7 = ['A7','B7','C7','D7','E7','F7','G7','H7']
-col_8 = ['A8','B8','C8','D8','E8','F8','G8','H8']
-col_9 = ['A9','B9','C9','D9','E9','F9','G9','H9']
-col_10 = ['A10','B10','C10','D10','E10','F10','G10','H10']
-col_11 = ['A11','B11','C11','D11','E11','F11','G11','H11']
-col_12 = ['A12','B12','C12','D12','E12','F12','G12','H12']
+        Returns:
+            Filename of captured image if successful, None if simulation or failed
+        """
+        if protocol.is_simulating():
+            protocol.comment(f'[SIMULATION] Taking picture at protocol step: {when}')
+            return
 
-columns = [col_1, col_2, col_3, col_4, col_5, col_6, col_7, col_8, col_9, col_10, col_11, col_12]
+        protocol.comment(f'Taking picture at protocol step: {when}')
+        timestamp = int(time.time())
+        filename = f'{when}_image_{timestamp}.jpg'
+        filepath = f'{self.storage_path}/{filename}'
 
-position_to_row_and_column = {'A1':(1,1), 'A2':(1,2), 'A3':(1,3), 'A4':(1,4), 'A5':(1,5), 'A6':(1,6), 'A7':(1,7), 'A8':(1,8), 'A9':(1,9), 'A10':(1,10), 'A11':(1,11), 'A12':(1,12),
-                            'B1':(2,1), 'B2':(2,2), 'B3':(2,3), 'B4':(2,4), 'B5':(2,5), 'B6':(2,6), 'B7':(2,7), 'B8':(2,8), 'B9':(2,9), 'B10':(2,10), 'B11':(2,11), 'B12':(2,12),
-                            'C1':(3,1), 'C2':(3,2), 'C3':(3,3), 'C4':(3,4), 'C5':(3,5), 'C6':(3,6), 'C7':(3,7), 'C8':(3,8), 'C9':(3,9), 'C10':(3,10), 'C11':(3,11), 'C12':(3,12),
-                            'D1':(4,1), 'D2':(4,2), 'D3':(4,3), 'D4':(4,4), 'D5':(4,5), 'D6':(4,6), 'D7':(4,7), 'D8':(4,8), 'D9':(4,9), 'D10':(4,10), 'D11':(4,11), 'D12':(4,12),
-                            'E1':(5,1), 'E2':(5,2), 'E3':(5,3), 'E4':(5,4), 'E5':(5,5), 'E6':(5,6), 'E7':(5,7), 'E8':(5,8), 'E9':(5,9), 'E10':(5,10), 'E11':(5,11), 'E12':(5,12),
-                            'F1':(6,1), 'F2':(6,2), 'F3':(6,3), 'F4':(6,4), 'F5':(6,5), 'F6':(6,6), 'F7':(6,7), 'F8':(6,8), 'F9':(6,9), 'F10':(6,10), 'F11':(6,11), 'F12':(6,12),
-                            'G1':(7,1), 'G2':(7,2), 'G3':(7,3), 'G4':(7,4), 'G5':(7,5), 'G6':(7,6), 'G7':(7,7), 'G8':(7,8), 'G9':(7,9), 'G10':(7,10), 'G11':(7,11), 'G12':(7,12),
-                            'H1':(8,1), 'H2':(8,2), 'H3':(8,3), 'H4':(8,4), 'H5':(8,5), 'H6':(8,6), 'H7':(8,7), 'H8':(8,8), 'H9':(8,9), 'H10':(8,10), 'H11':(8,11), 'H12':(8,12)}
+        try:
+            subprocess.check_call([
+                'ffmpeg', '-loglevel', 'error', '-y', '-f', 'video4linux2',
+                '-s', self.picture_size, '-i', self.video_device, '-ss', '0:0:1',
+                '-frames', '1', filepath
+            ])
+            protocol.comment(f'{when.title()} picture captured: {filename}')
 
-row_letter_to_number = {'A':1, 'B':2, 'C':3, 'D':4, 'E':5, 'F':6, 'G':7, 'H':8}
+        except subprocess.CalledProcessError as e:
+            protocol.comment(f'Warning: Picture capture failed: {e}, continuing protocol')
+
+
+    def start_video(self, protocol) -> None:
+        """
+        Start video recording.
+
+        Args:
+            protocol: Opentrons protocol context
+
+        Returns:
+            Video process handle if successful, None if simulation or failed
+        """
+        if protocol.is_simulating():
+            protocol.comment('[SIMULATION] Starting video recording')
+            return
+
+        # Clean up any existing processes
+        self.cleanup_ffmpeg_processes()
+        time.sleep(0.5)  # Brief pause for cleanup
+
+        timestamp = int(time.time())
+        filename = f'video_image_{timestamp}.mp4'
+        filepath = f'{self.storage_path}/{filename}'
+
+        try:
+            video_process = subprocess.Popen([
+                'ffmpeg', '-loglevel', 'error', '-y', '-video_size', self.video_size,
+                '-i', self.video_device, filepath
+            ])
+            self._active_video_process = video_process
+            protocol.comment(f"Video recording started: {filename}")
+        except Exception as e:
+            protocol.comment(f"Warning: Video recording failed: {e}")
+
+    def stop_video(self, protocol) -> None:
+        """
+        Stop video recording.
+
+        Args:
+            protocol: Opentrons protocol context
+            video_process: Video process to stop (uses active process if None)
+        """
+        if protocol.is_simulating():
+            protocol.comment('[SIMULATION] Stopping video recording')
+            return
+
+        # Use provided process or the active one
+        process_to_stop = self._active_video_process
+
+        if process_to_stop is None:
+            protocol.comment("No video recording process to stop")
+            return
+
+        if process_to_stop.poll() is None:  # Process is still running
+            try:
+                process_to_stop.terminate()
+                process_to_stop.wait(timeout=5)
+                protocol.comment("Video recording stopped")
+            except subprocess.TimeoutExpired:
+                process_to_stop.kill()
+                process_to_stop.wait()
+                protocol.comment("Video recording force-stopped")
+            except Exception as e:
+                protocol.comment(f"Warning: Error stopping video: {e}")
+        else:
+            protocol.comment("Video recording already stopped")
+
+        # Clear active process if it was the one we stopped
+        self._active_video_process = None
+
+class SmartPipette:
+    """
+    Opentrons pipette wrapper that uses the API's liquid-tracking system to
+    compute safe aspiration heights for conical tubes.
+
+    For standard flat-bottom or round-bottom wells, ``SmartPipette`` behaves
+    identically to the underlying pipette. For conical tubes (detected by labware
+    name or the ``use`` flag), it queries the current liquid volume via
+    ``well.current_liquid_volume()`` and converts that to a millimetre height,
+    keeping the tip above the meniscus and away from the narrow tip of the cone.
+
+    This prevents the pipette tip from plunging into an empty tube or aspirating
+    air when a tube is nearly empty — a common failure mode in protocols that
+    dispense large total volumes from a single stock tube (e.g. LB distribution
+    during plating).
+    """
+
+    def __init__(self, pipette, protocol):
+        """
+        Initialize SmartPipette.
+
+        Args:
+            pipette: A loaded Opentrons pipette instrument object.
+            protocol: The active ``ProtocolContext``. Must support
+                ``define_liquid`` (API level ≥ 2.14).
+
+        Raises:
+            RuntimeError: If the protocol context does not expose liquid
+                tracking (API level too old).
+        """
+        self.pipette = pipette
+        self.protocol = protocol
+        if not hasattr(protocol, 'define_liquid'):
+            raise RuntimeError("This class requires API with liquid tracking support")
+
+    def is_conical_tube(self, well, use: bool = False) -> bool:
+        """Check if the well is from a conical tube labware or manually set as true"""
+        return 'conical' in well.parent.load_name.lower() or use
+
+    def get_well_volume(self, well) -> Optional[float]:
+        """Get current volume in well using pure API method"""
+        try:
+            return well.current_liquid_volume()
+        except Exception as e:
+            self.protocol.comment(f"ERROR reading volume from {well.well_name}: {e}")
+            return None
+
+    def get_well_height(self, well) -> Optional[float]:
+        """Get current liquid height using pure API method (if available)"""
+        try:
+            if hasattr(well, 'current_liquid_height'):
+                return well.current_liquid_height()
+            else:
+                self.protocol.comment("Liquid height method not available in this API version")
+                return None
+        except Exception as e:
+            self.protocol.comment(f"ERROR reading height from {well.well_name}: {e}")
+            return None
+
+    def get_conical_tube_aspiration_height(self, well) -> float:
+        """
+        Calculate safe aspiration height for conical tubes using proven method
+        Uses API liquid tracking to get current volume
+        """
+        # Get current volume from API
+        try:
+            current_volume = well.current_liquid_volume()
+            if current_volume is None:
+                raise ValueError("API returned None for liquid volume")
+        except Exception as e:
+            self.protocol.comment(f"ERROR: Could not get liquid volume from API: {e}")
+            return 10.0  # Safe fallback height
+
+        max_volume = well.max_volume
+        tube_depth = well.depth - 10  # Account for threads
+        min_safe_height = 3  # mm minimum to prevent tip damage
+        meniscus_offset = 10  # mm below liquid surface
+
+        # Calculate liquid height based on current volume
+        liquid_height = (current_volume / max_volume) * tube_depth
+        aspiration_height = max(liquid_height - meniscus_offset, min_safe_height)
+
+        self.protocol.comment(
+            f"Conical calculation: {current_volume:.0f}µL remaining = {aspiration_height:.1f}mm height")
+        return aspiration_height
+
+    def get_aspiration_location(self, well, use: bool = False) -> float:
+        """
+        Get intelligent aspiration location using API volume data and proven height calculation
+        """
+        if not self.is_conical_tube(well, use=use):
+            return well
+
+        try:
+            current_volume = well.current_liquid_volume()
+            if current_volume is None or current_volume < well.max_volume * 0.2:
+                # Less than 20% remaining - use standard aspiration
+                self.protocol.comment("Low volume detected - using standard aspiration")
+                return well
+
+            # Use conical tube calculation
+            safe_height = self.get_conical_tube_aspiration_height(well)
+            return well.bottom(safe_height)
+
+        except Exception as e:
+            self.protocol.comment(f"ERROR getting volume from API: {e}")
+            return well  # Fallback to standard aspiration
+
+    def liquid_transfer(self, volume: float, source, destination,
+                 asp_rate: float = 0.5, disp_rate: float = 1.0,
+                 blow_out: bool = True, touch_tip: bool = False,
+                 mix_before: float = 0.0, mix_after: float = 0.0,
+                 mix_reps: int = 3, new_tip: bool = True, drop_tip: bool = True, use:bool = False) -> bool:
+        """
+        Transfer liquid using pure API liquid tracking for volume management
+
+        Returns:
+            bool: True if transfer was successful, False if insufficient volume
+        """
+        # Check volume using API methods only
+        try:
+            current_volume = source.current_liquid_volume()
+            if current_volume is None:
+                self.protocol.comment("WARNING: API returned None for source volume")
+                return False
+
+            if current_volume < volume:
+                self.protocol.comment(f"WARNING: Insufficient volume. "
+                                      f"Requested: {volume}µL, Available: {current_volume:.0f}µL")
+                return False
+
+        except Exception as e:
+            self.protocol.comment(f"ERROR: Could not check source volume: {e}")
+            return False
+
+        if new_tip:
+            self.pipette.pick_up_tip()
+
+        # Get aspiration location using API data + proven calculation
+        aspiration_location = self.get_aspiration_location(source,use)
+
+        # Mix before if requested
+        if mix_before > 0:
+            # Use current volume to limit mixing
+            try:
+                safe_mix_volume = min(mix_before, current_volume * 0.8)
+                self.pipette.mix(mix_reps, safe_mix_volume, aspiration_location)
+            except:
+                self.protocol.comment("Skipping mix_before due to API error")
+
+        # Aspirate
+        self.pipette.aspirate(volume, aspiration_location, rate=asp_rate)
+
+        # Dispense
+        self.pipette.dispense(volume, destination.center(), rate=disp_rate)
+
+        # Mix after if requested
+        if mix_after > 0:
+            self.pipette.mix(mix_reps, mix_after, destination)
+
+        if blow_out:
+            self.pipette.blow_out()
+
+        if touch_tip:
+            self.pipette.touch_tip()
+
+        if drop_tip:
+            self.pipette.drop_tip()
+        return True

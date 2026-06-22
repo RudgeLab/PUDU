@@ -1,0 +1,4 @@
+{
+    "use_dna_96plate": true,
+    "thermocycler_starting_well": "A1"
+}
