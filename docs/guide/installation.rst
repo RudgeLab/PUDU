@@ -27,9 +27,11 @@ App can detect the robot.
 Dependencies
 ------------
 
+PUDU requires Python 3.10 for compatibility with the OT-2 simulator.
+
 PUDU depends on:
 
-* ``opentrons >= 8.4.1``
+* ``opentrons >= 8.4.1, < 9``
 * ``xlsxwriter >= 3.2.5``
 
 For building this documentation locally::

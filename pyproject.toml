@@ -7,7 +7,7 @@ name = "pudupy"
 version = "1.0.0b9"
 description = "Protocol Unified Design Unit"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10,<3.11"
 license = {file = "LICENSE"}
 keywords = ["pudu", "lab", "automation", "opentrons", "synthetic biology"]
 authors = [
@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "opentrons>=8.4.1",
+  "opentrons>=8.4.1,<9",
   "xlsxwriter>=3.2.5",
 ]
 
